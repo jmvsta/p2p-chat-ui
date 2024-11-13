@@ -1,0 +1,68 @@
+{
+  "name": "p2p-chat-ui",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "proxy": "http://localhost:8080",
+  "homepage": ".",
+  "dependencies": {
+    "@emotion/react": "^11.13.0",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^5.14.12",
+    "@mui/material": "^5.16.5",
+    "@mui/styled-engine-sc": "^5.14.8",
+    "@mui/x-data-grid": "^6.13.0",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^29.5.12",
+    "@types/react": "^18.2.74",
+    "@types/react-dom": "^18.2.24",
+    "axios": "^1.7.7",
+    "bootstrap": "^5.3.1",
+    "express": "^4.18.2",
+    "file-saver": "^2.0.5",
+    "fs-extra": "^11.1.1",
+    "multer": "^1.4.5-lts.1",
+    "npm": "^10.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "start": "^5.1.0",
+    "styled-components": "^5.3.11",
+    "typescript": "^5.4.5",
+    "uuid": "^9.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "tsc": "./node_modules/typescript/bin/tsc",
+    "start": "npx webpack --config ./webpack.config.cjs && node server/index.cjs"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.4",
+    "css-loader": "^7.1.1",
+    "html-webpack-plugin": "^5.6.0",
+    "npm-run-all": "^4.1.5",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.1",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

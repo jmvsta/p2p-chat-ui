@@ -1,0 +1,26 @@
+.login-wrapper {
+    flex: 0 0 50%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: none !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-text-field {
+    width: 80%;
+    margin: 5px 0;
+}
+
+.login-send-button {
+    width: 100% !important;
+    align-self: center;
+    margin: 5px 0;
+    background-color: #000000 !important
+}
+
+.login-send-button:hover {
+    background-color: #000000;
+}
+

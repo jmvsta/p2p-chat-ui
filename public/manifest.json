@@ -1,0 +1,9 @@
+{
+  "short_name": "p2p-chat-ui",
+  "name": "p2p-chat-ui",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

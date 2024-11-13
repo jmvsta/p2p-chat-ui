@@ -1,0 +1,24 @@
+.server-wrapper {
+    flex: 0 0 50%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: none !important;
+    justify-content: center;
+}
+
+.autocomplete {
+    width: 60% !important;
+    margin: 5px 0;
+}
+
+.server-send-button {
+    width: 60% !important;
+    align-self: center;
+    margin: 5px 0;
+    background-color: #000000 !important
+}
+
+.server-send-button:hover {
+    background-color: #000000;
+}

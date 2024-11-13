@@ -1,0 +1,11 @@
+.popup-button {
+    width: 100%;
+    align-self: center;
+    margin: 5px 0;
+    color: white;
+    background-color: #000000 !important;
+}
+
+.popup-button:hover {
+    background-color: #000000 !important;
+}
