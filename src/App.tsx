@@ -4,7 +4,6 @@ import Chats from "./components/chat/Chats";
 import {useEffect, useState} from "react";
 import ChatWindow from "./components/chat/ChatWindow";
 import {AppBar, Grid, IconButton, Menu, MenuItem, Toolbar, Typography} from "@mui/material";
-import {apiUrl} from "./config";
 import Login from "./components/login/Login";
 import Server from "./components/server/Server";
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -14,9 +13,11 @@ import InfoPopup from "./components/popup/InfoPopup";
 import InputPopup from "./components/popup/InputPopup";
 import CreateChatPopup from "./components/popup/CreateChatPopup";
 
+export const apiUrl = process.env.apiUrl;
+
 const App: React.FC<any> = () => {
-    const [user, setUser] = useState(null);
-    const [apiStat, setApiStat] = useState(null);
+    const [user, setUser]: [User, (user: User) => void] = useState(null);
+    const [apiStat, setApiStat]: [boolean, (status: boolean) => void] = useState(false);
     const [chats, setChats] = useState([]);
     const [selectedChat, setSelectedChat]: [Chat, (chat: Chat) => void] = useState(null);
     const [selectedServer, setSelectedServer]: [Server, (server: Server) => void] = useState(JSON.parse(localStorage.getItem('server')));
@@ -68,27 +69,27 @@ const App: React.FC<any> = () => {
     };
 
     useEffect(() => {
-        axios.get(`${apiUrl}/api/check-init/`)
-            .then((response) => setApiStat(response.data.status))
+        axios.get(`${apiUrl}/api/settings/status/`)
+            .then((response) => setApiStat(response.data.inited))
             .catch(error => console.error('Init status request error:', error));
 
         axios.get(`${apiUrl}/api/settings/me/`)
             .then((response) => setUser(response.data))
             .catch(error => console.error('User settings request error:', error));
 
-        axios.get(`${apiUrl}/api/chats/`)
-            .then((response) => setChats(response.data.data))
+        axios.get(`${apiUrl}/api/chats/list`)
+            .then((response) => setChats(response.data.chats))
             .catch(error => console.error('Chats request error:', error));
 
-        axios.get(`${apiUrl}/api/servers/`)
-            .then((response) => setServers(response.data.data))
+        axios.get(`${apiUrl}/api/servers/list`)
+            .then((response) => setServers(response.data.servers))
             .catch(error => console.error('Servers request error:', error));
 
         return () => {
         };
     }, []);
 
-    const handleMenuClick = (event, index: number) => {
+    const handleMenuClick = ({event, index}: { event: any, index: number }) => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
@@ -103,19 +104,21 @@ const App: React.FC<any> = () => {
                 setAnchorEl(null);
                 break;
             case 2:
-                localStorage.removeItem('server');
-                setSelectedServer(null)
+                axios.get(`${apiUrl}/api/users/my-contact`)
+                    .then((response) => showInfoPopup('Your contact', response.data))
+                    .catch(error => console.error('Error fetching user\'s friends: ', error));
                 setAnchorEl(null);
                 break;
             case 3:
-                console.log('case ' + index);
+                localStorage.removeItem('server');
+                setSelectedServer(null);
                 setAnchorEl(null);
                 break;
             case 4:
                 localStorage.removeItem('server');
                 setSelectedServer(null);
                 setUser(null);
-                setApiStat('NOT_INITED');
+                setApiStat(false);
                 setAnchorEl(null);
                 break;
         }
@@ -151,7 +154,7 @@ const App: React.FC<any> = () => {
                 message={inputSelectPopupMessage}
                 list={inputSelectPopupList}
             />
-            {apiStat === 'NOT_INITED' &&
+            {!apiStat &&
                 <Grid container spacing={0}>
                     <Grid className="grid-item" item xs={6}>
                         <img className="logo-img" src="/logo.jpg" alt="logo image"/>
@@ -161,11 +164,11 @@ const App: React.FC<any> = () => {
                         </Typography>
                     </Grid>
                     <Grid item xs={6}>
-                        <Login onLogin={setApiStat} showPopup={showInfoPopup}/>
+                        <Login setApiStat={setApiStat} setUser={setUser} showPopup={showInfoPopup}/>
                     </Grid>
                 </Grid>
             }
-            {apiStat === 'INITED' && selectedServer === null &&
+            {apiStat && selectedServer === null &&
                 <Grid container spacing={0}>
                     <Grid className="grid-item" item xs={6}>
                         <img className="logo-img" src="/logo_1.jpg" alt="logo"/>
@@ -180,13 +183,13 @@ const App: React.FC<any> = () => {
                     </Grid>
                 </Grid>
             }
-            {apiStat === 'INITED' && selectedServer !== null &&
+            {apiStat && selectedServer !== null &&
                 <Grid container spacing={0}>
                     <Grid item xs={12}>
                         <AppBar position="static">
                             <Toolbar className="toolbar">
                                 <IconButton edge="start" aria-label="menu"
-                                            onClick={(event) => handleMenuClick(event, -1)}>
+                                            onClick={(event) => handleMenuClick({event: event, index: -1})}>
                                     <SettingsIcon/>
                                 </IconButton>
                                 <Menu
@@ -196,11 +199,16 @@ const App: React.FC<any> = () => {
                                     open={Boolean(anchorEl)}
                                     onClose={handleCloseMenu}
                                 >
-                                    <MenuItem onClick={(event) => handleMenuClick(event, 0)}>New Contact</MenuItem>
-                                    <MenuItem onClick={(event) => handleMenuClick(event, 1)}>New Chat</MenuItem>
-                                    <MenuItem onClick={(event) => handleMenuClick(event, 2)}>Server</MenuItem>
-                                    <MenuItem onClick={(event) => handleMenuClick(event, 3)}>Design</MenuItem>
-                                    <MenuItem onClick={(event) => handleMenuClick(event, 4)}>Logout</MenuItem>
+                                    <MenuItem onClick={(event) => handleMenuClick({event: event, index: 0})}>New
+                                        Contact</MenuItem>
+                                    <MenuItem onClick={(event) => handleMenuClick({event: event, index: 1})}>New
+                                        Chat</MenuItem>
+                                    <MenuItem onClick={(event) => handleMenuClick({event: event, index: 2})}>My
+                                        key</MenuItem>
+                                    <MenuItem
+                                        onClick={(event) => handleMenuClick({event: event, index: 3})}>Server</MenuItem>
+                                    <MenuItem
+                                        onClick={(event) => handleMenuClick({event: event, index: 4})}>Logout</MenuItem>
                                 </Menu>
                                 <Typography variant="h6">
                                     p2p-chat-ui
@@ -209,10 +217,12 @@ const App: React.FC<any> = () => {
                         </AppBar>
                     </Grid>
                     <Grid item xs={2}>
-                        <Chats chats={chats} setSelectedChat={setSelectedChat} setMessages={setMessages}/>
+                        <Chats chats={chats} setChats={setChats} setSelectedChat={setSelectedChat}
+                               setMessages={setMessages}/>
                     </Grid>
                     <Grid item xs={10}>
-                        <ChatWindow currentUser={user} messages={messages} setMessages={setMessages} selectedChat={selectedChat}
+                        <ChatWindow currentUser={user} messages={messages} setMessages={setMessages}
+                                    selectedChat={selectedChat}
                                     setSelectedChat={setSelectedChat} deleteChat={deleteChat}/>
                     </Grid>
                 </Grid>

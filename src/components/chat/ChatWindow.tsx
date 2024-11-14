@@ -10,9 +10,9 @@ import {
     Typography,
     Toolbar,
     Menu,
-    MenuItem, AppBar, Autocomplete
+    MenuItem, AppBar
 } from "@mui/material";
-import {apiUrl, internalApiUrl} from "../../config";
+import {internalApiUrl} from "../../config";
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import axios from "axios";
 import {Chat, Message, File, User} from '../../types'
@@ -26,6 +26,8 @@ interface Props {
     setSelectedChat: (chat: Chat) => void;
     deleteChat: (chat: Chat) => void;
 }
+
+export const apiUrl = process.env.apiUrl;
 
 const ChatWindow: React.FC<Props> = (props) => {
 
@@ -51,8 +53,9 @@ const ChatWindow: React.FC<Props> = (props) => {
         if (!props.selectedChat) return;
         const fetchNewMessages = async () => {
             try {
-                const [response] = await Promise.all([axios.get(`${apiUrl}/api/chats/msgs/?chat=${props.selectedChat.id}`)]);
-                props.setMessages(response.data.data);
+                const [response] = await Promise.all([axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${props.selectedChat.id}&offset=0`)]);
+                console.log(JSON.stringify(response.data.msgs));
+                props.setMessages(response.data.msgs);
             } catch (error) {
                 console.error('Error fetching messages:', error);
             }
@@ -90,7 +93,13 @@ const ChatWindow: React.FC<Props> = (props) => {
                 chat: props.selectedChat.id,
                 text: text
             };
-            requests.push(axios.post(`${apiUrl}/api/msg/file/`, JSON.stringify(body)));
+            requests.push(
+                axios
+                    .post(`${apiUrl}/api/msg/file/`, JSON.stringify(body))
+                    .then((resp) => {
+                        body.id = resp.data.msg_id;
+                    })
+            );
             const bodyToStore: Message = {
                 path: body.path,
                 name: body.name,
@@ -98,18 +107,23 @@ const ChatWindow: React.FC<Props> = (props) => {
                 text: body.text,
                 file: {name: body.name}
             };
-            props.selectedChat.last_msg = bodyToStore.name;
+            props.selectedChat.last_msg_txt = bodyToStore.name;
             return bodyToStore;
         });
 
         if (text !== '') {
             let body: Message = {
-                chat: props.selectedChat.id,
+                chat_id: props.selectedChat.id,
                 text: text
             };
-            props.selectedChat.last_msg = text;
+            props.selectedChat.last_msg_txt = text;
             messagesToStore.push(body);
-            requests.push(axios.post(`${apiUrl}/api/msgs/text/`, JSON.stringify(body)));
+            requests.push(
+                axios.post(`${apiUrl}/api/msgs/text/`, JSON.stringify(body))
+                    .then((resp) => {
+                        body.id = resp.data.msg_id;
+                    })
+            );
         }
 
         Promise.all(requests)
@@ -145,14 +159,12 @@ const ChatWindow: React.FC<Props> = (props) => {
     }
 
     const handleClose = () => {
-        setAnchorEl(null); // Closes the menu
+        setAnchorEl(null);
     };
 
     const handleScroll = () => {
-        setIsUserScrolledUp(true); // Update based on user's position
+        setIsUserScrolledUp(true);
     };
-
-    console.log(props.currentUser);
 
     return (
         <div>
@@ -185,7 +197,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                         {props.messages?.map((message, index) =>
                             <ListItem
                                 key={index}
-                                className={`message-container ${message.user === props.currentUser?.uuid ? 'message-right' : 'message-left'}`}
+                                className={`message-container ${message.sender === props.currentUser?.id ? 'message-right' : 'message-left'}`}
                             >
                                 {message.file != null ?
                                     <img
@@ -196,7 +208,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                                     /> :
                                     <ListItemText
                                         className="message"
-                                        primary={message.text}
+                                        primary={message?.payload?.data}
                                         classes={{primary: 'moved-text'}}/>
                                 }
                             </ListItem>

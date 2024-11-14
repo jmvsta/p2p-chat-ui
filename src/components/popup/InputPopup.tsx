@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField} from '@mui/material';
 import './Popup.css';
 import axios from "axios";
-import {apiUrl} from "../../config";
 
 interface Props {
     open: boolean,
@@ -12,15 +11,18 @@ interface Props {
     showPopup: (title: string, message: string) => void;
 }
 
+export const apiUrl = process.env.apiUrl;
+
 const InputPopup: React.FC<Props> = (props) => {
-    const [value, setValue]: [string, (value: string) => void] = useState('');
+    const [name, setName]: [string, (name: string) => void] = useState('');
+    const [contact, setContact]: [string, (contact: string) => void] = useState('');
 
     const addContact = () => {
-        axios.post(`${apiUrl}/api/users/connect/`, JSON.stringify({
-            contact: value
+        axios.post(`${apiUrl}/api/users/add/`, JSON.stringify({
+            name: name,
+            contact: contact
         }))
             .then(() => {
-                console.info('Added contact')
                 props.handleClose();
                 props.showPopup('Success', 'Added new contact');
             })
@@ -40,9 +42,20 @@ const InputPopup: React.FC<Props> = (props) => {
                     fullWidth
                     className="login-text-field"
                     variant="outlined"
-                    label="user id"
-                    value={value}
-                    onChange={e => setValue(e.target.value)}
+                    label="user name"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                />
+            </DialogContent>
+            <DialogContent>
+                <Typography>{props.message}</Typography>
+                <TextField
+                    fullWidth
+                    className="login-text-field"
+                    variant="outlined"
+                    label="user contact"
+                    value={contact}
+                    onChange={e => setContact(e.target.value)}
                 />
             </DialogContent>
             <DialogActions>

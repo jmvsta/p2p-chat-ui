@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 import './Popup.css';
 import axios from "axios";
-import {apiUrl} from "../../config";
 import {User} from "../../types";
 import InfoPopup from "./InfoPopup";
 
@@ -22,6 +21,8 @@ interface Props {
     message: string,
     list: User[],
 }
+
+export const apiUrl = process.env.apiUrl;
 
 const CreateChatPopup: React.FC<Props> = (props) => {
     const [name, setName]: [string, (name: string) => void] = useState('');
@@ -55,7 +56,7 @@ const CreateChatPopup: React.FC<Props> = (props) => {
         setUserIds((prevUserIds) => [...prevUserIds, ...userIds]);
     }
 
-    const handleSetChatName = (chatName: string ) => {
+    const handleSetChatName = (chatName: string) => {
         setName(chatName);
     }
 
@@ -94,7 +95,7 @@ const CreateChatPopup: React.FC<Props> = (props) => {
                     multiple
                     disablePortal
                     className="autocomplete"
-                    onChange={(event, value) => handleChooseItem({event: event, userIds: value.map(item => item.uuid)})}
+                    onChange={(event, value) => handleChooseItem({event: event, userIds: value.map(item => item.id)})}
                     options={props.list}
                     getOptionLabel={(option) => option.name}
                     renderInput={(params) => <TextField {...params} label="start typing..."/>}

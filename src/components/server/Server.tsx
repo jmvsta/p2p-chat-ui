@@ -1,6 +1,5 @@
 import './Server.css'
 import {Paper, Autocomplete, TextField, Button, Typography} from "@mui/material";
-import {apiUrl} from "../../config";
 import React, {useState} from "react";
 import {Server} from "../../types";
 import axios from "axios";
@@ -8,9 +7,11 @@ import axios from "axios";
 interface Props {
     servers: Server[];
     setSelectedServer: (server: Server) => void;
-    setApiStat: (status: string) => void;
+    setApiStat: (status: boolean) => void;
     showPopup: (title: string, message: string) => void;
 }
+
+export const apiUrl = process.env.apiUrl;
 
 const Server: React.FC<Props> = (props) => {
     const [data, setData] = useState('');
@@ -25,12 +26,8 @@ const Server: React.FC<Props> = (props) => {
     };
 
     const handleAddServer = () => {
-        const addServerBody = {
-            data: data,
-        };
-        console.log(addServerBody);
-        axios.post(`${apiUrl}/api/servers/`, JSON.stringify(addServerBody))
-            .then(() => props.setApiStat("INITED"))
+        axios.post(`${apiUrl}/api/servers/add`, data)
+            .then(() => props.setApiStat(true))
             .catch(error => {
                 console.error('Add server api request error:', error);
                 props.showPopup('Error', 'Error choosing server');
@@ -41,7 +38,7 @@ const Server: React.FC<Props> = (props) => {
         <Paper className="server-wrapper">
             <div>
                 <Typography variant="h5" gutterBottom component="h5">
-                    Select server
+                    Select server or add new by key
                 </Typography>
                 <Autocomplete
                     fullWidth
@@ -54,7 +51,7 @@ const Server: React.FC<Props> = (props) => {
                 <TextField
                     fullWidth
                     className="login-text-field"
-                    variant="outlined"
+                    // variant="outlined"
                     label="add server key"
                     value={data}
                     onChange={e => setData(e.target.value)}

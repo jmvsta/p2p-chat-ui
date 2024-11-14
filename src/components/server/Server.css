@@ -12,6 +12,11 @@
     margin: 5px 0;
 }
 
+.login-text-field {
+    width: 60% !important;
+    margin: 5px 0;
+}
+
 .server-send-button {
     width: 60% !important;
     align-self: center;

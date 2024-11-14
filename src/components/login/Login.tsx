@@ -1,29 +1,43 @@
 import './Login.css'
 import {Button, Paper, TextField, Typography} from "@mui/material";
-import {apiUrl} from "../../config";
 import React, {useState} from "react";
 import axios from "axios";
+import {sha3_512} from "js-sha3";
+import {User} from "../../types";
 
 interface Props {
-    onLogin: (status: string) => void;
+    setApiStat: (status: boolean) => void;
+    setUser: (user: User) => void;
     showPopup: (title: string, message: string) => void;
 }
 
+export const apiUrl = process.env.apiUrl;
+
 const Login: React.FC<Props> = (props) => {
-    const [userId, setUserId] = useState('');
-    const [secretKey, setSecretKey] = useState('');
+    const [login, setLogin] = useState('');
+    const [password, setPassword]: [string, (password: string) => void] = useState('');
 
     const handleLogin = () => {
-        const initApiBody = {
-            priv_key: secretKey,
-            name: userId,
-            description: "",
-        };
-        axios.post(`${apiUrl}/api/init/`, JSON.stringify(initApiBody))
-            .then(() => props.onLogin("INITED"))
+        if (login == '' || password == '') {
+            //     TODO
+            return;
+        }
+        const requests = [];
+        requests.push(axios.post(`${apiUrl}/api/settings/init/?pwd=${sha3_512(password)}}`));
+        const user: User = {
+            "name": login,
+            "pic": ""
+        }
+        requests.push(axios.post(`${apiUrl}/api/settings/me/`, JSON.stringify(user)));
+
+        Promise.all(requests)
+            .then(() => {
+                props.setUser(user);
+                props.setApiStat(true);
+            })
             .catch(error => {
                 console.error('Login: Api init get error: ', error)
-                props.showPopup('Error', 'Error choosing server');
+                props.showPopup('Error', 'Login error');
             });
     };
 
@@ -38,16 +52,16 @@ const Login: React.FC<Props> = (props) => {
                     className="login-text-field"
                     variant="outlined"
                     label="user id"
-                    value={userId}
-                    onChange={e => setUserId(e.target.value)}
+                    value={login}
+                    onChange={e => setLogin(e.target.value)}
                 />
                 <TextField
                     fullWidth
                     className="login-text-field"
                     variant="outlined"
                     label="secret key number"
-                    value={secretKey}
-                    onChange={e => setSecretKey(e.target.value)}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
                 />
                 <Button
                     className="login-send-button"

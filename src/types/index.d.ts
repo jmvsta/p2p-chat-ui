@@ -15,32 +15,40 @@ export interface File extends Entity {
 }
 
 export interface Message extends Entity {
-    uuid?: string;
-    user?: string;
-    sent?: boolean;
+    sender?: string;
+    chat_id?: string;
+    time?: string;
+    payload?: Payload;
+    received?: boolean;
     read?: boolean;
 }
 
+export interface Payload {
+    type?: string;
+    data?: string;
+}
+
 export interface Chat extends Entity {
-    last_msg?: string;
-    new?: boolean;
+    last_msg_txt?: string;
+    last_msg_user?: bigint;
+    read?: boolean;
+    last_active?: string;
 }
 
 export interface Server extends Entity {
     addr?: string;
     key_code?: string;
     status?: string;
+    last_check?: string;
 }
 
 export interface User {
-    uuid: string;
-    name: string;
-    pic: string;
-    key_code: string;
+    id?: string;
+    name?: string;
+    pic?: string;
+    key_code?: string;
     priv_key?: string,
     pub_key?: string,
     description?: string
 }
-
-
 
