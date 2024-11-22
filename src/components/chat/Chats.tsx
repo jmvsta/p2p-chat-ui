@@ -19,16 +19,16 @@ const Chats: React.FC<Props> = (props) => {
 
     const handleClick = (chat: Chat) => {
         props.setSelectedChat(chat)
-        axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${chat.id}&offset=0`)
-            .then((response) => props.setMessages(response.data.msgs))
+        axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${chat.id}&offset=0&limit=10`)
+            .then((response) => props.setMessages(response.data.msgs.sort((a, b) => a.time.localeCompare(b.time))))
             .catch(error => console.error('Chats request error:', error));
     }
 
     useEffect(() => {
         const fetchNewChatsAndLastMessages = async () => {
             try {
-                const [response] = await Promise.all([axios.get(`${apiUrl}/api/chats/list`)]);
-                props.setChats(response.data.chats);
+                const [response] = await Promise.all([axios.get(`${apiUrl}/api/chats/list/?offset=-1&limit=10&filter_banned=false`)]);
+                props.setChats(response.data.chats.sort((a, b) => a.last_active.localeCompare(b.last_active)));
             } catch (error) {
                 console.error('Error fetching chats:', error);
             }

@@ -21,7 +21,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 interface Props {
     currentUser: User;
     messages: Message[];
-    setMessages: (messages: Message[]) => void;
+    setMessages;
     selectedChat: Chat;
     setSelectedChat: (chat: Chat) => void;
     deleteChat: (chat: Chat) => void;
@@ -30,39 +30,79 @@ interface Props {
 export const apiUrl = process.env.apiUrl;
 
 const ChatWindow: React.FC<Props> = (props) => {
-
     const [text, setText]: [string, (text: string) => void] = useState('');
     const [files, setFiles]: [File[], (files: File[]) => void] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const fileInputRef: RefObject<any> = React.createRef();
-    const messagesEndRef: RefObject<any> = React.createRef();
-    const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
+    const messagesRef: RefObject<any> = React.createRef();
+    const [offset, setOffset]: [bigint, React.Dispatch<React.SetStateAction<bigint>>] = useState(0n);
+    const [idsSet, setIdsSet] = useState(new Set<bigint>());
     const interval = 5000;
 
     useEffect(() => {
-        setIsUserScrolledUp(false);
+        setOffset(0n);
+        setIdsSet(() => new Set(props.messages.map((msg) => BigInt(msg.id))));
     }, [props.selectedChat]);
 
-    useEffect(() => {
-        if (!isUserScrolledUp && messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({behavior: 'smooth'});
+    // useEffect(() => {
+    // console.log(JSON.stringify(msgs));
+    // if (!isUserScrolledUp && messagesEndRef.current) {
+    //     messagesEndRef.current.scrollIntoView({behavior: 'smooth'});
+    // }
+    // }, [props.messages]);
+
+    const handleScroll = () => {
+        if (!messagesRef.current) return;
+
+        const {scrollTop, scrollHeight, clientHeight} = messagesRef.current;
+
+        if (scrollTop === 0) {
+            console.log('Offset +10');
+            const newOffset = offset + 10n;
+            setOffset(newOffset);
+            axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${props.selectedChat.id}&offset=${newOffset}&limit=10`)
+                .then((response) => {
+                    const messages = response.data.msgs || [];
+                    messages
+                        .filter(msg => !idsSet.has(msg.id))
+                        // .sort((a, b) => a.time.localeCompare(b.time))
+                        .forEach(msg => {
+                            props.setMessages(prev => [msg, ...prev]);
+                            setIdsSet((prev) => new Set(prev).add(BigInt(msg.id)));
+                        });
+                })
+                .catch(error => console.error('Error loading messages:', error));
         }
-    }, [props.messages]);
+        if (scrollHeight - scrollTop === clientHeight) {
+            console.log('Offset 0');
+            setOffset(0n);
+        }
+    }
 
     useEffect(() => {
         if (!props.selectedChat) return;
         const fetchNewMessages = async () => {
             try {
-                const [response] = await Promise.all([axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${props.selectedChat.id}&offset=0`)]);
-                console.log(JSON.stringify(response.data.msgs));
-                props.setMessages(response.data.msgs);
+                const [response] = await Promise.all([axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${props.selectedChat.id}&offset=0&limit=10`)]);
+                const messages = response.data.msgs || [];
+                const lastMsg = props.messages[props.messages.length - 1];
+                // console.log(`messages: ${JSON.stringify(props.messages)}`);
+                // console.log(`last id ${lastMsg}, first id ${props.messages[0]?.id} message 0 id ${messages[0].id} last id ${lastMsg.id < messages[0].id}`);
+                messages
+                    .filter(msg => !idsSet.has(msg.id))
+                    .sort((a, b) => a.time.localeCompare(b.time))
+                    .forEach(msg => {
+                        props.setMessages(prev => [...prev, msg]);
+                        setIdsSet((prev) => new Set(prev).add(BigInt(msg.id)));
+                    });
+                props.setMessages(prev => [...prev, ...messages]);
             } catch (error) {
                 console.error('Error fetching messages:', error);
             }
         };
         const intervalId = setInterval(fetchNewMessages, interval);
         return () => clearInterval(intervalId);
-    }, [props.selectedChat, interval]);
+    }, [props.selectedChat, props.messages, interval]);
 
     const handleSendMessage = (event) => {
         if (event.key === 'Enter') {
@@ -121,7 +161,7 @@ const ChatWindow: React.FC<Props> = (props) => {
             requests.push(
                 axios.post(`${apiUrl}/api/msgs/text/`, JSON.stringify(body))
                     .then((resp) => {
-                        body.id = resp.data.msg_id;
+                        body.id = resp.data.msg_id
                     })
             );
         }
@@ -131,7 +171,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                 props.setMessages([...props.messages, ...messagesToStore]);
                 setFiles([]);
                 setText('');
-                setIsUserScrolledUp(false);
+                // setIsUserScrolledUp(false);
             })
             .catch(error => console.error('Error sending message: ', error));
     }
@@ -162,9 +202,9 @@ const ChatWindow: React.FC<Props> = (props) => {
         setAnchorEl(null);
     };
 
-    const handleScroll = () => {
-        setIsUserScrolledUp(true);
-    };
+    // const handleScroll = () => {
+    //     setIsUserScrolledUp(true);
+    // };
 
     return (
         <div>
@@ -193,7 +233,7 @@ const ChatWindow: React.FC<Props> = (props) => {
             }
             <Paper className="chat-window">
                 {
-                    <List className="messages" onScroll={handleScroll}>
+                    <List className="messages" onScroll={handleScroll} ref={messagesRef}>
                         {props.messages?.map((message, index) =>
                             <ListItem
                                 key={index}
@@ -204,7 +244,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                                         className="image"
                                         src={message.file.name}
                                         alt={message.text}
-                                        onError={(e) => console.log(e)}
+                                        onError={(e) => console.error(e)}
                                     /> :
                                     <ListItemText
                                         className="message"
@@ -213,7 +253,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                                 }
                             </ListItem>
                         )}
-                        <div ref={messagesEndRef}/>
+                        {/*<div ref={messagesEndRef}/>*/}
                     </List>
                 }
                 {
@@ -226,7 +266,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                                         className="image-preview"
                                         src={file.name}
                                         alt={file.name}
-                                        onError={(e) => console.log(e)}
+                                        onError={(e) => console.error(e)}
                                     />
                                 </li>
                             )}

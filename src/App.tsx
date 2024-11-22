@@ -77,8 +77,9 @@ const App: React.FC<any> = () => {
             .then((response) => setUser(response.data))
             .catch(error => console.error('User settings request error:', error));
 
-        axios.get(`${apiUrl}/api/chats/list`)
-            .then((response) => setChats(response.data.chats))
+        axios.get(`${apiUrl}/api/chats/list/?offset=-1&limit=10&filter_banned=false`)
+            .then((response) =>
+                setChats(response.data.chats.sort((a, b) => a.last_active.localeCompare(b.last_active))))
             .catch(error => console.error('Chats request error:', error));
 
         axios.get(`${apiUrl}/api/servers/list`)
@@ -98,7 +99,7 @@ const App: React.FC<any> = () => {
                 break;
             case 1:
                 axios.get(`${apiUrl}/api/users/list`)
-                    .then((response) => setInputSelectPopupList(response.data.data))
+                    .then((response) => setInputSelectPopupList(response.data.users))
                     .catch(error => console.error('Error fetching user\'s friends: ', error));
                 showInputSelectPopup('Add new chat', 'Enter chat name');
                 setAnchorEl(null);

@@ -26,7 +26,7 @@ const Server: React.FC<Props> = (props) => {
     };
 
     const handleAddServer = () => {
-        axios.post(`${apiUrl}/api/servers/add`, data)
+        axios.post(`${apiUrl}/api/servers/`, data)
             .then(() => props.setApiStat(true))
             .catch(error => {
                 console.error('Add server api request error:', error);
