@@ -37,18 +37,18 @@ const CreateChatPopup: React.FC<Props> = (props) => {
             users: userIds
         }))
             .then(() => {
-                console.info('Added chat')
+                console.info('Added chats')
                 setUserIds([]);
                 setName('');
                 props.handleClose();
-                showInfoPopup('Success', 'Added new chat');
+                showInfoPopup('Success', 'Added new chats');
             })
             .catch(error => {
                 setUserIds([]);
                 setName('');
-                console.error('Error adding chat ', error);
+                console.error('Error adding chats ', error);
                 props.handleClose();
-                showInfoPopup('Error', 'Error adding chat');
+                showInfoPopup('Error', 'Error adding chats');
             });
     }
 

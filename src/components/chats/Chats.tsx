@@ -1,28 +1,22 @@
 import './Chats.css'
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {List, ListItemButton, ListItemText} from "@mui/material";
 import axios from "axios";
-import {Chat, Message} from '../../types'
+import {Chat} from '../../types'
 
 interface Props {
     chats: Chat[];
     setChats: (chats: Chat[]) => void;
     setSelectedChat: (chat: Chat) => void;
-    setMessages: (messages: Message[]) => void;
 }
 
 export const apiUrl = process.env.apiUrl;
 
 const Chats: React.FC<Props> = (props) => {
-
+    // const [chats, setChats] = useState([]);
     const interval = 5000;
 
-    const handleClick = (chat: Chat) => {
-        props.setSelectedChat(chat)
-        axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${chat.id}&offset=0&limit=10`)
-            .then((response) => props.setMessages(response.data.msgs.sort((a, b) => a.time.localeCompare(b.time))))
-            .catch(error => console.error('Chats request error:', error));
-    }
+    const handleClick = (chat: Chat) => props.setSelectedChat(chat);
 
     useEffect(() => {
         const fetchNewChatsAndLastMessages = async () => {
@@ -35,7 +29,11 @@ const Chats: React.FC<Props> = (props) => {
         };
         const intervalId = setInterval(fetchNewChatsAndLastMessages, interval);
         return () => clearInterval(intervalId);
-    }, [interval]);
+    }, [props.chats, interval]);
+
+    // const deleteChat = (chat: Chat) => {
+    //     setChats(prevItems => prevItems.filter(item => item !== chat))
+    // }
 
     return (
         <List className="chats">

@@ -1,6 +1,6 @@
 .chat-window {
     flex: 0 0 70%;
-    height: 90vh;
+    height: 80vh;
     display: flex;
     flex-direction: column;
     background-color: #ffffff;

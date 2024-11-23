@@ -1,14 +1,14 @@
 import './App.css';
 import React from 'react';
-import Chats from "./components/chat/Chats";
+import Chats from "./components/chats/Chats";
 import {useEffect, useState} from "react";
-import ChatWindow from "./components/chat/ChatWindow";
+import ChatWindow from "./components/chat-window/ChatWindow";
 import {AppBar, Grid, IconButton, Menu, MenuItem, Toolbar, Typography} from "@mui/material";
 import Login from "./components/login/Login";
 import Server from "./components/server/Server";
 import SettingsIcon from '@mui/icons-material/Settings';
 import axios from "axios";
-import {Chat, Message, User} from "./types";
+import {Chat, User} from "./types";
 import InfoPopup from "./components/popup/InfoPopup";
 import InputPopup from "./components/popup/InputPopup";
 import CreateChatPopup from "./components/popup/CreateChatPopup";
@@ -22,7 +22,6 @@ const App: React.FC<any> = () => {
     const [selectedChat, setSelectedChat]: [Chat, (chat: Chat) => void] = useState(null);
     const [selectedServer, setSelectedServer]: [Server, (server: Server) => void] = useState(JSON.parse(localStorage.getItem('server')));
     const [servers, setServers] = useState([]);
-    const [messages, setMessages]: [Message[], (messages: Message[]) => void] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
 
     const [infoPopupOpen, setInfoPopupOpen] = useState(false);
@@ -101,7 +100,7 @@ const App: React.FC<any> = () => {
                 axios.get(`${apiUrl}/api/users/list`)
                     .then((response) => setInputSelectPopupList(response.data.users))
                     .catch(error => console.error('Error fetching user\'s friends: ', error));
-                showInputSelectPopup('Add new chat', 'Enter chat name');
+                showInputSelectPopup('Add new chats', 'Enter chats name');
                 setAnchorEl(null);
                 break;
             case 2:
@@ -200,29 +199,26 @@ const App: React.FC<any> = () => {
                                     open={Boolean(anchorEl)}
                                     onClose={handleCloseMenu}
                                 >
-                                    <MenuItem onClick={(event) => handleMenuClick({event: event, index: 0})}>New
-                                        Contact</MenuItem>
-                                    <MenuItem onClick={(event) => handleMenuClick({event: event, index: 1})}>New
-                                        Chat</MenuItem>
-                                    <MenuItem onClick={(event) => handleMenuClick({event: event, index: 2})}>My
-                                        key</MenuItem>
-                                    <MenuItem
-                                        onClick={(event) => handleMenuClick({event: event, index: 3})}>Server</MenuItem>
-                                    <MenuItem
-                                        onClick={(event) => handleMenuClick({event: event, index: 4})}>Logout</MenuItem>
+                                    <MenuItem onClick={(event) =>
+                                        handleMenuClick({event: event, index: 0})}>New Contact</MenuItem>
+                                    <MenuItem onClick={(event) =>
+                                        handleMenuClick({event: event, index: 1})}>New Chat</MenuItem>
+                                    <MenuItem onClick={(event) =>
+                                        handleMenuClick({event: event, index: 2})}>My key</MenuItem>
+                                    <MenuItem onClick={(event) =>
+                                        handleMenuClick({event: event, index: 3})}>Server</MenuItem>
+                                    <MenuItem onClick={(event) =>
+                                        handleMenuClick({event: event, index: 4})}>Logout</MenuItem>
                                 </Menu>
-                                <Typography variant="h6">
-                                    p2p-chat-ui
-                                </Typography>
+                                <Typography variant="h6">p2p-chat-ui</Typography>
                             </Toolbar>
                         </AppBar>
                     </Grid>
                     <Grid item xs={2}>
-                        <Chats chats={chats} setChats={setChats} setSelectedChat={setSelectedChat}
-                               setMessages={setMessages}/>
+                        <Chats chats={chats} setChats={setChats} setSelectedChat={setSelectedChat}/>
                     </Grid>
                     <Grid item xs={10}>
-                        <ChatWindow currentUser={user} messages={messages} setMessages={setMessages}
+                        <ChatWindow currentUser={user}
                                     selectedChat={selectedChat}
                                     setSelectedChat={setSelectedChat} deleteChat={deleteChat}/>
                     </Grid>
