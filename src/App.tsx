@@ -1,17 +1,17 @@
 import './App.css';
 import React from 'react';
-import Chats from "./components/chats/Chats";
-import {useEffect, useState} from "react";
-import ChatWindow from "./components/chat-window/ChatWindow";
-import {AppBar, Grid, IconButton, Menu, MenuItem, Toolbar, Typography} from "@mui/material";
-import Login from "./components/login/Login";
-import Server from "./components/server/Server";
+import Chats from './components/chats/Chats';
+import {useEffect, useState} from 'react';
+import ChatWindow from './components/chat-window/ChatWindow';
+import {AppBar, Grid, IconButton, Menu, MenuItem, Toolbar, Typography} from '@mui/material';
+import Login from './components/login/Login';
+import Server from './components/server/Server';
 import SettingsIcon from '@mui/icons-material/Settings';
-import axios from "axios";
-import {Chat, User} from "./types";
-import InfoPopup from "./components/popup/InfoPopup";
-import InputPopup from "./components/popup/InputPopup";
-import CreateChatPopup from "./components/popup/CreateChatPopup";
+import axios from 'axios';
+import {Chat, User} from './types';
+import InfoPopup from './components/popup/InfoPopup';
+import InputContactPopup from './components/popup/InputContactPopup';
+import CreateChatPopup from './components/popup/CreateChatPopup';
 
 export const apiUrl = process.env.apiUrl;
 
@@ -28,9 +28,7 @@ const App: React.FC<any> = () => {
     const [infoPopupTitle, setInfoPopupTitle] = useState('');
     const [infoPopupMessage, setInfoPopupMessage] = useState('');
 
-    const [inputPopupOpen, setInputPopupOpen] = useState(false);
-    const [inputPopupTitle, setInputPopupTitle] = useState('');
-    const [inputPopupMessage, setInputPopupMessage] = useState('');
+    const [inputContactPopupOpen, setInputContactPopupOpen] = useState(false);
 
     const [inputSelectPopupOpen, setInputSelectPopupOpen] = useState(false);
     const [inputSelectPopupTitle, setInputSelectPopupTitle] = useState('');
@@ -41,10 +39,6 @@ const App: React.FC<any> = () => {
         setInfoPopupOpen(false);
     };
 
-    const handleInputPopupClose = () => {
-        setInputPopupOpen(false);
-    };
-
     const handleInputSelectPopupClose = () => {
         setInputSelectPopupOpen(false);
     };
@@ -53,12 +47,6 @@ const App: React.FC<any> = () => {
         setInfoPopupTitle(title);
         setInfoPopupMessage(message);
         setInfoPopupOpen(true);
-    };
-
-    const showInputPopup = (title: string, message: string) => {
-        setInputPopupTitle(title);
-        setInputPopupMessage(message);
-        setInputPopupOpen(true);
     };
 
     const showInputSelectPopup = (title: string, message: string) => {
@@ -93,7 +81,8 @@ const App: React.FC<any> = () => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                showInputPopup('Add new contact', 'Enter contact key');
+                // showInputPopup('Add new contact', 'Enter contact key');
+                setInputContactPopupOpen(true);
                 setAnchorEl(null);
                 break;
             case 1:
@@ -133,19 +122,16 @@ const App: React.FC<any> = () => {
     };
 
     return (
-        <div className="app">
+        <div className='app'>
             <InfoPopup
                 open={infoPopupOpen}
                 handleClose={handleInfoPopupClose}
                 title={infoPopupTitle}
                 message={infoPopupMessage}
             />
-            <InputPopup
-                open={inputPopupOpen}
-                handleClose={handleInputPopupClose}
-                title={inputPopupTitle}
-                message={inputPopupMessage}
-                showPopup={showInfoPopup}
+            <InputContactPopup
+                open={inputContactPopupOpen}
+                setOpen={setInputContactPopupOpen}
             />
             <CreateChatPopup
                 open={inputSelectPopupOpen}
@@ -156,9 +142,9 @@ const App: React.FC<any> = () => {
             />
             {!apiStat &&
                 <Grid container spacing={0}>
-                    <Grid className="grid-item" item xs={6}>
-                        <img className="logo-img" src="/logo.jpg" alt="logo image"/>
-                        <Typography className="text-field" variant="h6" gutterBottom>
+                    <Grid className='grid-item' item xs={6}>
+                        <img className='logo-img' src='/logo.jpg' alt='logo image'/>
+                        <Typography className='text-field' variant='h6' gutterBottom>
                             This secure chat will help you to communicate without sacrificing your safety. Connect
                             freely, use it anywhere, anonymously.
                         </Typography>
@@ -170,9 +156,9 @@ const App: React.FC<any> = () => {
             }
             {apiStat && selectedServer === null &&
                 <Grid container spacing={0}>
-                    <Grid className="grid-item" item xs={6}>
-                        <img className="logo-img" src="/logo_1.jpg" alt="logo"/>
-                        <Typography className="text-field" variant="h6" gutterBottom>
+                    <Grid className='grid-item' item xs={6}>
+                        <img className='logo-img' src='/logo_1.jpg' alt='logo'/>
+                        <Typography className='text-field' variant='h6' gutterBottom>
                             This secure chat will help you to communicate without sacrificing your safety. Connect
                             freely, use it anywhere, anonymously.
                         </Typography>
@@ -186,14 +172,14 @@ const App: React.FC<any> = () => {
             {apiStat && selectedServer !== null &&
                 <Grid container spacing={0}>
                     <Grid item xs={12}>
-                        <AppBar position="static">
-                            <Toolbar className="toolbar">
-                                <IconButton edge="start" aria-label="menu"
+                        <AppBar position='static'>
+                            <Toolbar className='toolbar'>
+                                <IconButton edge='start' aria-label='menu'
                                             onClick={(event) => handleMenuClick({event: event, index: -1})}>
                                     <SettingsIcon/>
                                 </IconButton>
                                 <Menu
-                                    id="simple_menu"
+                                    id='simple_menu'
                                     anchorEl={anchorEl}
                                     keepMounted
                                     open={Boolean(anchorEl)}
@@ -210,7 +196,7 @@ const App: React.FC<any> = () => {
                                     <MenuItem onClick={(event) =>
                                         handleMenuClick({event: event, index: 4})}>Logout</MenuItem>
                                 </Menu>
-                                <Typography variant="h6">p2p-chat-ui</Typography>
+                                <Typography variant='h6'>p2p-chat-ui</Typography>
                             </Toolbar>
                         </AppBar>
                     </Grid>

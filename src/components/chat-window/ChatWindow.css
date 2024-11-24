@@ -46,10 +46,8 @@
     list-style-type: none
 }
 .image-preview {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 5px;
-    width: 150px
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .moved-text {
@@ -57,11 +55,36 @@
 }
 
 .message-right {
-    /*text-align: right;*/
     align-self: flex-end;
 }
 
 .message-left {
-    /*text-align: left;*/
     align-self: flex-start;
+}
+
+.image-container {
+    position: relative;
+    border: 1px solid #ddd;
+    padding: 5px;
+    width: 100px;
+    height: 100px;
+}
+
+.remove-button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: transparent;
+    color: red;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 12px;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

@@ -1,7 +1,7 @@
 import './Chats.css'
-import React, {useEffect, useState} from 'react';
-import {List, ListItemButton, ListItemText} from "@mui/material";
-import axios from "axios";
+import React, {useEffect} from 'react';
+import {List, ListItemButton, ListItemText} from '@mui/material';
+import axios from 'axios';
 import {Chat} from '../../types'
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 export const apiUrl = process.env.apiUrl;
 
 const Chats: React.FC<Props> = (props) => {
-    // const [chats, setChats] = useState([]);
+
     const interval = 5000;
 
     const handleClick = (chat: Chat) => props.setSelectedChat(chat);
@@ -31,14 +31,10 @@ const Chats: React.FC<Props> = (props) => {
         return () => clearInterval(intervalId);
     }, [props.chats, interval]);
 
-    // const deleteChat = (chat: Chat) => {
-    //     setChats(prevItems => prevItems.filter(item => item !== chat))
-    // }
-
     return (
-        <List className="chats">
+        <List className='chats'>
             {props.chats?.map((chat) => (
-                <ListItemButton className="chat-item" key={chat.id} onClick={() => handleClick(chat)}>
+                <ListItemButton className='chat-item' key={chat.id} onClick={() => handleClick(chat)}>
                     <ListItemText
                         primary={chat.name}
                         secondary={chat.last_msg_user !== null ? `${chat.last_msg_user}: ${chat.last_msg_txt}` : ''}

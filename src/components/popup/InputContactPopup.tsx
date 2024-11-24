@@ -1,19 +1,16 @@
 import React, {useState} from 'react';
 import {Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField} from '@mui/material';
 import './Popup.css';
-import axios from "axios";
+import axios from 'axios';
 
 interface Props {
     open: boolean,
-    handleClose: () => void,
-    title: string,
-    message: string,
-    showPopup: (title: string, message: string) => void;
+    setOpen: (open: boolean) => void,
 }
 
 export const apiUrl = process.env.apiUrl;
 
-const InputPopup: React.FC<Props> = (props) => {
+const InputContactPopup: React.FC<Props> = (props) => {
     const [name, setName]: [string, (name: string) => void] = useState('');
     const [contact, setContact]: [string, (contact: string) => void] = useState('');
 
@@ -23,52 +20,56 @@ const InputPopup: React.FC<Props> = (props) => {
             contact: contact
         }))
             .then(() => {
-                props.handleClose();
-                props.showPopup('Success', 'Added new contact');
+                props.setOpen(false);
+                // props.showPopup('Success', 'Added new contact');
             })
             .catch(error => {
                 console.error('Error adding contact ', error);
-                props.handleClose();
-                props.showPopup('Error', 'Error adding contact');
+                props.setOpen(false);
+                // props.showPopup('Error', 'Error adding contact');
             });
     }
 
+    const handleClose = () => {
+        props.setOpen(false);
+    }
+
     return (
-        <Dialog open={props.open} onClose={props.handleClose}>
-            <DialogTitle>{props.title}</DialogTitle>
+        <Dialog open={props.open} onClose={handleClose}>
+            <DialogTitle>Add new contact</DialogTitle>
             <DialogContent>
-                <Typography>{props.message}</Typography>
+                <Typography>Enter user name</Typography>
                 <TextField
                     fullWidth
-                    className="login-text-field"
-                    variant="outlined"
-                    label="user name"
+                    className='contact-input'
+                    variant='outlined'
+                    label='user name'
                     value={name}
                     onChange={e => setName(e.target.value)}
                 />
             </DialogContent>
             <DialogContent>
-                <Typography>{props.message}</Typography>
+                <Typography>Enter contact key</Typography>
                 <TextField
                     fullWidth
-                    className="login-text-field"
-                    variant="outlined"
-                    label="user contact"
+                    className='contact-input'
+                    variant='outlined'
+                    label='user contact'
                     value={contact}
                     onChange={e => setContact(e.target.value)}
                 />
             </DialogContent>
             <DialogActions>
                 <Button
-                    className="popup-button"
-                    variant="contained"
+                    className='popup-button'
+                    variant='contained'
                     onClick={addContact}>
                     ADD
                 </Button>
                 <Button
-                    className="popup-button"
-                    variant="contained"
-                    onClick={props.handleClose}>
+                    className='popup-button'
+                    variant='contained'
+                    onClick={handleClose}>
                     CANCEL
                 </Button>
             </DialogActions>
@@ -76,4 +77,4 @@ const InputPopup: React.FC<Props> = (props) => {
     );
 };
 
-export default InputPopup;
+export default InputContactPopup;

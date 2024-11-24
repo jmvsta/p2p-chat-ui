@@ -3,7 +3,8 @@
 <p>To build project you need to have [npm](https://www.npmjs.com) installed</p>
 <p>Build for client using 8080 port:<code>npm build:cli80</code></p>
 <p>Build for client using 8081 port:<code>npm build:cli81</code></p>
-<p>There is build, move & run script for windows located at [Make-Client.ps1](scripts/Make-Client.ps1). Works with advol-client installed</code></p>
+<p>There is build, move & run script for windows [Make-Client.ps1](scripts/Make-Client.ps1) and for unix [Make-Client.sh](scripts/Make-Client.sh).</p>
+<p>Works with advol-client installed</p>
 <p>Params: </p>
 
 | Parameter Name | Description                            | Value      |

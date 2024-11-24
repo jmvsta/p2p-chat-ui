@@ -18,8 +18,8 @@ const InfoPopup: React.FC<Props> = (props) => {
             </DialogContent>
             <DialogActions>
                 <Button
-                    className="popup-button"
-                    variant="contained"
+                    className='popup-button'
+                    variant='contained'
                     onClick={props.handleClose}>
                     OK
                 </Button>

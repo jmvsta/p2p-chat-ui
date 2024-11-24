@@ -1,9 +1,9 @@
 import './Login.css'
-import {Button, Paper, TextField, Typography} from "@mui/material";
-import React, {useState} from "react";
-import axios from "axios";
-import {sha3_512} from "js-sha3";
-import {User} from "../../types";
+import {Button, Paper, TextField, Typography} from '@mui/material';
+import React, {useState} from 'react';
+import axios from 'axios';
+import {sha3_512} from 'js-sha3';
+import {User} from '../../types';
 
 interface Props {
     setApiStat: (status: boolean) => void;
@@ -25,8 +25,8 @@ const Login: React.FC<Props> = (props) => {
         const requests = [];
         requests.push(axios.post(`${apiUrl}/api/settings/init/?pwd=${sha3_512(password)}}`));
         const user: User = {
-            "name": login,
-            "pic": ""
+            'name': login,
+            'pic': ''
         }
         requests.push(axios.post(`${apiUrl}/api/settings/me/`, JSON.stringify(user)));
 
@@ -42,30 +42,30 @@ const Login: React.FC<Props> = (props) => {
     };
 
     return (
-        <Paper className="login-wrapper">
+        <Paper className='login-wrapper'>
             <div>
-                <Typography variant="h5" gutterBottom>
+                <Typography variant='h5' gutterBottom>
                     Log in
                 </Typography>
                 <TextField
                     fullWidth
-                    className="login-text-field"
-                    variant="outlined"
-                    label="user id"
+                    className='login-text-field'
+                    variant='outlined'
+                    label='user id'
                     value={login}
                     onChange={e => setLogin(e.target.value)}
                 />
                 <TextField
                     fullWidth
-                    className="login-text-field"
-                    variant="outlined"
-                    label="secret key number"
+                    className='login-text-field'
+                    variant='outlined'
+                    label='secret key number'
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                 />
                 <Button
-                    className="login-send-button"
-                    variant="contained"
+                    className='login-send-button'
+                    variant='contained'
                     onClick={handleLogin}>
                     GO
                 </Button>

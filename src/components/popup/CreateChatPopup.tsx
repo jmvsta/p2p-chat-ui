@@ -10,9 +10,9 @@ import {
     Autocomplete
 } from '@mui/material';
 import './Popup.css';
-import axios from "axios";
-import {User} from "../../types";
-import InfoPopup from "./InfoPopup";
+import axios from 'axios';
+import {User} from '../../types';
+import InfoPopup from './InfoPopup';
 
 interface Props {
     open: boolean,
@@ -84,9 +84,9 @@ const CreateChatPopup: React.FC<Props> = (props) => {
                 <Typography>{props.message}</Typography>
                 <TextField
                     fullWidth
-                    className="login-text-field"
-                    variant="outlined"
-                    label="chat name"
+                    className='login-text-field'
+                    variant='outlined'
+                    label='chat name'
                     name={name}
                     onChange={e => handleSetChatName(e.target.value)}
                 />
@@ -94,23 +94,23 @@ const CreateChatPopup: React.FC<Props> = (props) => {
                     fullWidth
                     multiple
                     disablePortal
-                    className="autocomplete"
+                    className='autocomplete'
                     onChange={(event, value) => handleChooseItem({event: event, userIds: value.map(item => item.id)})}
                     options={props.list}
                     getOptionLabel={(option) => option.name}
-                    renderInput={(params) => <TextField {...params} label="start typing..."/>}
+                    renderInput={(params) => <TextField {...params} label='start typing...'/>}
                 />
             </DialogContent>
             <DialogActions>
                 <Button
-                    className="popup-button"
-                    variant="contained"
+                    className='popup-button'
+                    variant='contained'
                     onClick={createChat}>
                     CREATE
                 </Button>
                 <Button
-                    className="popup-button"
-                    variant="contained"
+                    className='popup-button'
+                    variant='contained'
                     onClick={props.handleClose}>
                     CANCEL
                 </Button>
