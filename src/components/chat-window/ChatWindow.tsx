@@ -63,7 +63,7 @@ const ChatWindow: React.FC<Props> = (props) => {
 
         if (!messagesRef.current) return;
         const {scrollTop, scrollHeight, clientHeight} = messagesRef.current;
-        console.log(`pst ${scrollTop}, psh ${scrollHeight}, pch ${clientHeight}`);
+
         if (scrollTop === 0) {
             incrementOffsetAndGetMessages(offset + limit);
         }
@@ -72,7 +72,6 @@ const ChatWindow: React.FC<Props> = (props) => {
         }
         const newScrollHeight = messagesRef.current.scrollHeight;
         messagesRef.current.scrollTop = scrollTop + (newScrollHeight - scrollHeight);
-        console.log(`st ${messagesRef.current.scrollTop}, sh ${newScrollHeight}, ch ${messagesRef.current.clientHeight}`);
     }
 
     const incrementOffsetAndGetMessages = (newOffset) => {
@@ -109,9 +108,10 @@ const ChatWindow: React.FC<Props> = (props) => {
         blobs?.map(file => {
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('chat_id', props.selectedChat.id);
             requests.push(
                 axios
-                    .post(`${apiUrl}/api/msg/file/`, formData, {
+                    .post(`${apiUrl}/api/msgs/file/`, formData, {
                         headers: {'Content-Type': 'multipart/form-data'},
                     })
                     .then((resp) => {
@@ -124,11 +124,10 @@ const ChatWindow: React.FC<Props> = (props) => {
         });
 
         if (text !== '') {
-            let body: Message = {
+            let body = {
                 chat_id: props.selectedChat.id,
                 text: text
             };
-            props.selectedChat.last_msg_txt = text;
             requests.push(axios.post(`${apiUrl}/api/msgs/text/`, JSON.stringify(body)));
         }
 

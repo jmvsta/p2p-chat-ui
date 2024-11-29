@@ -14,18 +14,21 @@ export interface File extends Entity {
     originalname?: string;
 }
 
-export interface Message extends Entity {
-    sender?: string;
-    chat_id?: string;
+export interface Message {
+    id: number;
+    sender?: number;
+    chat_id: string;
     time?: string;
-    payload?: Payload;
-    received?: boolean;
-    read?: boolean;
+    payload: Payload;
+    received: boolean;
+    read: boolean;
 }
 
 export interface Payload {
-    type?: string;
-    data?: string;
+    type: string;
+    data: string;
+    path: string;
+    downloaded: boolean;
 }
 
 export interface Chat extends Entity {
@@ -43,12 +46,20 @@ export interface Server extends Entity {
 }
 
 export interface User {
-    id?: string;
-    name?: string;
+    id: string;
+    name: string;
     pic?: string;
     key_code?: string;
-    priv_key?: string,
-    pub_key?: string,
-    description?: string
+}
+
+export interface ExtUser {
+    id: number;
+    ext_id: string;
+    key_code: string;
+    hkey_code: string;
+    name: string,
+    pic: string,
+    status: string,
+    activity: string
 }
 

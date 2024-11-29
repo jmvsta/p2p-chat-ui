@@ -7,8 +7,8 @@ param (
 
 Set-Location $UIPath
 Start-Process "npm" -ArgumentList "run build:cli$Port" -Wait
-Copy-Item "$UIPath\dist\main.js" "$ClientPath\static\js\"
-Copy-Item "$UIPath\dist\index.html" "$ClientPath\static\html\"
+Copy-Item "$UIPath\dist\main.js" "$ClientPath\static\react\js\"
+Copy-Item "$UIPath\dist\index.html" "$ClientPath\static\react\html\"
 Set-Location $ClientPath
 Start-Process "go" -ArgumentList "build" -Wait
 Copy-Item "$ClientPath\avdol-client.exe" "$OutputPath\cli$Port\"

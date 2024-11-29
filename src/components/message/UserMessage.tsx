@@ -1,32 +1,82 @@
-import React from 'react';
-import {Message} from '../../types';
-import {ListItemText} from '@mui/material';
+import React, {useState} from 'react';
+import {Message, User} from '../../types';
+import {Button, Avatar, Box, Typography} from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download'
+import axios from "axios";
+import {apiUrl} from "../../App";
+import './UserMessage.css';
 
 interface Props {
     message: Message;
 }
 
 const UserMessage: React.FC<Props> = (props) => {
+    const [users, setUsers] = useState([{
+        id: 1,
+        ext_id: 'test',
+        key_code: 'test',
+        hkey_code: 'test',
+        name: 'test',
+        pic: '',
+        status: '',
+        activity: ''
+    }]);
+    const me: User = {
+        id: '2',
+        name: 'me',
+    };
+    const [user, setUser] = useState(props.message.sender != null ? users?.find(u => u.id === props.message.sender) :
+        me);
+
+    const handleDownload = () => {
+        axios.post(`${apiUrl}/api/downloads/start?msg_id=${props.message.id}`)
+            .catch(error => console.error(`Error downloading file, msg.id = ${props.message.id}:`, error));
+
+    }
 
     return (
-        <div>
-            <div className='user-name'>
-                {props.message.sender || 'Unknown User'}
-            </div>
-            {props.message.file != null ?
-                <img
-                    className='image'
-                    src={props.message.file.name}
-                    alt={props.message.text}
-                    onError={(e) => console.error(e)}
-                /> :
-                <ListItemText
-                    className='message'
-                    primary={props.message?.payload?.data}
-                    classes={{primary: 'moved-text'}}/>
-            }
-        </div>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Avatar
+                    src={user?.pic}
+                    alt="avatar"
+                    sx={{
+                        width: 40,
+                        height: 40,
+                        bgcolor: user?.pic ? "transparent" : "black",
+                    }}
+                />
+                <Typography variant="body1" fontWeight="bold">
+                    {user?.name || "Unknown User"}
+                </Typography>
+            </Box>
+
+            <Box sx={{ ml: "50px" }}>
+                {(props.message.payload.downloaded ||
+                    props.message.payload.type !== "file") && (
+                    <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        sx={{ mb: 1 }}
+                    >
+                        {props.message?.payload?.data}
+                    </Typography>
+                )}
+
+                {props.message.payload.type === "file" &&
+                    !props.message.payload.downloaded && (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<DownloadIcon />}
+                            onClick={handleDownload}
+                        >
+                            Download
+                        </Button>
+                    )}
+            </Box>
+        </Box>
     )
-}
+};
 
 export default UserMessage;
