@@ -1,35 +1,28 @@
 import React, {useState} from 'react';
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
+    Autocomplete,
     Button,
-    Typography,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     TextField,
-    Autocomplete
+    Typography
 } from '@mui/material';
 import './Popup.css';
 import axios from 'axios';
-import {User} from '../../types';
-import InfoPopup from './InfoPopup';
-
-interface Props {
-    open: boolean,
-    handleClose: () => void,
-    title: string,
-    message: string,
-    list: User[],
-}
+import useStore from "../../Store";
 
 export const apiUrl = process.env.apiUrl;
 
-const CreateChatPopup: React.FC<Props> = (props) => {
+const CreateChatPopup: React.FC = () => {
     const [name, setName]: [string, (name: string) => void] = useState('');
     const [userIds, setUserIds] = useState([]);
-    const [infoPopupOpen, setInfoPopupOpen] = useState(false);
-    const [infoPopupTitle, setInfoPopupTitle] = useState('');
-    const [infoPopupMessage, setInfoPopupMessage] = useState('');
+    const open = useStore((state) => state.chatPopupOpen);
+    const setOpen = useStore((state) => state.setChatPopupOpen);
+    const title = useStore((state) => state.chatPopupTitle);
+    const message = useStore((state) => state.chatPopupMessage);
+    const users = useStore((state) => state.contacts);
 
     const createChat = () => {
         axios.post(`${apiUrl}/api/chats/`, JSON.stringify({
@@ -37,22 +30,19 @@ const CreateChatPopup: React.FC<Props> = (props) => {
             users: userIds
         }))
             .then(() => {
-                console.info('Added chats')
                 setUserIds([]);
                 setName('');
-                props.handleClose();
-                showInfoPopup('Success', 'Added new chats');
+                setOpen(false);
             })
             .catch(error => {
                 setUserIds([]);
                 setName('');
                 console.error('Error adding chats ', error);
-                props.handleClose();
-                showInfoPopup('Error', 'Error adding chats');
+                setOpen(false);
             });
     }
 
-    const handleChooseItem = ({event, userIds}: { event: any, userIds: any }) => {
+    const handleChooseItem = (userIds: string[]) => {
         setUserIds((prevUserIds) => [...prevUserIds, ...userIds]);
     }
 
@@ -60,28 +50,15 @@ const CreateChatPopup: React.FC<Props> = (props) => {
         setName(chatName);
     }
 
-    const handleInfoPopupClose = () => {
-        props.handleClose();
-        setInfoPopupOpen(false);
-    };
-
-    const showInfoPopup = (title: string, message: string) => {
-        setInfoPopupTitle(title);
-        setInfoPopupMessage(message);
-        setInfoPopupOpen(true);
+    const handleClose = () => {
+        setOpen(false);
     };
 
     return (
-        <Dialog open={props.open} onClose={props.handleClose}>
-            <InfoPopup
-                open={infoPopupOpen}
-                handleClose={handleInfoPopupClose}
-                title={infoPopupTitle}
-                message={infoPopupMessage}
-            />
-            <DialogTitle>{props.title}</DialogTitle>
+        <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <Typography>{props.message}</Typography>
+                <Typography>{message}</Typography>
                 <TextField
                     fullWidth
                     className='login-text-field'
@@ -95,8 +72,8 @@ const CreateChatPopup: React.FC<Props> = (props) => {
                     multiple
                     disablePortal
                     className='autocomplete'
-                    onChange={(event, value) => handleChooseItem({event: event, userIds: value.map(item => item.id)})}
-                    options={props.list}
+                    onChange={(_, value) => handleChooseItem(value.map(item => item.ext_id))}
+                    options={users}
                     getOptionLabel={(option) => option.name}
                     renderInput={(params) => <TextField {...params} label='start typing...'/>}
                 />
@@ -111,7 +88,7 @@ const CreateChatPopup: React.FC<Props> = (props) => {
                 <Button
                     className='popup-button'
                     variant='contained'
-                    onClick={props.handleClose}>
+                    onClick={handleClose}>
                     CANCEL
                 </Button>
             </DialogActions>

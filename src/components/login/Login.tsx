@@ -3,42 +3,38 @@ import {Button, Paper, TextField, Typography} from '@mui/material';
 import React, {useState} from 'react';
 import axios from 'axios';
 import {sha3_512} from 'js-sha3';
-import {User} from '../../types';
-
-interface Props {
-    setApiStat: (status: boolean) => void;
-    setUser: (user: User) => void;
-    showPopup: (title: string, message: string) => void;
-}
+import useStore from '../../Store';
 
 export const apiUrl = process.env.apiUrl;
 
-const Login: React.FC<Props> = (props) => {
+const Login: React.FC = () => {
     const [login, setLogin] = useState('');
     const [password, setPassword]: [string, (password: string) => void] = useState('');
+    const setCurrentUser = useStore((state) => state.setCurrentUser);
+    const setApiInited = useStore((state) => state.setApiInited);
+    const showInfoPopup = useStore((state) => state.showInfoPopup);
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
         if (login == '' || password == '') {
-            //     TODO
+            //     TODO: add red indicators to inputs, disable button
             return;
         }
-        const requests = [];
-        requests.push(axios.post(`${apiUrl}/api/settings/init/?pwd=${sha3_512(password)}}`));
-        const user: User = {
+        const user = {
             'name': login,
             'pic': ''
         }
-        requests.push(axios.post(`${apiUrl}/api/settings/me/`, JSON.stringify(user)));
-
-        Promise.all(requests)
-            .then(() => {
-                props.setUser(user);
-                props.setApiStat(true);
-            })
-            .catch(error => {
-                console.error('Login: Api init get error: ', error)
-                props.showPopup('Error', 'Login error');
-            });
+        try {
+            await Promise.all([
+                axios.post(`${apiUrl}/api/settings/init/?pwd=${sha3_512(password)}}`),
+                axios.post(`${apiUrl}/api/settings/me/`, JSON.stringify(user))
+            ]);
+            setApiInited(true);
+            const response = await axios.get(`${apiUrl}/api/settings/me/`);
+            setCurrentUser(response.data);
+        } catch (error) {
+            console.error('Login: Api init get error: ', error);
+            showInfoPopup('Error', 'Login error');
+        }
     };
 
     return (

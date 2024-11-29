@@ -1,101 +1,55 @@
 import './App.css';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Chats from './components/chats/Chats';
-import {useEffect, useState} from 'react';
 import ChatWindow from './components/chat-window/ChatWindow';
 import {AppBar, Grid, IconButton, Menu, MenuItem, Toolbar, Typography} from '@mui/material';
 import Login from './components/login/Login';
 import Server from './components/server/Server';
 import SettingsIcon from '@mui/icons-material/Settings';
 import axios from 'axios';
-import {Chat, User} from './types';
 import InfoPopup from './components/popup/InfoPopup';
 import InputContactPopup from './components/popup/InputContactPopup';
 import CreateChatPopup from './components/popup/CreateChatPopup';
+import useStore from './Store';
 
 export const apiUrl = process.env.apiUrl;
 
-const App: React.FC<any> = () => {
-    const [user, setUser]: [User, (user: User) => void] = useState(null);
-    const [apiStat, setApiStat]: [boolean, (status: boolean) => void] = useState(false);
-    const [chats, setChats] = useState([]);
-    const [selectedChat, setSelectedChat]: [Chat, (chat: Chat) => void] = useState(null);
-    const [selectedServer, setSelectedServer]: [Server, (server: Server) => void] = useState(JSON.parse(localStorage.getItem('server')));
-    const [servers, setServers] = useState([]);
+const App: React.FC = () => {
+
+    const setCurrentUser = useStore((state) => state.setCurrentUser);
+    const setApiInited = useStore((state) => state.setApiInited);
+    const apiInited = useStore((state) => state.apiInited);
+    const selectedServer = useStore((state) => state.selectedServer);
+    const setSelectedServer = useStore((state) => state.setSelectedServer);
+    const fetchData = useStore((state) => state.fetchData);
     const [anchorEl, setAnchorEl] = useState(null);
-
-    const [infoPopupOpen, setInfoPopupOpen] = useState(false);
-    const [infoPopupTitle, setInfoPopupTitle] = useState('');
-    const [infoPopupMessage, setInfoPopupMessage] = useState('');
-
-    const [inputContactPopupOpen, setInputContactPopupOpen] = useState(false);
-
-    const [inputSelectPopupOpen, setInputSelectPopupOpen] = useState(false);
-    const [inputSelectPopupTitle, setInputSelectPopupTitle] = useState('');
-    const [inputSelectPopupList, setInputSelectPopupList]: [User[], (users: User[]) => void] = useState([]);
-    const [inputSelectPopupMessage, setInputSelectPopupMessage] = useState('');
-
-    const handleInfoPopupClose = () => {
-        setInfoPopupOpen(false);
-    };
-
-    const handleInputSelectPopupClose = () => {
-        setInputSelectPopupOpen(false);
-    };
-
-    const showInfoPopup = (title: string, message: string) => {
-        setInfoPopupTitle(title);
-        setInfoPopupMessage(message);
-        setInfoPopupOpen(true);
-    };
-
-    const showInputSelectPopup = (title: string, message: string) => {
-        setInputSelectPopupTitle(title);
-        setInputSelectPopupMessage(message);
-        setInputSelectPopupOpen(true);
-    };
+    const showInfoPopup = useStore((state) => state.showInfoPopup);
+    const showContactPopup = useStore((state) => state.showContactPopup);
+    const showChatPopup = useStore((state) => state.showChatPopup);
 
     useEffect(() => {
-        axios.get(`${apiUrl}/api/settings/status/`)
-            .then((response) => setApiStat(response.data.inited))
-            .catch(error => console.error('Init status request error:', error));
-
-        axios.get(`${apiUrl}/api/settings/me/`)
-            .then((response) => setUser(response.data))
-            .catch(error => console.error('User settings request error:', error));
-
-        axios.get(`${apiUrl}/api/chats/list/?offset=-1&limit=10&filter_banned=false`)
-            .then((response) =>
-                setChats(response.data.chats.sort((a, b) => a.last_active.localeCompare(b.last_active))))
-            .catch(error => console.error('Chats request error:', error));
-
-        axios.get(`${apiUrl}/api/servers/list`)
-            .then((response) => setServers(response.data.servers))
-            .catch(error => console.error('Servers request error:', error));
-
-        return () => {
-        };
-    }, []);
+        fetchData();
+        const interval = setInterval(() => {
+            fetchData()
+        }, 5000)
+        return () => clearInterval(interval)
+    }, [fetchData]);
 
     const handleMenuClick = ({event, index}: { event: any, index: number }) => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                // showInputPopup('Add new contact', 'Enter contact key');
-                setInputContactPopupOpen(true);
+                showContactPopup();
                 setAnchorEl(null);
                 break;
             case 1:
-                axios.get(`${apiUrl}/api/users/list`)
-                    .then((response) => setInputSelectPopupList(response.data.users))
-                    .catch(error => console.error('Error fetching user\'s friends: ', error));
-                showInputSelectPopup('Add new chats', 'Enter chats name');
+                showChatPopup('Add new chat', 'Enter chat name');
                 setAnchorEl(null);
                 break;
             case 2:
                 axios.get(`${apiUrl}/api/users/my-contact`)
                     .then((response) => showInfoPopup('Your contact', response.data))
-                    .catch(error => console.error('Error fetching user\'s friends: ', error));
+                    .catch(error => console.error('Error fetching currentUser\'s friends: ', error));
                 setAnchorEl(null);
                 break;
             case 3:
@@ -106,41 +60,23 @@ const App: React.FC<any> = () => {
             case 4:
                 localStorage.removeItem('server');
                 setSelectedServer(null);
-                setUser(null);
-                setApiStat(false);
+                setCurrentUser(null);
+                setApiInited(false);
                 setAnchorEl(null);
                 break;
         }
     }
 
-    const deleteChat = (chat: Chat) => {
-        setChats(prevItems => prevItems.filter(item => item !== chat))
-    }
-
     const handleCloseMenu = () => {
-        setAnchorEl(null); // Closes the menu
+        setAnchorEl(null);
     };
 
     return (
         <div className='app'>
-            <InfoPopup
-                open={infoPopupOpen}
-                handleClose={handleInfoPopupClose}
-                title={infoPopupTitle}
-                message={infoPopupMessage}
-            />
-            <InputContactPopup
-                open={inputContactPopupOpen}
-                setOpen={setInputContactPopupOpen}
-            />
-            <CreateChatPopup
-                open={inputSelectPopupOpen}
-                handleClose={handleInputSelectPopupClose}
-                title={inputSelectPopupTitle}
-                message={inputSelectPopupMessage}
-                list={inputSelectPopupList}
-            />
-            {!apiStat &&
+            <InfoPopup/>
+            <InputContactPopup/>
+            <CreateChatPopup/>
+            {!apiInited &&
                 <Grid container spacing={0}>
                     <Grid className='grid-item' item xs={6}>
                         <img className='logo-img' src='/logo.jpg' alt='logo image'/>
@@ -150,11 +86,11 @@ const App: React.FC<any> = () => {
                         </Typography>
                     </Grid>
                     <Grid item xs={6}>
-                        <Login setApiStat={setApiStat} setUser={setUser} showPopup={showInfoPopup}/>
+                        <Login/>
                     </Grid>
                 </Grid>
             }
-            {apiStat && selectedServer === null &&
+            {apiInited && selectedServer === null &&
                 <Grid container spacing={0}>
                     <Grid className='grid-item' item xs={6}>
                         <img className='logo-img' src='/logo_1.jpg' alt='logo'/>
@@ -164,12 +100,11 @@ const App: React.FC<any> = () => {
                         </Typography>
                     </Grid>
                     <Grid item xs={6}>
-                        <Server servers={servers} setSelectedServer={setSelectedServer} setApiStat={setApiStat}
-                                showPopup={showInfoPopup}/>
+                        <Server/>
                     </Grid>
                 </Grid>
             }
-            {apiStat && selectedServer !== null &&
+            {apiInited && selectedServer !== null &&
                 <Grid container spacing={0}>
                     <Grid item xs={12}>
                         <AppBar position='static'>
@@ -201,12 +136,10 @@ const App: React.FC<any> = () => {
                         </AppBar>
                     </Grid>
                     <Grid item xs={2}>
-                        <Chats chats={chats} setChats={setChats} setSelectedChat={setSelectedChat}/>
+                        <Chats/>
                     </Grid>
                     <Grid item xs={10}>
-                        <ChatWindow currentUser={user}
-                                    selectedChat={selectedChat}
-                                    setSelectedChat={setSelectedChat} deleteChat={deleteChat}/>
+                        <ChatWindow/>
                     </Grid>
                 </Grid>
             }

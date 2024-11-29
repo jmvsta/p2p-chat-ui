@@ -4,60 +4,34 @@ import {AppBar, IconButton, List, ListItem, Menu, MenuItem, Paper, TextField, To
 import UserMessage from '../message/UserMessage';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import axios from 'axios';
-import {Chat, Message, User} from '../../types'
 import SettingsIcon from '@mui/icons-material/Settings';
-
-interface Props {
-    currentUser: User;
-    selectedChat: Chat;
-    setSelectedChat: (chat: Chat) => void;
-    deleteChat: (chat: Chat) => void;
-}
+import useStore, {messageComparator} from "../../Store";
 
 export const apiUrl = process.env.apiUrl;
 
-const ChatWindow: React.FC<Props> = (props) => {
-    const [messages, setMessages]: [Message[], any] = useState([]);
+const ChatWindow: React.FC = () => {
+
     const [text, setText]: [string, (text: string) => void] = useState('');
     const [blobs, setBlobs] = useState<Blob[]>([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const fileInputRef: RefObject<any> = React.createRef();
     const messagesRef: RefObject<any> = React.createRef();
     const [offset, setOffset]: [bigint, React.Dispatch<React.SetStateAction<bigint>>] = useState(0n);
-    const [idsSet, setIdsSet] = useState(new Set());
-    const interval = 5000;
+    const selectedChat = useStore((state) => state.selectedChat);
+    const idsSet = useStore((state) => state.idsSet);
+    const addIdsToSet = useStore((state) => state.addIdsToSet);
+    const messages = useStore((state) => state.messages);
+    const appendMessagesHead = useStore((state) => state.appendMessagesHead);
+    const setSelectedChat = useStore((state) => state.setSelectedChat);
+    const deleteChat = useStore((state) => state.deleteChat);
     const limit = 10n;
 
     useEffect(() => {
-        setOffset(0n);
-        setIdsSet(new Set());
-        setMessages([]);
         setBlobs([]);
-        if (props.selectedChat != null) {
+        if (selectedChat != null) {
             incrementOffsetAndGetMessages(0n);
         }
-    }, [props.selectedChat]);
-
-    useEffect(() => {
-        if (!props.selectedChat) return;
-        const fetchNewMessages = async () => {
-            try {
-                const [response] = await Promise.all([axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${props.selectedChat.id}&offset=0&limit=${limit}`)]);
-                const messages = response.data.msgs || [];
-                messages
-                    .filter(msg => !idsSet.has(msg.id))
-                    .sort((a, b) => a.time.localeCompare(b.time))
-                    .forEach(msg => {
-                        setMessages(prev => [...prev, msg]);
-                        setIdsSet((prev) => prev.add(msg.id));
-                    });
-            } catch (error) {
-                console.error('Error fetching new messages:', error);
-            }
-        };
-        const intervalId = setInterval(fetchNewMessages, interval);
-        return () => clearInterval(intervalId);
-    }, [props.selectedChat, idsSet, messages, interval]);
+    }, [selectedChat]);
 
     const handleScroll = () => {
 
@@ -76,16 +50,14 @@ const ChatWindow: React.FC<Props> = (props) => {
 
     const incrementOffsetAndGetMessages = (newOffset) => {
         setOffset(newOffset);
-        axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${props.selectedChat.id}&offset=${newOffset}&limit=${limit}`)
+        axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${selectedChat.id}&offset=${newOffset}&limit=${limit}`)
             .then((response) => {
                 const messages = response.data.msgs || [];
-                messages
+                const newMessages = messages
                     .filter(msg => !idsSet.has(msg.id))
-                    // .sort((a, b) => a.time.localeCompare(b.time))
-                    .forEach(msg => {
-                        setMessages(prev => [msg, ...prev]);
-                        setIdsSet((prev) => new Set(prev).add(msg.id));
-                    });
+                    .sort(messageComparator)
+                appendMessagesHead(newMessages);
+                addIdsToSet(newMessages.map(msg => msg.id));
             })
             .catch(error => console.error('Error loading messages:', error));
     }
@@ -108,7 +80,7 @@ const ChatWindow: React.FC<Props> = (props) => {
         blobs?.map(file => {
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('chat_id', props.selectedChat.id);
+            formData.append('chat_id', selectedChat.id);
             requests.push(
                 axios
                     .post(`${apiUrl}/api/msgs/file/`, formData, {
@@ -125,7 +97,7 @@ const ChatWindow: React.FC<Props> = (props) => {
 
         if (text !== '') {
             let body = {
-                chat_id: props.selectedChat.id,
+                chat_id: selectedChat.id,
                 text: text
             };
             requests.push(axios.post(`${apiUrl}/api/msgs/text/`, JSON.stringify(body)));
@@ -147,10 +119,10 @@ const ChatWindow: React.FC<Props> = (props) => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                axios.post(`${apiUrl}/api/chats/moderate/?id=${props.selectedChat.id}&action=del`)
+                axios.post(`${apiUrl}/api/chats/moderate/?id=${selectedChat.id}&action=del`)
                     .then(() => {
-                        props.deleteChat(props.selectedChat);
-                        props.setSelectedChat(null);
+                        deleteChat(selectedChat);
+                        setSelectedChat(null);
                     })
                     .catch(error => console.error('f: ', error));
                 setAnchorEl(null);
@@ -170,7 +142,7 @@ const ChatWindow: React.FC<Props> = (props) => {
 
     return (
         <div>
-            {props.selectedChat !== null &&
+            {selectedChat !== null &&
                 <AppBar position='static'>
                     <Toolbar className='chat-toolbar'>
                         <IconButton edge='start' aria-label='menu'
@@ -188,7 +160,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                                 onClick={(event) => handleMenuClick(event, 0)}>Delete</MenuItem>
                         </Menu>
                         <Typography variant='h6'>
-                            {props.selectedChat?.name}
+                            {selectedChat?.name}
                         </Typography>
                     </Toolbar>
                 </AppBar>
@@ -230,7 +202,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                     </Paper>
                 }
                 {
-                    props.selectedChat != null &&
+                    selectedChat != null &&
                     <div className='input'>
                         <TextField
                             fullWidth

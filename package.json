@@ -32,14 +32,15 @@
     "styled-components": "^5.3.11",
     "typescript": "^5.4.5",
     "uuid": "^9.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "zustand": "^5.0.1"
   },
   "scripts": {
     "tsc": "./node_modules/typescript/bin/tsc",
     "build": "cross-env SCRIPT_PATH='/static/js/main.js' npx webpack --config ./webpack.config.cjs",
     "build:cli8080": "cross-env SCRIPT_PATH='/static/js/main.js' npx webpack --config ./webpack.config.cjs --env env=cli80 ",
     "build:cli8081": "cross-env SCRIPT_PATH='/static/js/main.js' npx webpack --config ./webpack.config.cjs --env env=cli81",
-    "start": "node server/index.cjs"
+    "start": "node index.tsx"
   },
   "eslintConfig": {
     "extends": [

@@ -1,26 +1,29 @@
 import React from 'react';
 import {Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography} from '@mui/material';
 import './Popup.css';
+import useStore from "../../Store";
 
-interface Props {
-    open: boolean,
-    handleClose: () => void,
-    title: string,
-    message: string
-}
+const InfoPopup: React.FC = () => {
+    const open = useStore((state) => state.infoPopupOpen);
+    const setOpen = useStore((state) => state.setInfoPopupOpen);
+    const title = useStore((state) => state.infoPopupTitle);
+    const message = useStore((state) => state.infoPopupMessage);
 
-const InfoPopup: React.FC<Props> = (props) => {
+    const handleClose = () => {
+        setOpen(false);
+    }
+
     return (
-        <Dialog open={props.open} onClose={props.handleClose}>
-            <DialogTitle>{props.title}</DialogTitle>
+        <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <Typography>{props.message}</Typography>
+                <Typography>{message}</Typography>
             </DialogContent>
             <DialogActions>
                 <Button
                     className='popup-button'
                     variant='contained'
-                    onClick={props.handleClose}>
+                    onClick={handleClose}>
                     OK
                 </Button>
             </DialogActions>

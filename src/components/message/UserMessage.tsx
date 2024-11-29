@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import {Message, User} from '../../types';
-import {Button, Avatar, Box, Typography} from '@mui/material';
+import {Message, User} from '../../index.d';
+import {Avatar, Box, Button, Typography} from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download'
 import axios from "axios";
 import {apiUrl} from "../../App";
@@ -35,8 +35,8 @@ const UserMessage: React.FC<Props> = (props) => {
     }
 
     return (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box sx={{display: "flex", flexDirection: "column", gap: 2}}>
+            <Box sx={{display: "flex", alignItems: "center", gap: 2}}>
                 <Avatar
                     src={user?.pic}
                     alt="avatar"
@@ -51,13 +51,13 @@ const UserMessage: React.FC<Props> = (props) => {
                 </Typography>
             </Box>
 
-            <Box sx={{ ml: "50px" }}>
+            <Box sx={{ml: "50px"}}>
                 {(props.message.payload.downloaded ||
                     props.message.payload.type !== "file") && (
                     <Typography
                         variant="body2"
                         color="textSecondary"
-                        sx={{ mb: 1 }}
+                        sx={{mb: 1}}
                     >
                         {props.message?.payload?.data}
                     </Typography>
@@ -68,7 +68,7 @@ const UserMessage: React.FC<Props> = (props) => {
                         <Button
                             variant="contained"
                             color="primary"
-                            startIcon={<DownloadIcon />}
+                            startIcon={<DownloadIcon/>}
                             onClick={handleDownload}
                         >
                             Download

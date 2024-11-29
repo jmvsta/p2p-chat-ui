@@ -1,36 +1,34 @@
 import './Server.css'
 import {Paper, Autocomplete, TextField, Button, Typography} from '@mui/material';
 import React, {useState} from 'react';
-import {Server} from '../../types';
 import axios from 'axios';
-
-interface Props {
-    servers: Server[];
-    setSelectedServer: (server: Server) => void;
-    setApiStat: (status: boolean) => void;
-    showPopup: (title: string, message: string) => void;
-}
+import useStore from '../../Store';
 
 export const apiUrl = process.env.apiUrl;
 
-const Server: React.FC<Props> = (props) => {
+const Server: React.FC = (props) => {
+    const servers = useStore((state) => state.servers);
+    const setSelectedServer = useStore((state) => state.setSelectedServer);
+    const showInfoPopup = useStore((state) => state.showInfoPopup);
     const [data, setData] = useState('');
 
     const handleChooseServer = (event, server) => {
-        props.servers?.forEach(serverWrapper => {
+        servers.forEach(serverWrapper => {
             if (serverWrapper.addr === server) {
                 localStorage.setItem('server', JSON.stringify(serverWrapper))
-                props.setSelectedServer(server)
+                setSelectedServer(server)
             }
         })
     };
 
     const handleAddServer = () => {
         axios.post(`${apiUrl}/api/servers/`, data)
-            .then(() => props.setApiStat(true))
+            .then(() => {
+                // FIXME: server should be posted and added in app setApiStat(true)
+            })
             .catch(error => {
-                console.error('Add server api request error:', error);
-                props.showPopup('Error', 'Error choosing server');
+                console.error('Add server api request error: ', error);
+                showInfoPopup('Error', 'Error adding server');
             })
     };
 
@@ -45,7 +43,7 @@ const Server: React.FC<Props> = (props) => {
                     disablePortal
                     className='autocomplete'
                     onChange={handleChooseServer}
-                    options={props.servers?.map((server) => server.addr)}
+                    options={servers.map((server) => server.addr)}
                     renderInput={(params) => <TextField {...params} label='type server name'/>}
                 />
                 <TextField

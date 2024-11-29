@@ -1,39 +1,19 @@
 import './Chats.css'
-import React, {useEffect} from 'react';
+import React from 'react';
 import {List, ListItemButton, ListItemText} from '@mui/material';
-import axios from 'axios';
-import {Chat} from '../../types'
+import {Chat} from '../../index.d'
+import useStore from "../../Store";
 
-interface Props {
-    chats: Chat[];
-    setChats: (chats: Chat[]) => void;
-    setSelectedChat: (chat: Chat) => void;
-}
+const Chats: React.FC = () => {
 
-export const apiUrl = process.env.apiUrl;
+    const chats = useStore((state) => state.chats);
+    const setSelectedChat = useStore((state) => state.setSelectedChat);
 
-const Chats: React.FC<Props> = (props) => {
-
-    const interval = 5000;
-
-    const handleClick = (chat: Chat) => props.setSelectedChat(chat);
-
-    useEffect(() => {
-        const fetchNewChatsAndLastMessages = async () => {
-            try {
-                const [response] = await Promise.all([axios.get(`${apiUrl}/api/chats/list/?offset=-1&limit=10&filter_banned=false`)]);
-                props.setChats(response.data.chats.sort((a, b) => a.last_active.localeCompare(b.last_active)));
-            } catch (error) {
-                console.error('Error fetching chats:', error);
-            }
-        };
-        const intervalId = setInterval(fetchNewChatsAndLastMessages, interval);
-        return () => clearInterval(intervalId);
-    }, [props.chats, interval]);
+    const handleClick = (chat: Chat) => setSelectedChat(chat);
 
     return (
         <List className='chats'>
-            {props.chats?.map((chat) => (
+            {chats?.map((chat: Chat) => (
                 <ListItemButton className='chat-item' key={chat.id} onClick={() => handleClick(chat)}>
                     <ListItemText
                         primary={chat.name}

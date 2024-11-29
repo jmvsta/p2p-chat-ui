@@ -1,18 +1,16 @@
 import React, {useState} from 'react';
-import {Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField} from '@mui/material';
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography} from '@mui/material';
 import './Popup.css';
 import axios from 'axios';
-
-interface Props {
-    open: boolean,
-    setOpen: (open: boolean) => void,
-}
+import useStore from "../../Store";
 
 export const apiUrl = process.env.apiUrl;
 
-const InputContactPopup: React.FC<Props> = (props) => {
+const InputContactPopup: React.FC = () => {
     const [name, setName]: [string, (name: string) => void] = useState('');
     const [contact, setContact]: [string, (contact: string) => void] = useState('');
+    const open = useStore((state) => state.infoPopupOpen);
+    const setOpen = useStore((state) => state.setInfoPopupOpen);
 
     const addContact = () => {
         axios.post(`${apiUrl}/api/users/add/`, JSON.stringify({
@@ -20,22 +18,20 @@ const InputContactPopup: React.FC<Props> = (props) => {
             contact: contact
         }))
             .then(() => {
-                props.setOpen(false);
-                // props.showPopup('Success', 'Added new contact');
+                setOpen(false);
             })
             .catch(error => {
                 console.error('Error adding contact ', error);
-                props.setOpen(false);
-                // props.showPopup('Error', 'Error adding contact');
+                setOpen(false);
             });
     }
 
     const handleClose = () => {
-        props.setOpen(false);
+        setOpen(false);
     }
 
     return (
-        <Dialog open={props.open} onClose={handleClose}>
+        <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Add new contact</DialogTitle>
             <DialogContent>
                 <Typography>Enter user name</Typography>
