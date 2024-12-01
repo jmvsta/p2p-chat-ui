@@ -1,71 +1,117 @@
 import './Login.css'
-import {Button, Paper, TextField, Typography} from '@mui/material';
-import React, {useState} from 'react';
+import {Box, Button, IconButton, Paper, TextField, Typography} from '@mui/material';
+import React, {RefObject, useState} from 'react';
 import axios from 'axios';
 import {sha3_512} from 'js-sha3';
 import useStore from '../../Store';
+import AddLinkIcon from '@mui/icons-material/AddLink';
 
 export const apiUrl = process.env.apiUrl;
 
 const Login: React.FC = () => {
+
     const [login, setLogin] = useState('');
+    const [blob, setBlob] = useState<Blob>(null);
     const [password, setPassword]: [string, (password: string) => void] = useState('');
-    const setCurrentUser = useStore((state) => state.setCurrentUser);
+    const [fileName, setFileName] = useState('');
+    const fileInputRef: RefObject<any> = React.createRef();
     const setApiInited = useStore((state) => state.setApiInited);
     const showInfoPopup = useStore((state) => state.showInfoPopup);
 
     const handleLogin = async () => {
-        if (login == '' || password == '') {
-            //     TODO: add red indicators to inputs, disable button
+        if (login === '' || password === '' || blob === null) {
+            showInfoPopup('Error', 'All fields are required');
             return;
         }
-        const user = {
-            'name': login,
-            'pic': ''
-        }
+
+        const formData = new FormData();
+        formData.append('name', login);
+        formData.append('pic', blob)
+
         try {
             await Promise.all([
                 axios.post(`${apiUrl}/api/settings/init/?pwd=${sha3_512(password)}}`),
-                axios.post(`${apiUrl}/api/settings/me/`, JSON.stringify(user))
+                axios.post(`${apiUrl}/api/settings/me/`, formData, {
+                    headers: {'Content-Type': 'multipart/form-data'},
+                })
             ]);
             setApiInited(true);
-            const response = await axios.get(`${apiUrl}/api/settings/me/`);
-            setCurrentUser(response.data);
         } catch (error) {
             console.error('Login: Api init get error: ', error);
             showInfoPopup('Error', 'Login error');
+            setBlob(null);
         }
+        setBlob(null);
+        setLogin('');
+        setPassword('');
+        setFileName('');
     };
+
+    const handleIconButtonClick = () => fileInputRef.current.click();
+
+    const handleAddFile = (event) => {
+        const files = event.target.files;
+        if (!files) return;
+        setBlob(files[0]);
+        setFileName(files[0]?.name);
+    }
 
     return (
         <Paper className='login-wrapper'>
-            <div>
-                <Typography variant='h5' gutterBottom>
-                    Log in
-                </Typography>
+            <Typography variant='h5' gutterBottom>
+                Complete registration to sign in
+            </Typography>
+            <TextField
+                fullWidth
+                className='login-text-field'
+                variant='outlined'
+                label='Enter login'
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
+            />
+            <TextField
+                fullWidth
+                className='login-text-field'
+                variant='outlined'
+                label='Enter password'
+                type='password'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+            <Box
+                className='login-text-field'
+                display='flex'
+                alignItems='center'
+                justifyContent='space-between'
+                width='60%'
+                mb={1}
+            >
                 <TextField
                     fullWidth
-                    className='login-text-field'
                     variant='outlined'
-                    label='user id'
-                    value={login}
-                    onChange={e => setLogin(e.target.value)}
+                    value={fileName || 'No file selected'}
+                    disabled
+                    label='Uploaded File'
                 />
-                <TextField
-                    fullWidth
-                    className='login-text-field'
-                    variant='outlined'
-                    label='secret key number'
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
+                <IconButton edge='start' onClick={handleIconButtonClick}>
+                    <AddLinkIcon/>
+                </IconButton>
+                <input
+                    id='upload-image'
+                    hidden
+                    accept='*/*'
+                    type='file'
+                    ref={fileInputRef}
+                    onChange={handleAddFile}
                 />
-                <Button
-                    className='login-send-button'
-                    variant='contained'
-                    onClick={handleLogin}>
-                    GO
-                </Button>
-            </div>
+            </Box>
+            <Button
+                className='login-send-button'
+                variant='contained'
+                onClick={handleLogin}
+            >
+                GO
+            </Button>
         </Paper>
     )
 }

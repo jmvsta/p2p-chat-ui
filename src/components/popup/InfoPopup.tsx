@@ -1,7 +1,7 @@
 import React from 'react';
 import {Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography} from '@mui/material';
 import './Popup.css';
-import useStore from "../../Store";
+import useStore from '../../Store';
 
 const InfoPopup: React.FC = () => {
     const open = useStore((state) => state.infoPopupOpen);

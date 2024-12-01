@@ -10,45 +10,6 @@ const chatsComparator = (first: Chat, second: Chat) =>
 export const messageComparator = (first: Message, second: Message) =>
     first.time.localeCompare(second.time)
 
-const apiRequests = [
-    {
-        key: 'init',
-        request: () => axios.get(`${apiUrl}/api/settings/status/`),
-        errorMessage: 'Init api status request error',
-    },
-    {
-        key: 'currentUser',
-        request: () => axios.get(`${apiUrl}/api/settings/me/`),
-        errorMessage: 'Error fetching user\'s data',
-    },
-    {
-        key: 'servers',
-        request: () => axios.get(`${apiUrl}/api/servers/list`),
-        errorMessage: 'Servers request error:',
-    },
-    {
-        key: 'contacts',
-        request: () => axios.get(`${apiUrl}/api/users/list`),
-        errorMessage: 'Error fetching users',
-    },
-    {
-        key: 'chats',
-        request: () => axios.get(`${apiUrl}/api/chats/list/?offset=-1&limit=10&filter_banned=false`),
-        errorMessage: 'Error fetching chats',
-    },
-    {
-        key: 'status',
-        request: () => axios.get(`${apiUrl}/api/settings/status/`),
-        errorMessage: 'Init status request error',
-    },
-    {
-        key: 'messages',
-        request: (state) =>
-            axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${state.selectedChat?.id || ''}&offset=0&limit=10`),
-        errorMessage: 'Error fetching new messages',
-    },
-]
-
 const useStore = create<StoreState>((set, get) => ({
     currentUser: null,
     servers: [],
@@ -112,48 +73,89 @@ const useStore = create<StoreState>((set, get) => ({
         set({chatPopupMessage: message});
     },
     fetchData: async () => {
+        const apiRequests = [];
+
+        if (get().selectedChat !== null) {
+            apiRequests.push({
+                key: 'messages',
+                request: () =>
+                    axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${get().selectedChat.id}&offset=0&limit=10`),
+                errorMessage: 'Error fetching new messages',
+            });
+            apiRequests.push({
+                key: 'contacts',
+                request: () => axios.get(`${apiUrl}/api/users/list`),
+                errorMessage: 'Error fetching users',
+            });
+        }
+
+        if (!get().apiInited) {
+            apiRequests.push({
+                key: 'init',
+                request: () => axios.get(`${apiUrl}/api/settings/status/`),
+                errorMessage: 'Init api status request error',
+            });
+        } else {
+            // FIXME: chats pagination
+            apiRequests.push({
+                key: 'chats',
+                request: () => axios.get(`${apiUrl}/api/chats/list/?offset=0&limit=10&filter_banned=false`),
+                errorMessage: 'Error fetching chats',
+            });
+            apiRequests.push({
+                key: 'currentUser',
+                request: () => axios.get(`${apiUrl}/api/settings/me/`),
+                errorMessage: 'Error fetching user\'s data',
+            });
+            apiRequests.push({
+                key: 'servers',
+                request: () => axios.get(`${apiUrl}/api/servers/list`),
+                errorMessage: 'Servers request error:',
+            });
+        }
+
         const results = await Promise.allSettled(
-            apiRequests.map((api) => api.request)
+            apiRequests.map((api) => api.request())
         )
         results.forEach((result, index) => {
-            const {key, errorMessage} = apiRequests[index]
+            const {key, errorMessage} = apiRequests[index];
             if (result.status === 'fulfilled') {
-                const response = result.value;
                 switch (key) {
                     case 'init':
-                        set({apiInited: (response as any).inited});
+                        set({apiInited: result.value.data.inited});
                         break;
                     case 'currentUser':
-                        set({currentUser: (response as any)});
+                        set({currentUser: result.value.data});
                         break;
                     case 'servers':
-                        set({servers: (response as any).servers});
+                        set({servers: result.value.data.servers});
                         break;
                     case 'contacts':
-                        set({contacts: (response as any).users});
+                        set({contacts: result.value.data.users});
                         break;
                     case 'chats':
-                        set({chats: (response as any).chats.sort(chatsComparator)})
+                        set({chats: result.value.data.chats?.sort(chatsComparator)});
                         break;
                     case 'status':
-                        set({apiInited: (response as any).inited});
+                        set({apiInited: result.value.data.inited});
                         break;
                     case 'messages': {
-                        const messages = (response as any).msgs || [];
+                        const messages = result.value.data.msgs || [];
                         const idsSet = get().idsSet;
                         const newMessages = messages
                             .filter((msg) => !idsSet.has(msg.id))
                             .sort(messageComparator);
 
+                        if (newMessages.length > 0) {
+                            set((state) => ({
+                                messages: [...state.messages, newMessages],
+                            }));
 
-                        set((state) => ({
-                            messages: [...state.messages, newMessages],
-                        }));
-
-                        set((state) => {
-                            newMessages.forEach((msg) => state.idsSet.add(msg.id));
-                            return {idsSet: state.idsSet}
-                        });
+                            set((state) => {
+                                newMessages.forEach((msg) => state.idsSet.add(msg.id));
+                                return {idsSet: state.idsSet}
+                            });
+                        }
                         break;
                     }
                     default:

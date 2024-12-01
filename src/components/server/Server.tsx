@@ -6,7 +6,7 @@ import useStore from '../../Store';
 
 export const apiUrl = process.env.apiUrl;
 
-const Server: React.FC = (props) => {
+const Server: React.FC = () => {
     const servers = useStore((state) => state.servers);
     const setSelectedServer = useStore((state) => state.setSelectedServer);
     const showInfoPopup = useStore((state) => state.showInfoPopup);
@@ -24,11 +24,13 @@ const Server: React.FC = (props) => {
     const handleAddServer = () => {
         axios.post(`${apiUrl}/api/servers/`, data)
             .then(() => {
-                // FIXME: server should be posted and added in app setApiStat(true)
+                showInfoPopup('Success', 'Added server successfully');
+                setData('');
             })
             .catch(error => {
                 console.error('Add server api request error: ', error);
                 showInfoPopup('Error', 'Error adding server');
+                setData('');
             })
     };
 
@@ -36,21 +38,23 @@ const Server: React.FC = (props) => {
         <Paper className='server-wrapper'>
             <div>
                 <Typography variant='h5' gutterBottom component='h5'>
-                    Select server or add new by key
+                    Select server from list
                 </Typography>
                 <Autocomplete
                     fullWidth
                     disablePortal
                     className='autocomplete'
                     onChange={handleChooseServer}
-                    options={servers.map((server) => server.addr)}
-                    renderInput={(params) => <TextField {...params} label='type server name'/>}
+                    options={servers?.map((server) => server.addr)}
+                    renderInput={(params) => <TextField {...params} label='choose server'/>}
                 />
+                <Typography variant='h5' gutterBottom component='h5'>
+                    Add server
+                </Typography>
                 <TextField
                     fullWidth
                     className='login-text-field'
-                    // variant='outlined'
-                    label='add server key'
+                    label='enter server key'
                     value={data}
                     onChange={e => setData(e.target.value)}
                 />
@@ -58,7 +62,7 @@ const Server: React.FC = (props) => {
                     className='server-send-button'
                     variant='contained'
                     onClick={handleAddServer}>
-                    GO
+                    ADD
                 </Button>
             </div>
         </Paper>

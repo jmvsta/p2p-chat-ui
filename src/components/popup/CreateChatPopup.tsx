@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import './Popup.css';
 import axios from 'axios';
-import useStore from "../../Store";
+import useStore from '../../Store';
 
 export const apiUrl = process.env.apiUrl;
 
@@ -73,7 +73,7 @@ const CreateChatPopup: React.FC = () => {
                     disablePortal
                     className='autocomplete'
                     onChange={(_, value) => handleChooseItem(value.map(item => item.ext_id))}
-                    options={users}
+                    options={users || []}
                     getOptionLabel={(option) => option.name}
                     renderInput={(params) => <TextField {...params} label='start typing...'/>}
                 />

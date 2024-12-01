@@ -2,15 +2,15 @@ import React, {useState} from 'react';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography} from '@mui/material';
 import './Popup.css';
 import axios from 'axios';
-import useStore from "../../Store";
+import useStore from '../../Store';
 
 export const apiUrl = process.env.apiUrl;
 
 const InputContactPopup: React.FC = () => {
     const [name, setName]: [string, (name: string) => void] = useState('');
     const [contact, setContact]: [string, (contact: string) => void] = useState('');
-    const open = useStore((state) => state.infoPopupOpen);
-    const setOpen = useStore((state) => state.setInfoPopupOpen);
+    const open = useStore((state) => state.contactPopupOpen);
+    const setOpen = useStore((state) => state.setContactPopupOpen);
 
     const addContact = () => {
         axios.post(`${apiUrl}/api/users/add/`, JSON.stringify({

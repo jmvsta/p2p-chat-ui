@@ -5,7 +5,7 @@ import UserMessage from '../message/UserMessage';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
-import useStore, {messageComparator} from "../../Store";
+import useStore, {messageComparator} from '../../Store';
 
 export const apiUrl = process.env.apiUrl;
 
@@ -46,7 +46,7 @@ const ChatWindow: React.FC = () => {
         }
         const newScrollHeight = messagesRef.current.scrollHeight;
         messagesRef.current.scrollTop = scrollTop + (newScrollHeight - scrollHeight);
-    }
+    };
 
     const incrementOffsetAndGetMessages = (newOffset) => {
         setOffset(newOffset);
@@ -111,9 +111,7 @@ const ChatWindow: React.FC = () => {
             .catch(error => console.error('Error sending message: ', error));
     }
 
-    const handleIconButtonClick = () => {
-        fileInputRef.current.click();
-    }
+    const handleIconButtonClick = () => fileInputRef.current.click();
 
     const handleMenuClick = (event, index: number) => {
         setAnchorEl(event.currentTarget);

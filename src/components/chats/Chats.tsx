@@ -2,7 +2,7 @@ import './Chats.css'
 import React from 'react';
 import {List, ListItemButton, ListItemText} from '@mui/material';
 import {Chat} from '../../index.d'
-import useStore from "../../Store";
+import useStore from '../../Store';
 
 const Chats: React.FC = () => {
 
