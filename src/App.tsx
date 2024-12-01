@@ -8,7 +8,7 @@ import Server from './components/server/Server';
 import SettingsIcon from '@mui/icons-material/Settings';
 import axios from 'axios';
 import InfoPopup from './components/popup/InfoPopup';
-import InputContactPopup from './components/popup/InputContactPopup';
+import ContactPopup from './components/popup/ContactPopup';
 import ChatPopup from './components/popup/ChatPopup';
 import useStore from './Store';
 
@@ -43,7 +43,7 @@ const App: React.FC = () => {
                 setAnchorEl(null);
                 break;
             case 1:
-                showChatPopup('Add new chat', 'Enter chat name');
+                showChatPopup('Create chat', 'Enter chat name');
                 setAnchorEl(null);
                 break;
             case 2:
@@ -74,7 +74,7 @@ const App: React.FC = () => {
     return (
         <div className='app'>
             <InfoPopup/>
-            <InputContactPopup/>
+            <ContactPopup/>
             <ChatPopup/>
             {!apiInited &&
                 <Grid container spacing={0}>

@@ -6,32 +6,29 @@ import useStore from '../../Store';
 
 export const apiUrl = process.env.apiUrl;
 
-const InputContactPopup: React.FC = () => {
+const ContactPopup: React.FC = () => {
     const [name, setName]: [string, (name: string) => void] = useState('');
     const [contact, setContact]: [string, (contact: string) => void] = useState('');
     const open = useStore((state) => state.contactPopupOpen);
     const setOpen = useStore((state) => state.setContactPopupOpen);
+    const showInfoPopup = useStore((state) => state.showInfoPopup);
 
     const addContact = () => {
-        axios.post(`${apiUrl}/api/users/add/`, JSON.stringify({
+        axios.post(`${apiUrl}/api/users/`, JSON.stringify({
             name: name,
             contact: contact
         }))
-            .then(() => {
+            .then(() => showInfoPopup('Success', `We\'ve sent invitation to ${name}. Once they accept it, the chat will be created`))
+            .catch((error) => console.error('Error adding contact ', error))
+            .finally(() => {
                 setOpen(false);
+                setName('');
+                setContact('');
             })
-            .catch(error => {
-                console.error('Error adding contact ', error);
-                setOpen(false);
-            });
-    }
-
-    const handleClose = () => {
-        setOpen(false);
     }
 
     return (
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog open={open} onClose={() => setOpen(false)}>
             <DialogTitle>Add new contact</DialogTitle>
             <DialogContent>
                 <Typography>Enter user name</Typography>
@@ -43,8 +40,6 @@ const InputContactPopup: React.FC = () => {
                     value={name}
                     onChange={e => setName(e.target.value)}
                 />
-            </DialogContent>
-            <DialogContent>
                 <Typography>Enter contact key</Typography>
                 <TextField
                     fullWidth
@@ -65,7 +60,7 @@ const InputContactPopup: React.FC = () => {
                 <Button
                     className='popup-button'
                     variant='contained'
-                    onClick={handleClose}>
+                    onClick={() => setOpen(false)}>
                     CANCEL
                 </Button>
             </DialogActions>
@@ -73,4 +68,4 @@ const InputContactPopup: React.FC = () => {
     );
 };
 
-export default InputContactPopup;
+export default ContactPopup;

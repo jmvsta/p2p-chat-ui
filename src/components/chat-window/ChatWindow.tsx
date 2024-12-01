@@ -31,9 +31,7 @@ const ChatWindow: React.FC = () => {
     const incrementOffsetAndGetMessages = (newOffset: bigint) => {
         setOffset(newOffset);
         axios
-            .get(
-                `${apiUrl}/api/msgs/chat/?chat_id=${selectedChat.id}&offset=${newOffset}&limit=${limit}`
-            )
+            .get(`${apiUrl}/api/msgs/chat/?chat_id=${selectedChat.id}&offset=${newOffset}&limit=${limit}`)
             .then((response) => {
                 const fetchedMessages = response.data.msgs || [];
                 const newMessages = fetchedMessages
@@ -138,26 +136,29 @@ const ChatWindow: React.FC = () => {
                 </AppBar>
             )}
             <Paper className='chat-window'>
-                {<InfiniteScroll
-                    className='messages'
-                    dataLength={messages.length}
-                    next={() => incrementOffsetAndGetMessages(offset + limit)}
-                    hasMore={true}
-                    loader=''
-                    inverse={true}
-                >
-                    {messages.map((message, index) => {
-                        const user =
-                            message.sender != null
-                                ? users.find((u) => u.id === message.sender)
-                                : me;
-                        return (
-                            <div className='message' key={index}>
-                                <UserMessage message={message} user={user}/>
-                            </div>
-                        );
-                    })}
-                </InfiniteScroll>}
+                <div id='messages' className='messages'>
+                    {<InfiniteScroll
+                        className={'infinite-scroll'}
+                        scrollableTarget='messages'
+                        dataLength={1000}
+                        next={() => incrementOffsetAndGetMessages(offset + limit)}
+                        hasMore={true}
+                        loader={''}
+                        inverse={true}
+                    >
+                        {messages.map((message, index) => {
+                            const user =
+                                message.sender != null
+                                    ? users.find((u) => u.id === message.sender)
+                                    : me;
+                            return (
+                                <div className='message' key={index}>
+                                    <UserMessage message={message} user={user}/>
+                                </div>
+                            );
+                        })}
+                    </InfiniteScroll>}
+                </div>
                 {blobs.length !== 0 && (
                     <Paper>
                         <ul className='preview-container'>

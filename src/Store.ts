@@ -38,6 +38,7 @@ const useStore = create<StoreState>((set, get) => ({
     setServers: (servers: Server[]): void => set({servers: servers}),
     setMessages: (messages: Message[]): void => set({messages: messages}),
     appendMessagesHead: (messages: Message[]): void => set({messages: [...messages, ...get().messages]}),
+    appendMessagesTail: (messages: Message[]): void => set({messages: [...get().messages, ...messages]}),
     addIdsToSet: (ids: bigint[]) =>
         set((state) => {
             ids.forEach((id) => state.idsSet.add(id))
@@ -146,7 +147,6 @@ const useStore = create<StoreState>((set, get) => ({
                         const idsSet = get().idsSet;
                         const newMessages = messages
                             .filter((msg) => !idsSet.has(msg.id))
-                            .sort(messageComparator);
 
                         if (newMessages.length > 0) {
                             set((state) => ({
