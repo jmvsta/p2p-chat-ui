@@ -17,7 +17,7 @@ const useStore = create<StoreState>((set, get) => ({
     chats: [],
     selectedChat: null,
     apiInited: false,
-    selectedServer: null,
+    selectedServer: JSON.parse(localStorage.getItem('server')),
     messages: [],
     idsSet: new Set<bigint>(),
 
@@ -148,7 +148,7 @@ const useStore = create<StoreState>((set, get) => ({
 
                         if (newMessages.length > 0) {
                             set((state) => ({
-                                messages: [...state.messages, newMessages],
+                                messages: [...state.messages, ...newMessages],
                             }));
 
                             set((state) => {

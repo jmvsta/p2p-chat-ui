@@ -5,53 +5,55 @@
     flex-direction: column;
     background-color: #ffffff;
     border-radius: 0 !important;
+    overflow-y: auto;
 }
 
-.messages {
+.chat-window .messages {
+    flexDirection: 'column-reverse';
     flex-grow: 1;
     overflow-y: auto;
     padding: 10px;
 }
 
-.input {
-    /*margin-right: 10px;*/
+.chat-window .input {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background-color: #f5f5f5;
 }
 
-.preview-container {
+.chat-window .preview-container {
     display: flex;
     justify-content: flex-start;
     background-color: #f5f5f5;
     overflow: scroll;
 }
 
-.message {
+.chat-window .message {
     max-width: 100%;
     height: auto;
     flex-grow: 1;
     margin-right: 10px;
 }
 
-.image {
+.chat-window .image {
     max-width: 50%;
     height: auto;
     flex-grow: 1;
     border-radius: 8px;
 }
 
-.image-preview-wrapper {
+.chat-window .image-preview-wrapper {
     list-style-type: none
 }
-.image-preview {
+
+.chat-window .image-preview {
     max-width: 100%;
     max-height: 100%;
 }
 
 .moved-text {
-    word-wrap:break-word;
+    word-wrap: break-word;
 }
 
 .message-right {

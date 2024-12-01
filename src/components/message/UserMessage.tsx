@@ -1,23 +1,17 @@
-import React, {useState} from 'react';
-import {Message} from '../../index.d';
+import React from 'react';
+import {ExtUser, Message} from '../../index.d';
 import {Avatar, Box, Button, Typography} from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download'
 import axios from 'axios';
 import {apiUrl} from '../../App';
 import './UserMessage.css';
-import useStore from '../../Store';
 
 interface Props {
     message: Message;
+    user: ExtUser;
 }
 
 const UserMessage: React.FC<Props> = (props) => {
-
-    const me = useStore((state) => state.currentUser);
-    const users = useStore((state) => state.contacts);
-
-    const [user, setUser] = useState(props.message.sender != null ? users?.find(u =>
-        u.id === props.message.sender) : me);
 
     const handleDownload = () => {
         axios.post(`${apiUrl}/api/downloads/start?msg_id=${props.message.id}`)
@@ -29,16 +23,16 @@ const UserMessage: React.FC<Props> = (props) => {
         <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
             <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
                 <Avatar
-                    src={user?.pic}
+                    src={props.user?.pic}
                     alt='avatar'
                     sx={{
                         width: 40,
                         height: 40,
-                        bgcolor: user?.pic ? 'transparent' : 'black',
+                        bgcolor: props.user?.pic ? 'transparent' : 'black',
                     }}
                 />
                 <Typography variant='body1' fontWeight='bold'>
-                    {user?.name || 'Unknown User'}
+                    {props.user?.name || 'Unknown User'}
                 </Typography>
             </Box>
 
