@@ -77,6 +77,7 @@ interface StoreState {
     infoPopupOpen: boolean,
     infoPopupTitle: string,
     infoPopupMessage: string,
+    infoPopupButtonText: string,
 
     contactPopupOpen: boolean,
     contactPopupTitle: string,
@@ -100,7 +101,7 @@ interface StoreState {
     setSelectedServer: (server: Server) => void,
 
     setInfoPopupOpen: (open: boolean) => void,
-    showInfoPopup: (title: string, message: string) => void,
+    showInfoPopup: (title: string, message: string, buttonText?: string) => void,
 
     setContactPopupOpen: (open: boolean) => void,
     showContactPopup: () => void,

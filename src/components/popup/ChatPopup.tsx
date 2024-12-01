@@ -15,7 +15,7 @@ import useStore from '../../Store';
 
 export const apiUrl = process.env.apiUrl;
 
-const CreateChatPopup: React.FC = () => {
+const ChatPopup: React.FC = () => {
     const [name, setName]: [string, (name: string) => void] = useState('');
     const [userIds, setUserIds] = useState([]);
     const open = useStore((state) => state.chatPopupOpen);
@@ -96,4 +96,4 @@ const CreateChatPopup: React.FC = () => {
     );
 };
 
-export default CreateChatPopup;
+export default ChatPopup;

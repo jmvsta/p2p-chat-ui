@@ -9,3 +9,17 @@
 .popup-button:hover {
     background-color: #000000 !important;
 }
+
+.popup-content {
+    display: flex;
+    margin: 5px 0;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+    width: 100%;
+    text-align: left;
+}

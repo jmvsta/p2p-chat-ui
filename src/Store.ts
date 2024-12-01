@@ -24,6 +24,7 @@ const useStore = create<StoreState>((set, get) => ({
     infoPopupOpen: false,
     infoPopupTitle: '',
     infoPopupMessage: '',
+    infoPopupButtonText: 'OK',
 
     contactPopupOpen: false,
     contactPopupTitle: '',
@@ -55,10 +56,11 @@ const useStore = create<StoreState>((set, get) => ({
     setSelectedServer: (server: Server): void => set({selectedServer: server}),
 
     setInfoPopupOpen: (open: boolean): void => set({infoPopupOpen: open}),
-    showInfoPopup: (title: string, message: string) => {
+    showInfoPopup: (title: string, message: string, buttonText?: string) => {
         set({infoPopupOpen: true});
         set({infoPopupTitle: title});
         set({infoPopupMessage: message});
+        set({infoPopupButtonText: buttonText ? buttonText: 'OK'});
     },
 
     setContactPopupOpen: (open: boolean): void => set({contactPopupOpen: open}),

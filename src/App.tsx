@@ -9,7 +9,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import axios from 'axios';
 import InfoPopup from './components/popup/InfoPopup';
 import InputContactPopup from './components/popup/InputContactPopup';
-import CreateChatPopup from './components/popup/CreateChatPopup';
+import ChatPopup from './components/popup/ChatPopup';
 import useStore from './Store';
 
 export const apiUrl = process.env.apiUrl;
@@ -48,7 +48,7 @@ const App: React.FC = () => {
                 break;
             case 2:
                 axios.get(`${apiUrl}/api/users/my-contact`)
-                    .then((response) => showInfoPopup('Your contact', response.data))
+                    .then((response) => showInfoPopup('Your contact', response.data, 'COPY'))
                     .catch(error => console.error('Error fetching currentUser\'s friends: ', error));
                 setAnchorEl(null);
                 break;
@@ -75,7 +75,7 @@ const App: React.FC = () => {
         <div className='app'>
             <InfoPopup/>
             <InputContactPopup/>
-            <CreateChatPopup/>
+            <ChatPopup/>
             {!apiInited &&
                 <Grid container spacing={0}>
                     <Grid className='grid-item' item xs={6}>

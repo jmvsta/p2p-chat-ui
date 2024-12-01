@@ -8,15 +8,23 @@ const InfoPopup: React.FC = () => {
     const setOpen = useStore((state) => state.setInfoPopupOpen);
     const title = useStore((state) => state.infoPopupTitle);
     const message = useStore((state) => state.infoPopupMessage);
+    const buttonText = useStore((state) => state.infoPopupButtonText);
 
     const handleClose = () => {
+        if (buttonText === 'COPY') {
+            navigator.clipboard.writeText(message).then(() => {
+                console.log('Message copied to clipboard');
+            }).catch((err) => {
+                console.error('Failed to copy message: ', err);
+            });
+        }
         setOpen(false);
     }
 
     return (
         <Dialog open={open} onClose={handleClose}>
             <DialogTitle>{title}</DialogTitle>
-            <DialogContent>
+            <DialogContent className={'popup-content'}>
                 <Typography>{message}</Typography>
             </DialogContent>
             <DialogActions>
@@ -24,7 +32,7 @@ const InfoPopup: React.FC = () => {
                     className='popup-button'
                     variant='contained'
                     onClick={handleClose}>
-                    OK
+                    {buttonText}
                 </Button>
             </DialogActions>
         </Dialog>
