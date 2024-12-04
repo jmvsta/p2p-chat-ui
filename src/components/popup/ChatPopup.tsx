@@ -10,34 +10,26 @@ import {
     Typography
 } from '@mui/material';
 import './Popup.css';
-import axios from 'axios';
-import useStore from '../../Store';
+import {useStore} from '../../Store';
+import ChatService from "../../services/ChatService";
 
-export const apiUrl = process.env.apiUrl;
 
 const ChatPopup: React.FC = () => {
-    const [name, setName]: [string, (name: string) => void] = useState('');
+    const [chatName, setChatName] = useState('');
     const [userIds, setUserIds] = useState([]);
     const open = useStore((state) => state.chatPopupOpen);
     const setOpen = useStore((state) => state.setChatPopupOpen);
     const title = useStore((state) => state.chatPopupTitle);
     const message = useStore((state) => state.chatPopupMessage);
     const users = useStore((state) => state.contacts);
+    const chatService = new ChatService();
 
-    const createChat = () => {
-        axios.post(`${apiUrl}/api/chats/`, JSON.stringify({
-            name: name,
-            users: userIds
-        }))
-            .then(() => {
+    const handleCreateChat = () => {
+        chatService.create(chatName, userIds)
+            .catch((error) => console.error('Error adding chats ', error))
+            .finally(() => {
                 setUserIds([]);
-                setName('');
-                setOpen(false);
-            })
-            .catch(error => {
-                setUserIds([]);
-                setName('');
-                console.error('Error adding chats ', error);
+                setChatName('');
                 setOpen(false);
             });
     }
@@ -47,7 +39,7 @@ const ChatPopup: React.FC = () => {
     }
 
     const handleSetChatName = (chatName: string) => {
-        setName(chatName);
+        setChatName(chatName);
     }
 
     const handleClose = () => {
@@ -64,7 +56,7 @@ const ChatPopup: React.FC = () => {
                     className='login-text-field'
                     variant='outlined'
                     label='chat name'
-                    name={name}
+                    name={chatName}
                     onChange={e => handleSetChatName(e.target.value)}
                 />
                 <Autocomplete
@@ -82,7 +74,7 @@ const ChatPopup: React.FC = () => {
                 <Button
                     className='popup-button'
                     variant='contained'
-                    onClick={createChat}>
+                    onClick={handleCreateChat}>
                     CREATE
                 </Button>
                 <Button

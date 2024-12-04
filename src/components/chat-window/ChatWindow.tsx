@@ -1,16 +1,20 @@
-import React, {RefObject, useState} from 'react';
+import React, {RefObject, useEffect, useState} from 'react';
 import './ChatWindow.css';
 import {AppBar, IconButton, Menu, MenuItem, Paper, TextField, Toolbar, Typography,} from '@mui/material';
 import UserMessage from '../message/UserMessage';
 import AddLinkIcon from '@mui/icons-material/AddLink';
-import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
-import useStore, {messageComparator} from '../../Store';
+import {useStore} from '../../Store';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import MessageService from "../../services/MessageService";
+import FileService from "../../services/FileService";
+import ChatService from "../../services/ChatService";
 
-export const apiUrl = process.env.apiUrl;
+interface Props {
+    style?: React.CSSProperties;
+}
 
-const ChatWindow: React.FC = () => {
+const ChatWindow: React.FC<Props> = (props) => {
 
     const [text, setText] = useState('');
     const [blobs, setBlobs] = useState<Blob[]>([]);
@@ -21,23 +25,30 @@ const ChatWindow: React.FC = () => {
     const idsSet = useStore((state) => state.idsSet);
     const addIdsToSet = useStore((state) => state.addIdsToSet);
     const messages = useStore((state) => state.messages);
-    const appendMessagesHead = useStore((state) => state.appendMessagesHead);
+    const appendMessagesTail = useStore((state) => state.appendMessagesTail);
     const setSelectedChat = useStore((state) => state.setSelectedChat);
     const deleteChat = useStore((state) => state.deleteChat);
     const me = useStore((state) => state.currentUser);
     const users = useStore((state) => state.contacts);
     const limit = 10n;
+    const messageService = new MessageService();
+    const fileService = new FileService();
+    const chatService = new ChatService();
 
-    const incrementOffsetAndGetMessages = (newOffset: bigint) => {
+    useEffect(() => {
+        if (selectedChat) {
+            fetchMessages(0n);
+        }
+    }, [selectedChat]);
+
+    const fetchMessages = (newOffset: bigint) => {
         setOffset(newOffset);
-        axios
-            .get(`${apiUrl}/api/msgs/chat/?chat_id=${selectedChat.id}&offset=${newOffset}&limit=${limit}`)
+        messageService.read(selectedChat.id, newOffset, limit)
             .then((response) => {
                 const fetchedMessages = response.data.msgs || [];
                 const newMessages = fetchedMessages
                     .filter((msg) => !idsSet.has(msg.id))
-                    .sort(messageComparator);
-                appendMessagesHead(newMessages);
+                appendMessagesTail(newMessages);
                 addIdsToSet(newMessages.map((msg) => msg.id));
             })
             .catch((error) => console.error('Error loading messages:', error));
@@ -59,44 +70,26 @@ const ChatWindow: React.FC = () => {
     const sendMessage = () => {
         const requests = [];
         blobs?.forEach((file) => {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('chat_id', selectedChat.id);
-            requests.push(
-                axios
-                    .post(`${apiUrl}/api/msgs/file/`, formData, {
-                        headers: {'Content-Type': 'multipart/form-data'},
-                    })
-                    .then((resp) => {
-                        console.log('File added successfully', resp);
-                    })
-                    .catch((error) => {
-                        console.error('Error adding new file', error);
-                    })
-            );
+            requests.push(fileService.create(file, selectedChat.id));
         });
 
         if (text !== '') {
-            const body = {
-                chat_id: selectedChat.id,
-                text: text,
-            };
-            requests.push(axios.post(`${apiUrl}/api/msgs/text/`, JSON.stringify(body)));
+            requests.push(messageService.create(selectedChat.id, text));
         }
 
         Promise.all(requests)
-            .then(() => {
+            .catch((error) => console.error('Error sending message: ', error))
+            .finally(() => {
                 setBlobs([]);
                 setText('');
             })
-            .catch((error) => console.error('Error sending message: ', error));
     };
 
     const handleMenuClick = (event, index: number) => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                axios.post(`${apiUrl}/api/chats/moderate/?id=${selectedChat.id}&action=del`)
+                chatService.delete(selectedChat.id)
                     .then(() => {
                         deleteChat(selectedChat);
                         setSelectedChat(null);
@@ -110,7 +103,7 @@ const ChatWindow: React.FC = () => {
     };
 
     return (
-        <div>
+        <div style={{...props.style}}>
             {selectedChat !== null && (
                 <AppBar position='static'>
                     <Toolbar className='chat-toolbar'>
@@ -135,90 +128,87 @@ const ChatWindow: React.FC = () => {
                     </Toolbar>
                 </AppBar>
             )}
-            <Paper className='chat-window'>
-                <div id='messages' className='messages'>
-                    {<InfiniteScroll
-                        className={'infinite-scroll'}
-                        scrollableTarget='messages'
-                        dataLength={1000}
-                        next={() => incrementOffsetAndGetMessages(offset + limit)}
-                        hasMore={true}
-                        loader={''}
-                        inverse={true}
-                    >
-                        {messages.map((message, index) => {
-                            const user =
-                                message.sender != null
-                                    ? users.find((u) => u.id === message.sender)
-                                    : me;
+            <div id='scrollableMessages' style={{overflow: 'auto'}}>
+                <InfiniteScroll
+                    className={'messages'}
+                    dataLength={messages.length}
+                    scrollableTarget={'scrollableMessages'}
+                    next={() => fetchMessages(offset + limit)}
+                    hasMore={true}
+                    loader={''}
+                >
+                    {messages.map((message, index) => {
+                        const user =
+                            message.sender != null
+                                ? users.find((u) => u.id === message.sender)
+                                : me;
+                        return (
+                            <div className='message' key={index}>
+                                <UserMessage message={message} user={user}/>
+                            </div>
+                        );
+                    })}
+                </InfiniteScroll>
+            </div>
+            {blobs.length !== 0 && (
+                <Paper>
+                    <ul className='preview-container'>
+                        {blobs.map((file, index) => {
+                            const blobUrl = URL.createObjectURL(file);
                             return (
-                                <div className='message' key={index}>
-                                    <UserMessage message={message} user={user}/>
-                                </div>
+                                <li className='image-preview-wrapper' key={index}>
+                                    <div className='image-container'>
+                                        <img
+                                            className='image-preview'
+                                            src={blobUrl}
+                                            alt={`File ${index}`}
+                                            onLoad={() => URL.revokeObjectURL(blobUrl)}
+                                            onError={(e) => console.error(e)}
+                                        />
+                                        <button
+                                            className='remove-button'
+                                            onClick={() =>
+                                                setBlobs((prevBlobs) =>
+                                                    prevBlobs.filter((_, i) => i !== index)
+                                                )
+                                            }
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+                                </li>
                             );
                         })}
-                    </InfiniteScroll>}
-                </div>
-                {blobs.length !== 0 && (
-                    <Paper>
-                        <ul className='preview-container'>
-                            {blobs.map((file, index) => {
-                                const blobUrl = URL.createObjectURL(file);
-                                return (
-                                    <li className='image-preview-wrapper' key={index}>
-                                        <div className='image-container'>
-                                            <img
-                                                className='image-preview'
-                                                src={blobUrl}
-                                                alt={`File ${index}`}
-                                                onLoad={() => URL.revokeObjectURL(blobUrl)}
-                                                onError={(e) => console.error(e)}
-                                            />
-                                            <button
-                                                className='remove-button'
-                                                onClick={() =>
-                                                    setBlobs((prevBlobs) =>
-                                                        prevBlobs.filter((_, i) => i !== index)
-                                                    )
-                                                }
-                                            >
-                                                &times;
-                                            </button>
-                                        </div>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    </Paper>
-                )}
-                {selectedChat != null && (
-                    <div className='input'>
-                        <TextField
-                            fullWidth
-                            className='input'
-                            variant='outlined'
-                            label='Type a message...'
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            onKeyDown={handleSendMessage}
+                    </ul>
+                </Paper>
+            )}
+            {selectedChat != null && (
+                <div className='input'>
+                    <TextField
+                        fullWidth
+                        className='input'
+                        variant='outlined'
+                        label='Type a message...'
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        onKeyDown={handleSendMessage}
+                    />
+                    <label htmlFor='upload-image'>
+                        <IconButton edge='start' onClick={() => fileInputRef.current.click()}>
+                            <AddLinkIcon/>
+                        </IconButton>
+                        <input
+                            id='upload-image'
+                            hidden
+                            accept='*/*'
+                            multiple
+                            type='file'
+                            ref={fileInputRef}
+                            onChange={handleAddFile}
                         />
-                        <label htmlFor='upload-image'>
-                            <IconButton edge='start' onClick={() => fileInputRef.current.click()}>
-                                <AddLinkIcon/>
-                            </IconButton>
-                            <input
-                                id='upload-image'
-                                hidden
-                                accept='*/*'
-                                multiple
-                                type='file'
-                                ref={fileInputRef}
-                                onChange={handleAddFile}
-                            />
-                        </label>
-                    </div>
-                )}
-            </Paper>
+                    </label>
+                </div>
+            )}
         </div>
     );
 }

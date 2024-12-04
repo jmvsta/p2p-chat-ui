@@ -7,17 +7,17 @@
     justify-content: center;
 }
 
-.server-wrapper .autocomplete {
+.autocomplete {
     width: 60%;
     margin: 5px 0;
 }
 
-.server-wrapper .login-text-field {
+.login-text-field {
     width: 60%;
     margin: 5px 0;
 }
 
-.server-wrapper .server-send-button {
+.server-send-button {
     width: 60%;
     align-self: center;
     margin: 5px 0;

@@ -1,8 +1,3 @@
-.chats {
-    flex: 0 0 30%;
-    overflow-y: auto;
-}
-
 .chat-item {
     padding: 10px;
     cursor: pointer;
@@ -10,10 +5,4 @@
 
 .chat-item:hover {
     background-color: #e0e0e0;
-}
-
-.truncated-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }

@@ -1,19 +1,3 @@
-export interface Entity {
-    id?: string;
-    chat?: string;
-    path?: string;
-    name?: string;
-    text?: string;
-    file?: File;
-}
-
-export interface File extends Entity {
-    size?: string;
-    user_id?: string;
-    file_id?: string;
-    originalname?: string;
-}
-
 export interface Message {
     id: number;
     sender?: number;
@@ -31,18 +15,20 @@ export interface Payload {
     downloaded: boolean;
 }
 
-export interface Chat extends Entity {
+export interface Chat {
+    id: string;
+    name: string;
     last_msg_txt?: string;
     last_msg_user?: bigint;
-    read?: boolean;
-    last_active?: string;
+    read: boolean;
+    last_active: string;
 }
 
-export interface Server extends Entity {
-    addr?: string;
-    key_code?: string;
-    status?: string;
-    last_check?: string;
+export interface Server {
+    id: string;
+    addr: string;
+    status: string;
+    last_check: string;
 }
 
 export interface User {
@@ -95,6 +81,7 @@ interface StoreState {
     setSelectedChat: (chat: Chat) => void,
     setMessages: (messages: Message[]) => void,
     appendMessagesHead: (messages: Message[]) => void,
+    appendMessagesTail: (messages: Message[]) => void,
     setIdsSet: (idsSet: Set<bigint>) => void,
     addIdsToSet: (ids: bigint[]) => void,
     setApiInited: (inited: boolean) => void,
@@ -107,7 +94,5 @@ interface StoreState {
     showContactPopup: () => void,
 
     setChatPopupOpen: (open: boolean) => void,
-    showChatPopup: (title: string, message: string) => void,
-
-    fetchData: () => void,
+    showChatPopup: (title: string, message: string) => void
 }

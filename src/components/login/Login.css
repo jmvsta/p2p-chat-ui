@@ -12,19 +12,19 @@
     justify-content: center;
 }
 
-.login-wrapper .login-text-field {
+.login-text-field {
     width: 60%;
     margin: 5px 0;
 }
 
-.login-wrapper .login-send-button {
+.login-send-button {
     width: 60%;
     align-self: center;
     margin: 5px 0;
     background-color: #000000;
 }
 
-.login-wrapper .login-send-button:hover {
+.login-send-button:hover {
     background-color: #000000;
 }
 

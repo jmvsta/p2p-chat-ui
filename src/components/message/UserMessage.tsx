@@ -1,10 +1,9 @@
 import React from 'react';
-import {ExtUser, Message} from '../../index.d';
+import {ExtUser, Message} from '../../types';
 import {Avatar, Box, Button, Typography} from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download'
-import axios from 'axios';
-import {apiUrl} from '../../App';
 import './UserMessage.css';
+import FileService from "../../services/FileService";
 
 interface Props {
     message: Message;
@@ -13,10 +12,12 @@ interface Props {
 
 const UserMessage: React.FC<Props> = (props) => {
 
-    const handleDownload = () => {
-        axios.post(`${apiUrl}/api/downloads/start?msg_id=${props.message.id}`)
-            .catch(error => console.error(`Error downloading file, msg.id = ${props.message.id}:`, error));
+    const fileService = new FileService();
 
+    const handleDownload = () => {
+        fileService
+            .read(props.message.id)
+            .catch((error) => console.error(`Error downloading file, msg.id = ${props.message.id}:`, error));
     };
 
     return (

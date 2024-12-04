@@ -1,23 +1,52 @@
 import './Chats.css'
-import React from 'react';
+import React, {useEffect} from 'react';
 import {List, ListItemButton, ListItemText} from '@mui/material';
-import {Chat} from '../../index.d'
-import useStore from '../../Store';
+import {Chat} from '../../types'
+import {useStore} from '../../Store';
+import ChatService from "../../services/ChatService";
 
-const Chats: React.FC = () => {
+interface Props {
+    style?: React.CSSProperties;
+}
 
-    const chats = useStore((state) => state.chats);
-    const setSelectedChat = useStore((state) => state.setSelectedChat);
+const Chats: React.FC<Props> = (props) => {
 
-    const handleClick = (chat: Chat) => setSelectedChat(chat);
+    const {
+        chats,
+        selectedServer,
+        currentUser,
+        apiInited,
+        setSelectedChat,
+        setChats
+    } = useStore();
+    const chatService = new ChatService();
+
+    useEffect(() => {
+        if (selectedServer && apiInited) {
+            chatService.read(0n, 10n, true)
+                .then((result) => {
+                    setChats(
+                        result.data.chats?.sort((first: Chat, second: Chat) =>
+                            first.last_active.localeCompare(second.last_active)
+                        )
+                    );
+                });
+        }
+    }, [selectedServer, apiInited]);
+
+    const getSecondary = (chat: Chat): string => {
+        if (chat.last_msg_user == null && chat.last_msg_txt == null) return ''
+        else if (chat.last_msg_user == null) return `${currentUser?.name}: ${chat.last_msg_txt}`
+        else return `${chat.last_msg_user}: ${chat.last_msg_txt}`;
+    }
 
     return (
-        <List className='chats'>
+        <List style={{...props?.style, overflowY: 'auto'}}>
             {chats?.map((chat: Chat) => (
-                <ListItemButton className='chat-item' key={chat.id} onClick={() => handleClick(chat)}>
+                <ListItemButton className='chat-item' key={chat.id} onClick={() => setSelectedChat(chat)}>
                     <ListItemText
                         primary={chat.name}
-                        secondary={chat.last_msg_user !== null ? `${chat.last_msg_user}: ${chat.last_msg_txt}` : ''}
+                        secondary={getSecondary(chat)}
                         classes={{primary: 'truncated-text', secondary: 'truncated-text'}}
                     />
                 </ListItemButton>

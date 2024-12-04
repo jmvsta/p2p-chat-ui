@@ -1,23 +1,21 @@
 import React, {useState} from 'react';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography} from '@mui/material';
 import './Popup.css';
-import axios from 'axios';
-import useStore from '../../Store';
-
-export const apiUrl = process.env.apiUrl;
+import {useStore} from '../../Store';
+import UserService from "../../services/UserService";
 
 const ContactPopup: React.FC = () => {
+
     const [name, setName]: [string, (name: string) => void] = useState('');
     const [contact, setContact]: [string, (contact: string) => void] = useState('');
     const open = useStore((state) => state.contactPopupOpen);
     const setOpen = useStore((state) => state.setContactPopupOpen);
     const showInfoPopup = useStore((state) => state.showInfoPopup);
+    const userService = new UserService();
 
     const addContact = () => {
-        axios.post(`${apiUrl}/api/users/`, JSON.stringify({
-            name: name,
-            contact: contact
-        }))
+        userService
+            .create(name, contact)
             .then(() => showInfoPopup('Success', `We\'ve sent invitation to ${name}. Once they accept it, the chat will be created`))
             .catch((error) => console.error('Error adding contact ', error))
             .finally(() => {

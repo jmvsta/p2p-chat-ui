@@ -13,6 +13,9 @@ if ($Debug) {
     Copy-Item "$UIPath\dist\main.js.map" "$ClientPath\static\react\js\"
 }
 Copy-Item "$UIPath\dist\index.html" "$ClientPath\static\react\html\"
+New-Item -Path "$ClientPath\static\react\public\" -ItemType Directory
+Copy-Item "$UIPath\public\logo.jpg" "$ClientPath\static\react\public\"
+Copy-Item "$UIPath\public\logo_1.jpg" "$ClientPath\static\react\public\"
 Set-Location $ClientPath
 Start-Process "go" -ArgumentList "build" -Wait
 Copy-Item "$ClientPath\avdol-client.exe" "$OutputPath\cli$Port\"
