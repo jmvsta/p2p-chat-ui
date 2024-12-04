@@ -3,7 +3,6 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:8080",
   "homepage": ".",
   "dependencies": {
     "@emotion/react": "^11.13.0",
@@ -20,6 +19,7 @@
     "@types/react-dom": "^18.2.24",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.1",
+    "cross-spawn": "^7.0.6",
     "express": "^4.18.2",
     "file-saver": "^2.0.5",
     "fs-extra": "^11.1.1",
@@ -28,18 +28,20 @@
     "npm": "^10.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-infinite-scroll-component": "^6.1.0",
     "start": "^5.1.0",
     "styled-components": "^5.3.11",
     "typescript": "^5.4.5",
     "uuid": "^9.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "zustand": "^5.0.1"
   },
   "scripts": {
     "tsc": "./node_modules/typescript/bin/tsc",
     "build": "cross-env SCRIPT_PATH='/static/js/main.js' npx webpack --config ./webpack.config.cjs",
     "build:cli8080": "cross-env SCRIPT_PATH='/static/js/main.js' npx webpack --config ./webpack.config.cjs --env env=cli80 ",
     "build:cli8081": "cross-env SCRIPT_PATH='/static/js/main.js' npx webpack --config ./webpack.config.cjs --env env=cli81",
-    "start": "node server/index.cjs"
+    "start": "node index.tsx"
   },
   "eslintConfig": {
     "extends": [

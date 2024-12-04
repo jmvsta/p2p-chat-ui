@@ -1,41 +1,32 @@
 import React, {useState} from 'react';
-import {Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField} from '@mui/material';
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography} from '@mui/material';
 import './Popup.css';
-import axios from 'axios';
+import {useStore} from '../../Store';
+import UserService from "../../services/UserService";
 
-interface Props {
-    open: boolean,
-    setOpen: (open: boolean) => void,
-}
+const ContactPopup: React.FC = () => {
 
-export const apiUrl = process.env.apiUrl;
-
-const InputContactPopup: React.FC<Props> = (props) => {
     const [name, setName]: [string, (name: string) => void] = useState('');
     const [contact, setContact]: [string, (contact: string) => void] = useState('');
+    const open = useStore((state) => state.contactPopupOpen);
+    const setOpen = useStore((state) => state.setContactPopupOpen);
+    const showInfoPopup = useStore((state) => state.showInfoPopup);
+    const userService = new UserService();
 
     const addContact = () => {
-        axios.post(`${apiUrl}/api/users/add/`, JSON.stringify({
-            name: name,
-            contact: contact
-        }))
-            .then(() => {
-                props.setOpen(false);
-                // props.showPopup('Success', 'Added new contact');
+        userService
+            .create(name, contact)
+            .then(() => showInfoPopup('Success', `We\'ve sent invitation to ${name}. Once they accept it, the chat will be created`))
+            .catch((error) => console.error('Error adding contact ', error))
+            .finally(() => {
+                setOpen(false);
+                setName('');
+                setContact('');
             })
-            .catch(error => {
-                console.error('Error adding contact ', error);
-                props.setOpen(false);
-                // props.showPopup('Error', 'Error adding contact');
-            });
-    }
-
-    const handleClose = () => {
-        props.setOpen(false);
     }
 
     return (
-        <Dialog open={props.open} onClose={handleClose}>
+        <Dialog open={open} onClose={() => setOpen(false)}>
             <DialogTitle>Add new contact</DialogTitle>
             <DialogContent>
                 <Typography>Enter user name</Typography>
@@ -47,8 +38,6 @@ const InputContactPopup: React.FC<Props> = (props) => {
                     value={name}
                     onChange={e => setName(e.target.value)}
                 />
-            </DialogContent>
-            <DialogContent>
                 <Typography>Enter contact key</Typography>
                 <TextField
                     fullWidth
@@ -69,7 +58,7 @@ const InputContactPopup: React.FC<Props> = (props) => {
                 <Button
                     className='popup-button'
                     variant='contained'
-                    onClick={handleClose}>
+                    onClick={() => setOpen(false)}>
                     CANCEL
                 </Button>
             </DialogActions>
@@ -77,4 +66,4 @@ const InputContactPopup: React.FC<Props> = (props) => {
     );
 };
 
-export default InputContactPopup;
+export default ContactPopup;

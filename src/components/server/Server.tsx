@@ -1,66 +1,72 @@
 import './Server.css'
-import {Paper, Autocomplete, TextField, Button, Typography} from '@mui/material';
+import {Autocomplete, Button, Paper, TextField, Typography} from '@mui/material';
 import React, {useState} from 'react';
-import {Server} from '../../types';
-import axios from 'axios';
+import {useStore} from '../../Store';
+import ServerService from "../../services/ServerService";
 
 interface Props {
-    servers: Server[];
-    setSelectedServer: (server: Server) => void;
-    setApiStat: (status: boolean) => void;
-    showPopup: (title: string, message: string) => void;
+    style?: React.CSSProperties;
 }
 
-export const apiUrl = process.env.apiUrl;
-
 const Server: React.FC<Props> = (props) => {
-    const [data, setData] = useState('');
+
+    const servers = useStore((state) => state.servers);
+    const setSelectedServer = useStore((state) => state.setSelectedServer);
+    const showInfoPopup = useStore((state) => state.showInfoPopup);
+    const [serverKey, setServerKey] = useState('');
+    const serverService = new ServerService();
 
     const handleChooseServer = (event, server) => {
-        props.servers?.forEach(serverWrapper => {
+        servers.forEach(serverWrapper => {
             if (serverWrapper.addr === server) {
                 localStorage.setItem('server', JSON.stringify(serverWrapper))
-                props.setSelectedServer(server)
+                setSelectedServer(server)
             }
         })
     };
 
     const handleAddServer = () => {
-        axios.post(`${apiUrl}/api/servers/`, data)
-            .then(() => props.setApiStat(true))
-            .catch(error => {
-                console.error('Add server api request error:', error);
-                props.showPopup('Error', 'Error choosing server');
+        serverService
+            .create(serverKey)
+            .then(() => {
+                showInfoPopup('Success', 'Added server successfully');
             })
+            .catch(error => {
+                console.error('Add server api request error: ', error);
+                showInfoPopup('Error', 'Error adding server');
+            })
+            .finally(() => setServerKey(''));
     };
 
     return (
-        <Paper className='server-wrapper'>
+        <Paper className='server-wrapper' style={{...props?.style}}>
             <div>
                 <Typography variant='h5' gutterBottom component='h5'>
-                    Select server or add new by key
+                    Select server from list
                 </Typography>
                 <Autocomplete
                     fullWidth
                     disablePortal
                     className='autocomplete'
                     onChange={handleChooseServer}
-                    options={props.servers?.map((server) => server.addr)}
-                    renderInput={(params) => <TextField {...params} label='type server name'/>}
+                    options={servers?.map((server) => server.addr)}
+                    renderInput={(params) => <TextField {...params} label='choose server'/>}
                 />
+                <Typography variant='h5' gutterBottom component='h5'>
+                    Add server
+                </Typography>
                 <TextField
                     fullWidth
                     className='login-text-field'
-                    // variant='outlined'
-                    label='add server key'
-                    value={data}
-                    onChange={e => setData(e.target.value)}
+                    label='enter server key'
+                    value={serverKey}
+                    onChange={e => setServerKey(e.target.value)}
                 />
                 <Button
                     className='server-send-button'
                     variant='contained'
                     onClick={handleAddServer}>
-                    GO
+                    ADD
                 </Button>
             </div>
         </Paper>

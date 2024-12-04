@@ -3,25 +3,25 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    box-shadow: none !important;
+    box-shadow: none;
     justify-content: center;
 }
 
 .autocomplete {
-    width: 60% !important;
+    width: 60%;
     margin: 5px 0;
 }
 
 .login-text-field {
-    width: 60% !important;
+    width: 60%;
     margin: 5px 0;
 }
 
 .server-send-button {
-    width: 60% !important;
+    width: 60%;
     align-self: center;
     margin: 5px 0;
-    background-color: #000000 !important
+    background-color: #000000;
 }
 
 .server-send-button:hover {

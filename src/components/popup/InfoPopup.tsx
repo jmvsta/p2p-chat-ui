@@ -1,27 +1,39 @@
 import React from 'react';
 import {Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography} from '@mui/material';
 import './Popup.css';
+import {useStore} from '../../Store';
 
-interface Props {
-    open: boolean,
-    handleClose: () => void,
-    title: string,
-    message: string
-}
+const InfoPopup: React.FC = () => {
 
-const InfoPopup: React.FC<Props> = (props) => {
+    const open = useStore((state) => state.infoPopupOpen);
+    const setOpen = useStore((state) => state.setInfoPopupOpen);
+    const title = useStore((state) => state.infoPopupTitle);
+    const message = useStore((state) => state.infoPopupMessage);
+    const buttonText = useStore((state) => state.infoPopupButtonText);
+
+    const handleClose = () => {
+        if (buttonText === 'COPY') {
+            navigator.clipboard.writeText(message).then(() => {
+                console.log('Message copied to clipboard');
+            }).catch((err) => {
+                console.error('Failed to copy message: ', err);
+            });
+        }
+        setOpen(false);
+    }
+
     return (
-        <Dialog open={props.open} onClose={props.handleClose}>
-            <DialogTitle>{props.title}</DialogTitle>
-            <DialogContent>
-                <Typography>{props.message}</Typography>
+        <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>{title}</DialogTitle>
+            <DialogContent className={'popup-content'}>
+                <Typography>{message}</Typography>
             </DialogContent>
             <DialogActions>
                 <Button
                     className='popup-button'
                     variant='contained'
-                    onClick={props.handleClose}>
-                    OK
+                    onClick={handleClose}>
+                    {buttonText}
                 </Button>
             </DialogActions>
         </Dialog>

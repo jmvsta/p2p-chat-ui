@@ -1,43 +1,52 @@
 import './Chats.css'
 import React, {useEffect} from 'react';
 import {List, ListItemButton, ListItemText} from '@mui/material';
-import axios from 'axios';
 import {Chat} from '../../types'
+import {useStore} from '../../Store';
+import ChatService from "../../services/ChatService";
 
 interface Props {
-    chats: Chat[];
-    setChats: (chats: Chat[]) => void;
-    setSelectedChat: (chat: Chat) => void;
+    style?: React.CSSProperties;
 }
-
-export const apiUrl = process.env.apiUrl;
 
 const Chats: React.FC<Props> = (props) => {
 
-    const interval = 5000;
-
-    const handleClick = (chat: Chat) => props.setSelectedChat(chat);
+    const {
+        chats,
+        selectedServer,
+        currentUser,
+        apiInited,
+        setSelectedChat,
+        setChats
+    } = useStore();
+    const chatService = new ChatService();
 
     useEffect(() => {
-        const fetchNewChatsAndLastMessages = async () => {
-            try {
-                const [response] = await Promise.all([axios.get(`${apiUrl}/api/chats/list/?offset=-1&limit=10&filter_banned=false`)]);
-                props.setChats(response.data.chats.sort((a, b) => a.last_active.localeCompare(b.last_active)));
-            } catch (error) {
-                console.error('Error fetching chats:', error);
-            }
-        };
-        const intervalId = setInterval(fetchNewChatsAndLastMessages, interval);
-        return () => clearInterval(intervalId);
-    }, [props.chats, interval]);
+        if (selectedServer && apiInited) {
+            chatService.read(0n, 10n, true)
+                .then((result) => {
+                    setChats(
+                        result.data.chats?.sort((first: Chat, second: Chat) =>
+                            first.last_active.localeCompare(second.last_active)
+                        )
+                    );
+                });
+        }
+    }, [selectedServer, apiInited]);
+
+    const getSecondary = (chat: Chat): string => {
+        if (chat.last_msg_user == null && chat.last_msg_txt == null) return ''
+        else if (chat.last_msg_user == null) return `${currentUser?.name}: ${chat.last_msg_txt}`
+        else return `${chat.last_msg_user}: ${chat.last_msg_txt}`;
+    }
 
     return (
-        <List className='chats'>
-            {props.chats?.map((chat) => (
-                <ListItemButton className='chat-item' key={chat.id} onClick={() => handleClick(chat)}>
+        <List style={{...props?.style, overflowY: 'auto'}}>
+            {chats?.map((chat: Chat) => (
+                <ListItemButton className='chat-item' key={chat.id} onClick={() => setSelectedChat(chat)}>
                     <ListItemText
                         primary={chat.name}
-                        secondary={chat.last_msg_user !== null ? `${chat.last_msg_user}: ${chat.last_msg_txt}` : ''}
+                        secondary={getSecondary(chat)}
                         classes={{primary: 'truncated-text', secondary: 'truncated-text'}}
                     />
                 </ListItemButton>

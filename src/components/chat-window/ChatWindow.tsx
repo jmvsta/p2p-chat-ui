@@ -1,157 +1,98 @@
 import React, {RefObject, useEffect, useState} from 'react';
 import './ChatWindow.css';
-import {AppBar, IconButton, List, ListItem, Menu, MenuItem, Paper, TextField, Toolbar, Typography} from '@mui/material';
+import {AppBar, IconButton, Menu, MenuItem, Paper, TextField, Toolbar, Typography,} from '@mui/material';
 import UserMessage from '../message/UserMessage';
 import AddLinkIcon from '@mui/icons-material/AddLink';
-import axios from 'axios';
-import {Chat, Message, User} from '../../types'
 import SettingsIcon from '@mui/icons-material/Settings';
+import {useStore} from '../../Store';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import MessageService from "../../services/MessageService";
+import FileService from "../../services/FileService";
+import ChatService from "../../services/ChatService";
 
 interface Props {
-    currentUser: User;
-    selectedChat: Chat;
-    setSelectedChat: (chat: Chat) => void;
-    deleteChat: (chat: Chat) => void;
+    style?: React.CSSProperties;
 }
 
-export const apiUrl = process.env.apiUrl;
-
 const ChatWindow: React.FC<Props> = (props) => {
-    const [messages, setMessages]: [Message[], any] = useState([]);
-    const [text, setText]: [string, (text: string) => void] = useState('');
+
+    const [text, setText] = useState('');
     const [blobs, setBlobs] = useState<Blob[]>([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const fileInputRef: RefObject<any> = React.createRef();
-    const messagesRef: RefObject<any> = React.createRef();
-    const [offset, setOffset]: [bigint, React.Dispatch<React.SetStateAction<bigint>>] = useState(0n);
-    const [idsSet, setIdsSet] = useState(new Set());
-    const interval = 5000;
+    const [offset, setOffset] = useState<bigint>(0n);
+    const selectedChat = useStore((state) => state.selectedChat);
+    const idsSet = useStore((state) => state.idsSet);
+    const addIdsToSet = useStore((state) => state.addIdsToSet);
+    const messages = useStore((state) => state.messages);
+    const appendMessagesTail = useStore((state) => state.appendMessagesTail);
+    const setSelectedChat = useStore((state) => state.setSelectedChat);
+    const deleteChat = useStore((state) => state.deleteChat);
+    const me = useStore((state) => state.currentUser);
+    const users = useStore((state) => state.contacts);
     const limit = 10n;
+    const messageService = new MessageService();
+    const fileService = new FileService();
+    const chatService = new ChatService();
 
     useEffect(() => {
-        setOffset(0n);
-        setIdsSet(new Set());
-        setMessages([]);
-        setBlobs([]);
-        if (props.selectedChat != null) {
-            incrementOffsetAndGetMessages(0n);
+        if (selectedChat) {
+            fetchMessages(0n);
         }
-    }, [props.selectedChat]);
+    }, [selectedChat]);
 
-    useEffect(() => {
-        if (!props.selectedChat) return;
-        const fetchNewMessages = async () => {
-            try {
-                const [response] = await Promise.all([axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${props.selectedChat.id}&offset=0&limit=${limit}`)]);
-                const messages = response.data.msgs || [];
-                messages
-                    .filter(msg => !idsSet.has(msg.id))
-                    .sort((a, b) => a.time.localeCompare(b.time))
-                    .forEach(msg => {
-                        setMessages(prev => [...prev, msg]);
-                        setIdsSet((prev) => prev.add(msg.id));
-                    });
-            } catch (error) {
-                console.error('Error fetching new messages:', error);
-            }
-        };
-        const intervalId = setInterval(fetchNewMessages, interval);
-        return () => clearInterval(intervalId);
-    }, [props.selectedChat, idsSet, messages, interval]);
-
-    const handleScroll = () => {
-
-        if (!messagesRef.current) return;
-        const {scrollTop, scrollHeight, clientHeight} = messagesRef.current;
-        console.log(`pst ${scrollTop}, psh ${scrollHeight}, pch ${clientHeight}`);
-        if (scrollTop === 0) {
-            incrementOffsetAndGetMessages(offset + limit);
-        }
-        if (scrollHeight - scrollTop === clientHeight) {
-            setOffset(0n);
-        }
-        const newScrollHeight = messagesRef.current.scrollHeight;
-        messagesRef.current.scrollTop = scrollTop + (newScrollHeight - scrollHeight);
-        console.log(`st ${messagesRef.current.scrollTop}, sh ${newScrollHeight}, ch ${messagesRef.current.clientHeight}`);
-    }
-
-    const incrementOffsetAndGetMessages = (newOffset) => {
+    const fetchMessages = (newOffset: bigint) => {
         setOffset(newOffset);
-        axios.get(`${apiUrl}/api/msgs/chat/?chat_id=${props.selectedChat.id}&offset=${newOffset}&limit=${limit}`)
+        messageService.read(selectedChat.id, newOffset, limit)
             .then((response) => {
-                const messages = response.data.msgs || [];
-                messages
-                    .filter(msg => !idsSet.has(msg.id))
-                    // .sort((a, b) => a.time.localeCompare(b.time))
-                    .forEach(msg => {
-                        setMessages(prev => [msg, ...prev]);
-                        setIdsSet((prev) => new Set(prev).add(msg.id));
-                    });
+                const fetchedMessages = response.data.msgs || [];
+                const newMessages = fetchedMessages
+                    .filter((msg) => !idsSet.has(msg.id))
+                appendMessagesTail(newMessages);
+                addIdsToSet(newMessages.map((msg) => msg.id));
             })
-            .catch(error => console.error('Error loading messages:', error));
-    }
+            .catch((error) => console.error('Error loading messages:', error));
+    };
 
     const handleSendMessage = (event) => {
         if (event.key === 'Enter') {
             sendMessage();
         }
-    }
+    };
 
     const handleAddFile = (event) => {
         const files = event.target.files;
         if (!files) return;
         const blobs: Blob[] = Array.from(files);
         setBlobs((prevBlobs) => [...prevBlobs, ...blobs]);
-    }
+    };
 
     const sendMessage = () => {
         const requests = [];
-        blobs?.map(file => {
-            const formData = new FormData();
-            formData.append('file', file);
-            requests.push(
-                axios
-                    .post(`${apiUrl}/api/msg/file/`, formData, {
-                        headers: {'Content-Type': 'multipart/form-data'},
-                    })
-                    .then((resp) => {
-                        console.log('File added successfully', resp);
-                    })
-                    .catch((error) => {
-                        console.error('Error adding new file', error);
-                    })
-            );
+        blobs?.forEach((file) => {
+            requests.push(fileService.create(file, selectedChat.id));
         });
 
         if (text !== '') {
-            let body: Message = {
-                chat_id: props.selectedChat.id,
-                text: text
-            };
-            props.selectedChat.last_msg_txt = text;
-            requests.push(axios.post(`${apiUrl}/api/msgs/text/`, JSON.stringify(body)));
+            requests.push(messageService.create(selectedChat.id, text));
         }
 
         Promise.all(requests)
-            .then(() => {
+            .catch((error) => console.error('Error sending message: ', error))
+            .finally(() => {
                 setBlobs([]);
                 setText('');
             })
-            .catch(error => console.error('Error sending message: ', error));
-    }
-
-    const handleIconButtonClick = () => {
-        fileInputRef.current.click();
-    }
+    };
 
     const handleMenuClick = (event, index: number) => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                axios.post(`${apiUrl}/api/chats/moderate/?id=${props.selectedChat.id}&action=del`)
+                chatService.delete(selectedChat.id)
                     .then(() => {
-                        props.deleteChat(props.selectedChat);
-                        props.setSelectedChat(null);
+                        deleteChat(selectedChat);
+                        setSelectedChat(null);
                     })
                     .catch(error => console.error('f: ', error));
                 setAnchorEl(null);
@@ -159,23 +100,18 @@ const ChatWindow: React.FC<Props> = (props) => {
             default:
                 break;
         }
-    }
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const removeImage = (index: number) => {
-        setBlobs((prevBlobs) => prevBlobs.filter((_, i) => i !== index));
     };
 
     return (
-        <div>
-            {props.selectedChat !== null &&
+        <div style={{...props.style}}>
+            {selectedChat !== null && (
                 <AppBar position='static'>
                     <Toolbar className='chat-toolbar'>
-                        <IconButton edge='start' aria-label='menu'
-                                    onClick={(event) => handleMenuClick(event, -1)}>
+                        <IconButton
+                            edge='start'
+                            aria-label='menu'
+                            onClick={(event) => handleMenuClick(event, -1)}
+                        >
                             <SettingsIcon/>
                         </IconButton>
                         <Menu
@@ -183,80 +119,96 @@ const ChatWindow: React.FC<Props> = (props) => {
                             anchorEl={anchorEl}
                             keepMounted
                             open={Boolean(anchorEl)}
-                            onClose={handleClose}
+                            onClose={() => setAnchorEl(null)}
                         >
                             <MenuItem
                                 onClick={(event) => handleMenuClick(event, 0)}>Delete</MenuItem>
                         </Menu>
-                        <Typography variant='h6'>
-                            {props.selectedChat?.name}
-                        </Typography>
+                        <Typography variant='h6'>{selectedChat?.name}</Typography>
                     </Toolbar>
                 </AppBar>
-            }
-            <Paper className='chat-window'>
-                {
-                    <List className='messages' onScroll={handleScroll} ref={messagesRef}>
-                        {messages?.map((message, index) =>
-                            <ListItem className='message-container' key={index}>
-                                <UserMessage message={message}/>
-                            </ListItem>
-                        )}
-                    </List>
-                }
-                {
-                    blobs.length !== 0 &&
-                    <Paper>
-                        <ul className='preview-container'>
-                            {blobs.map((file, index) => {
-                                    const blobUrl = URL.createObjectURL(file);
-                                    return (
-                                        <li className='image-preview-wrapper' key={index}>
-                                            <div className='image-container'>
-                                                <img
-                                                    className='image-preview'
-                                                    src={blobUrl}
-                                                    alt={`File ${index}`}
-                                                    onLoad={() => URL.revokeObjectURL(blobUrl)}
-                                                    onError={(e) => console.error(e)}
-                                                />
-                                                <button className='remove-button' onClick={() => removeImage(index)}>
-                                                    &times;
-                                                </button>
-                                            </div>
-                                        </li>)
-                                }
-                            )}
-                        </ul>
-                    </Paper>
-                }
-                {
-                    props.selectedChat != null &&
-                    <div className='input'>
-                        <TextField
-                            fullWidth
-                            className='input'
-                            variant='outlined'
-                            label='Type a message...'
-                            value={text}
-                            onChange={e => setText(e.target.value)}
-                            onKeyDown={handleSendMessage}
+            )}
+            <div id='scrollableMessages' style={{overflow: 'auto'}}>
+                <InfiniteScroll
+                    className={'messages'}
+                    dataLength={messages.length}
+                    scrollableTarget={'scrollableMessages'}
+                    next={() => fetchMessages(offset + limit)}
+                    hasMore={true}
+                    loader={''}
+                >
+                    {messages.map((message, index) => {
+                        const user =
+                            message.sender != null
+                                ? users.find((u) => u.id === message.sender)
+                                : me;
+                        return (
+                            <div className='message' key={index}>
+                                <UserMessage message={message} user={user}/>
+                            </div>
+                        );
+                    })}
+                </InfiniteScroll>
+            </div>
+            {blobs.length !== 0 && (
+                <Paper>
+                    <ul className='preview-container'>
+                        {blobs.map((file, index) => {
+                            const blobUrl = URL.createObjectURL(file);
+                            return (
+                                <li className='image-preview-wrapper' key={index}>
+                                    <div className='image-container'>
+                                        <img
+                                            className='image-preview'
+                                            src={blobUrl}
+                                            alt={`File ${index}`}
+                                            onLoad={() => URL.revokeObjectURL(blobUrl)}
+                                            onError={(e) => console.error(e)}
+                                        />
+                                        <button
+                                            className='remove-button'
+                                            onClick={() =>
+                                                setBlobs((prevBlobs) =>
+                                                    prevBlobs.filter((_, i) => i !== index)
+                                                )
+                                            }
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </Paper>
+            )}
+            {selectedChat != null && (
+                <div className='input'>
+                    <TextField
+                        fullWidth
+                        className='input'
+                        variant='outlined'
+                        label='Type a message...'
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        onKeyDown={handleSendMessage}
+                    />
+                    <label htmlFor='upload-image'>
+                        <IconButton edge='start' onClick={() => fileInputRef.current.click()}>
+                            <AddLinkIcon/>
+                        </IconButton>
+                        <input
+                            id='upload-image'
+                            hidden
+                            accept='*/*'
+                            multiple
+                            type='file'
+                            ref={fileInputRef}
+                            onChange={handleAddFile}
                         />
-                        <label htmlFor='upload-image'>
-                            <IconButton edge='start' onClick={handleIconButtonClick}>
-                                <AddLinkIcon/>
-                            </IconButton>
-                            <input
-                                id='upload-image'
-                                hidden accept='*/*'
-                                multiple
-                                type='file'
-                                ref={fileInputRef}
-                                onChange={handleAddFile}/>
-                        </label>
-                    </div>
-                }
-            </Paper>
+                    </label>
+                </div>
+            )}
         </div>
     );
 }

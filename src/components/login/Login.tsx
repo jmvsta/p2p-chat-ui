@@ -1,75 +1,115 @@
 import './Login.css'
-import {Button, Paper, TextField, Typography} from '@mui/material';
-import React, {useState} from 'react';
-import axios from 'axios';
-import {sha3_512} from 'js-sha3';
-import {User} from '../../types';
+import {Box, Button, IconButton, Paper, TextField, Typography} from '@mui/material';
+import React, {RefObject, useState} from 'react';
+import {useStore} from '../../Store';
+import AddLinkIcon from '@mui/icons-material/AddLink';
+import UserService from "../../services/UserService";
+import ApiSettingsService from "../../services/ApiSettingsService";
 
 interface Props {
-    setApiStat: (status: boolean) => void;
-    setUser: (user: User) => void;
-    showPopup: (title: string, message: string) => void;
+    style?: React.CSSProperties;
 }
 
-export const apiUrl = process.env.apiUrl;
-
 const Login: React.FC<Props> = (props) => {
+
     const [login, setLogin] = useState('');
+    const [photo, setPhoto] = useState<Blob>(null);
     const [password, setPassword]: [string, (password: string) => void] = useState('');
+    const [fileName, setFileName] = useState('');
+    const fileInputRef: RefObject<any> = React.createRef();
+    const setApiInited = useStore((state) => state.setApiInited);
+    const showInfoPopup = useStore((state) => state.showInfoPopup);
+    const userService = new UserService();
+    const apiService = new ApiSettingsService();
 
     const handleLogin = () => {
-        if (login == '' || password == '') {
-            //     TODO
+        if (login === '' || password === '' || photo === null) {
+            showInfoPopup('Error', 'All fields are required');
             return;
         }
-        const requests = [];
-        requests.push(axios.post(`${apiUrl}/api/settings/init/?pwd=${sha3_512(password)}}`));
-        const user: User = {
-            'name': login,
-            'pic': ''
-        }
-        requests.push(axios.post(`${apiUrl}/api/settings/me/`, JSON.stringify(user)));
 
-        Promise.all(requests)
-            .then(() => {
-                props.setUser(user);
-                props.setApiStat(true);
+        Promise.all([
+            apiService.create(password),
+            userService.update(login, photo)
+        ])
+            .then(() => setApiInited(true))
+            .catch((error: Error) => {
+                console.error('Login: Api init get error: ', error);
+                showInfoPopup('Error', 'Login error');
             })
-            .catch(error => {
-                console.error('Login: Api init get error: ', error)
-                props.showPopup('Error', 'Login error');
-            });
+            .finally(() => {
+                setPhoto(null);
+                setLogin('');
+                setPassword('');
+                setFileName('');
+            })
     };
 
+    const handleIconButtonClick = () => fileInputRef.current.click();
+
+    const handleAddFile = (event) => {
+        const files = event.target.files;
+        if (!files) return;
+        setPhoto(files[0]);
+        setFileName(files[0]?.name);
+    }
+
     return (
-        <Paper className='login-wrapper'>
-            <div>
-                <Typography variant='h5' gutterBottom>
-                    Log in
-                </Typography>
+        <Paper className='login-wrapper' style={{...props?.style}}>
+            <Typography variant='h5' gutterBottom>
+                Complete registration to sign in
+            </Typography>
+            <TextField
+                fullWidth
+                className='login-text-field'
+                variant='outlined'
+                label='Enter login'
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
+            />
+            <TextField
+                fullWidth
+                className='login-text-field'
+                variant='outlined'
+                label='Enter password'
+                type='password'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+            <Box
+                className='login-text-field'
+                display='flex'
+                alignItems='center'
+                justifyContent='space-between'
+                width='60%'
+                mb={1}
+            >
                 <TextField
                     fullWidth
-                    className='login-text-field'
                     variant='outlined'
-                    label='user id'
-                    value={login}
-                    onChange={e => setLogin(e.target.value)}
+                    value={fileName || 'No file selected'}
+                    disabled
+                    label='Uploaded File'
                 />
-                <TextField
-                    fullWidth
-                    className='login-text-field'
-                    variant='outlined'
-                    label='secret key number'
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
+                <IconButton edge='start' onClick={handleIconButtonClick}>
+                    <AddLinkIcon/>
+                </IconButton>
+                <input
+                    id='upload-image'
+                    hidden
+                    accept='*/*'
+                    type='file'
+                    ref={fileInputRef}
+                    onChange={handleAddFile}
                 />
-                <Button
-                    className='login-send-button'
-                    variant='contained'
-                    onClick={handleLogin}>
-                    GO
-                </Button>
-            </div>
+            </Box>
+            <Button
+                className='login-send-button'
+                variant='contained'
+                onClick={handleLogin}
+            >
+                GO
+            </Button>
         </Paper>
     )
 }
