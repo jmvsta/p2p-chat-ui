@@ -113,5 +113,5 @@ export const useFetchData = () => {
                 console.error(errorMessage, result.reason);
             }
         });
-    }, []);
+    }, [selectedChat, selectedServer, apiInited, idsSet]);
 };
