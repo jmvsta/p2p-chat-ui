@@ -2,7 +2,6 @@ import React from 'react';
 import {ExtUser, Message} from '../../types';
 import {Avatar, Box, Button, Typography} from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download'
-import './UserMessage.css';
 import FileService from "../../services/FileService";
 
 interface Props {

@@ -1,4 +1,3 @@
-import './Chats.css'
 import React, {useEffect} from 'react';
 import {List, ListItemButton, ListItemText} from '@mui/material';
 import {Chat} from '../../types'
@@ -40,10 +39,23 @@ const Chats: React.FC<Props> = (props) => {
         else return `${chat.last_msg_user}: ${chat.last_msg_txt}`;
     }
 
+    const onChatClick = (chat: Chat) => {
+        setSelectedChat(chat);
+    }
+
     return (
         <List style={{...props?.style, overflowY: 'auto'}}>
             {chats?.map((chat: Chat) => (
-                <ListItemButton className='chat-item' key={chat.id} onClick={() => setSelectedChat(chat)}>
+                <ListItemButton key={chat.id}
+                                onClick={() => onChatClick(chat)}
+                                sx={{
+                                    padding: '10px',
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        backgroundColor: '#e0e0e0',
+                                    },
+                                }}
+                >
                     <ListItemText
                         primary={chat.name}
                         secondary={getSecondary(chat)}
