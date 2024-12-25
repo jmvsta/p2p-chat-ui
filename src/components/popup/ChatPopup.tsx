@@ -16,7 +16,7 @@ import ChatService from "../../services/ChatService";
 
 const ChatPopup: React.FC = () => {
     const [chatName, setChatName] = useState('');
-    const [userIds, setUserIds] = useState([]);
+    const [userIds, setUserIds] = useState<string[]>([]);
     const open = useStore((state) => state.chatPopupOpen);
     const setOpen = useStore((state) => state.setChatPopupOpen);
     const title = useStore((state) => state.chatPopupTitle);

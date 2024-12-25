@@ -48,7 +48,7 @@ module.exports = (env) => {
                 template: './public/index.html',
                 inject: false,
                 templateParameters: {
-                    SCRIPT_PATH: process.env.SCRIPT_PATH || '/static/js/main.js'
+                    SCRIPT_PATH: process.env.SCRIPT_PATH || '/main.js'
                 }
             }),
         ]

@@ -6,7 +6,7 @@ import FileService from "../../services/FileService";
 
 interface Props {
     message: Message;
-    user: ExtUser;
+    user: ExtUser | null | undefined;
 }
 
 const UserMessage: React.FC<Props> = (props) => {

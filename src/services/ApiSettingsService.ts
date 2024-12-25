@@ -2,7 +2,7 @@ import axios from 'axios';
 import {sha3_512} from 'js-sha3';
 
 export const api = axios.create({
-    baseURL: process.env.apiUrl,
+    baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
 export default class ApiSettingsService {

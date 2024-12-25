@@ -3,7 +3,7 @@ import {Chat} from "../types";
 
 export default class ChatService {
 
-    private chatsComparator = (first: Chat, second: Chat) =>
+    chatsComparator = (first: Chat, second: Chat) =>
         second.last_active.localeCompare(first.last_active);
 
     create(name: string, userIds: string[]) {
@@ -14,11 +14,11 @@ export default class ChatService {
         return api.post('/api/chats/', request);
     }
 
-    read(offset: bigint, limit: bigint, banned: boolean) {
+    read(offset: number, limit: number, banned: boolean) {
         return api.get(`/api/chats/list/?offset=${offset}&limit=${limit}&filter_banned=${banned}`);
     }
 
-    delete(id: string) {
+    delete(id: string | undefined) {
         return api.post(`/api/chats/moderate/?id=${id}&action=del`);
     }
 }

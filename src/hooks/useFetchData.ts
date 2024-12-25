@@ -1,5 +1,5 @@
 import {useCallback} from 'react';
-import {Chat} from '../types';
+import {Chat, Message} from '../types';
 import {useStore} from '../Store';
 import ApiSettingsService from "../services/ApiSettingsService";
 import UserService from "../services/UserService";
@@ -30,12 +30,12 @@ export const useFetchData = () => {
     const serverService = new ServerService();
 
     return useCallback(async (): Promise<void> => {
-        const apiRequests = [];
+        const apiRequests: any[] = [];
 
         if (selectedChat !== null) {
             apiRequests.push({
                 key: 'messages',
-                request: () => messageService.read(selectedChat.id, 0n, 10n),
+                request: () => messageService.read(selectedChat.id, 0, 10),
                 errorMessage: 'Error fetching new messages',
             });
             apiRequests.push({
@@ -59,7 +59,7 @@ export const useFetchData = () => {
             });
             apiRequests.push({
                 key: 'chats',
-                request: () => chatService.read(0n, 10n, true),
+                request: () => chatService.read(0, 10, true),
                 errorMessage: 'Error fetching chats',
             });
         }
@@ -68,7 +68,7 @@ export const useFetchData = () => {
             apiRequests.push({
                 key: 'servers',
                 request: () => serverService.read(),
-                errorMessage: 'Servers request error',
+                errorMessage: 'Server request error',
             });
         }
 
@@ -99,10 +99,10 @@ export const useFetchData = () => {
                         break;
                     case 'messages': {
                         const messages = result.value.data.msgs || [];
-                        const newMessages = messages.filter((msg) => !idsSet.has(msg.id));
+                        const newMessages = messages.filter((msg: Message) => !idsSet.has(msg.id));
                         if (newMessages.length > 0) {
                             appendMessagesHead(newMessages);
-                            addIdsToSet(newMessages.map((msg) => msg.id));
+                            addIdsToSet(newMessages.map((msg: Message) => msg.id));
                         }
                         break;
                     }
