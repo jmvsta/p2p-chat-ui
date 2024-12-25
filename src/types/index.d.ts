@@ -19,7 +19,7 @@ export interface Chat {
     id: string;
     name: string;
     last_msg_txt?: string;
-    last_msg_user?: bigint;
+    last_msg_user?: number;
     read: boolean;
     last_active: string;
 }
@@ -56,9 +56,9 @@ interface StoreState {
     contacts: ExtUser[],
     selectedChat: Chat | null,
     apiInited: boolean,
-    selectedServer: Server | null,
+    selectedServer: string | null,
     messages: Message[],
-    idsSet: Set<bigint>,
+    idsSet: Set<number>,
 
     infoPopupOpen: boolean,
     infoPopupTitle: string,
@@ -73,19 +73,19 @@ interface StoreState {
     chatPopupTitle: string,
     chatPopupMessage: string,
 
-    setCurrentUser: (user: ExtUser) => void,
+    setCurrentUser: (user: ExtUser | null) => void,
     setServers: (servers: Server[]) => void,
     setChats: (chats: Chat[]) => void,
-    deleteChat: (chat: Chat) => void,
+    deleteChat: (chat: Chat | null) => void,
     setContacts: (users: ExtUser[]) => void,
-    setSelectedChat: (chat: Chat) => void,
+    setSelectedChat: (chat: Chat | null) => void,
     setMessages: (messages: Message[]) => void,
     appendMessagesHead: (messages: Message[]) => void,
     appendMessagesTail: (messages: Message[]) => void,
-    setIdsSet: (idsSet: Set<bigint>) => void,
-    addIdsToSet: (ids: bigint[]) => void,
+    setIdsSet: (idsSet: Set<number>) => void,
+    addIdsToSet: (ids: number[]) => void,
     setApiInited: (inited: boolean) => void,
-    setSelectedServer: (server: Server) => void,
+    setSelectedServer: (server: string | null) => void,
 
     setInfoPopupOpen: (open: boolean) => void,
     showInfoPopup: (title: string, message: string, buttonText?: string) => void,

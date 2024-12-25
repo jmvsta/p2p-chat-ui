@@ -1,5 +1,4 @@
-import './Login.css'
-import {Box, Button, IconButton, Paper, TextField, Typography} from '@mui/material';
+import {Box, Button, IconButton, TextField, Typography} from '@mui/material';
 import React, {RefObject, useState} from 'react';
 import {useStore} from '../../Store';
 import AddLinkIcon from '@mui/icons-material/AddLink';
@@ -13,7 +12,7 @@ interface Props {
 const Login: React.FC<Props> = (props) => {
 
     const [login, setLogin] = useState('');
-    const [photo, setPhoto] = useState<Blob>(null);
+    const [photo, setPhoto] = useState<Blob | null>(null);
     const [password, setPassword]: [string, (password: string) => void] = useState('');
     const [fileName, setFileName] = useState('');
     const fileInputRef: RefObject<any> = React.createRef();
@@ -47,7 +46,7 @@ const Login: React.FC<Props> = (props) => {
 
     const handleIconButtonClick = () => fileInputRef.current.click();
 
-    const handleAddFile = (event) => {
+    const handleAddFile = (event: any) => {
         const files = event.target.files;
         if (!files) return;
         setPhoto(files[0]);
@@ -55,21 +54,28 @@ const Login: React.FC<Props> = (props) => {
     }
 
     return (
-        <Paper className='login-wrapper' style={{...props?.style}}>
+        <Box style={{
+            ...props?.style,
+            flex: "0 0 50%",
+            height: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            boxShadow: "none",
+            alignItems: "center",
+            justifyContent: "center"
+        }}>
             <Typography variant='h5' gutterBottom>
                 Complete registration to sign in
             </Typography>
             <TextField
-                fullWidth
-                className='login-text-field'
+                sx={{width: "60%", margin: "5px 0"}}
                 variant='outlined'
                 label='Enter login'
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
             />
             <TextField
-                fullWidth
-                className='login-text-field'
+                sx={{width: "60%", margin: "5px 0"}}
                 variant='outlined'
                 label='Enter password'
                 type='password'
@@ -77,7 +83,7 @@ const Login: React.FC<Props> = (props) => {
                 onChange={(e) => setPassword(e.target.value)}
             />
             <Box
-                className='login-text-field'
+                margin='5px 0'
                 display='flex'
                 alignItems='center'
                 justifyContent='space-between'
@@ -104,13 +110,21 @@ const Login: React.FC<Props> = (props) => {
                 />
             </Box>
             <Button
-                className='login-send-button'
+                sx={{
+                    width: "60%",
+                    alignSelf: "center",
+                    margin: "5px 0",
+                    backgroundColor: "#000000",
+                    "&:hover": {
+                        backgroundColor: "#000000",
+                    },
+                }}
                 variant='contained'
                 onClick={handleLogin}
             >
                 GO
             </Button>
-        </Paper>
+        </Box>
     )
 }
 export default Login;

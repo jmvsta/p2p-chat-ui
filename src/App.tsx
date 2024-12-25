@@ -82,7 +82,7 @@ const App: React.FC = () => {
             {!apiInited &&
                 <div style={{display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
                     <div style={{width: '50%'}}>
-                        <img className='logo-img' src='/static/public/logo.jpg' alt='logo image'/>
+                        <img className='logo-img' src='/logo.jpg' alt='logo image'/>
                         <Typography className='text-field' variant='h6' gutterBottom>
                             This secure chat will help you to communicate without sacrificing your safety. Connect
                             freely, use it anywhere, anonymously.
@@ -94,7 +94,7 @@ const App: React.FC = () => {
             {apiInited && selectedServer === null &&
                 <div style={{display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
                     <div style={{width: '50%'}}>
-                        <img className='logo-img' src='/static/public/logo_1.jpg' alt='logo'/>
+                        <img className='logo-img' src='/logo_1.jpg' alt='logo'/>
                         <Typography className='text-field' variant='h6' gutterBottom>
                             This secure chat will help you to communicate without sacrificing your safety. Connect
                             freely, use it anywhere, anonymously.

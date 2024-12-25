@@ -1,6 +1,6 @@
 import React, {RefObject, useEffect, useState} from 'react';
 import './ChatWindow.css';
-import {AppBar, IconButton, Menu, MenuItem, Paper, TextField, Toolbar, Typography,} from '@mui/material';
+import {AppBar, IconButton, Menu, MenuItem, Box, TextField, Toolbar, Typography,} from '@mui/material';
 import UserMessage from '../message/UserMessage';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -9,6 +9,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import MessageService from "../../services/MessageService";
 import FileService from "../../services/FileService";
 import ChatService from "../../services/ChatService";
+import {ExtUser, Message} from "../../types";
 
 interface Props {
     style?: React.CSSProperties;
@@ -20,7 +21,7 @@ const ChatWindow: React.FC<Props> = (props) => {
     const [blobs, setBlobs] = useState<Blob[]>([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const fileInputRef: RefObject<any> = React.createRef();
-    const [offset, setOffset] = useState<bigint>(0n);
+    const [offset, setOffset] = useState<number>(0);
     const selectedChat = useStore((state) => state.selectedChat);
     const idsSet = useStore((state) => state.idsSet);
     const addIdsToSet = useStore((state) => state.addIdsToSet);
@@ -30,37 +31,37 @@ const ChatWindow: React.FC<Props> = (props) => {
     const deleteChat = useStore((state) => state.deleteChat);
     const me = useStore((state) => state.currentUser);
     const users = useStore((state) => state.contacts);
-    const limit = 10n;
+    const limit = 10;
     const messageService = new MessageService();
     const fileService = new FileService();
     const chatService = new ChatService();
 
     useEffect(() => {
         if (selectedChat) {
-            fetchMessages(0n);
+            fetchMessages(0);
         }
     }, [selectedChat]);
 
-    const fetchMessages = (newOffset: bigint) => {
+    const fetchMessages = (newOffset: number) => {
         setOffset(newOffset);
-        messageService.read(selectedChat.id, newOffset, limit)
+        messageService.read(selectedChat?.id, newOffset, limit)
             .then((response) => {
                 const fetchedMessages = response.data.msgs || [];
                 const newMessages = fetchedMessages
-                    .filter((msg) => !idsSet.has(msg.id))
+                    .filter((msg: Message) => !idsSet.has(msg.id))
                 appendMessagesTail(newMessages);
-                addIdsToSet(newMessages.map((msg) => msg.id));
+                addIdsToSet(newMessages.map((msg: Message) => msg.id));
             })
             .catch((error) => console.error('Error loading messages:', error));
     };
 
-    const handleSendMessage = (event) => {
+    const handleSendMessage = (event: any) => {
         if (event.key === 'Enter') {
             sendMessage();
         }
     };
 
-    const handleAddFile = (event) => {
+    const handleAddFile = (event: any) => {
         const files = event.target.files;
         if (!files) return;
         const blobs: Blob[] = Array.from(files);
@@ -70,11 +71,11 @@ const ChatWindow: React.FC<Props> = (props) => {
     const sendMessage = () => {
         const requests = [];
         blobs?.forEach((file) => {
-            requests.push(fileService.create(file, selectedChat.id));
+            requests.push(fileService.create(file, selectedChat?.id));
         });
 
         if (text !== '') {
-            requests.push(messageService.create(selectedChat.id, text));
+            requests.push(messageService.create(selectedChat?.id, text));
         }
 
         Promise.all(requests)
@@ -85,11 +86,11 @@ const ChatWindow: React.FC<Props> = (props) => {
             })
     };
 
-    const handleMenuClick = (event, index: number) => {
+    const handleMenuClick = (event: any, index: number) => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                chatService.delete(selectedChat.id)
+                chatService.delete(selectedChat?.id)
                     .then(() => {
                         deleteChat(selectedChat);
                         setSelectedChat(null);
@@ -103,7 +104,7 @@ const ChatWindow: React.FC<Props> = (props) => {
     };
 
     return (
-        <div style={{...props.style}}>
+        <div style={{...props.style, display: 'flex', flexDirection: 'column', height: '100%'}}>
             {selectedChat !== null && (
                 <AppBar position='static'>
                     <Toolbar className='chat-toolbar'>
@@ -128,7 +129,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                     </Toolbar>
                 </AppBar>
             )}
-            <div id='scrollableMessages' style={{overflow: 'auto'}}>
+            <div id='scrollableMessages' style={{overflow: 'auto', flex: 1 }}>
                 <InfiniteScroll
                     className={'messages'}
                     dataLength={messages.length}
@@ -138,7 +139,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                     loader={''}
                 >
                     {messages.map((message, index) => {
-                        const user =
+                        const user: ExtUser | undefined | null =
                             message.sender != null
                                 ? users.find((u) => u.id === message.sender)
                                 : me;
@@ -151,7 +152,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                 </InfiniteScroll>
             </div>
             {blobs.length !== 0 && (
-                <Paper>
+                <Box>
                     <ul className='preview-container'>
                         {blobs.map((file, index) => {
                             const blobUrl = URL.createObjectURL(file);
@@ -180,7 +181,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                             );
                         })}
                     </ul>
-                </Paper>
+                </Box>
             )}
             {selectedChat != null && (
                 <div className='input'>

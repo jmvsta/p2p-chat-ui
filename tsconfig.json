@@ -1,21 +1,7 @@
 {
-  "compilerOptions": {
-    "removeComments": true,
-    "esModuleInterop": true,
-    "module": "ESNext",
-    "target": "ES2022",
-    "sourceMap": true,
-    "jsx": "react-jsx",
-    "outDir": "dist",
-    "rootDir": "src",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "lib": [
-      "decorators",
-      "dom",
-      "es5",
-      "scripthost",
-      "es2022"
-    ]
-  }
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }
