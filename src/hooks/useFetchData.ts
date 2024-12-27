@@ -59,7 +59,7 @@ export const useFetchData = () => {
             });
             apiRequests.push({
                 key: 'chats',
-                request: () => chatService.read(0, 10, true),
+                request: () => chatService.read(0, 1000, true),
                 errorMessage: 'Error fetching chats',
             });
         }
