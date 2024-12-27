@@ -22,7 +22,7 @@ const Chats: React.FC<Props> = (props) => {
 
     useEffect(() => {
         if (selectedServer && apiInited) {
-            chatService.read(0, 10, true)
+            chatService.read(0, 1000, true)
                 .then((result) => {
                     setChats(
                         result.data.chats?.sort((first: Chat, second: Chat) =>
