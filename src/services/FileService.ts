@@ -1,5 +1,4 @@
 import {api} from './ApiSettingsService';
-import axios from 'axios';
 
 export default class FileService {
 
@@ -13,6 +12,6 @@ export default class FileService {
         if (chatId) {
             formData.append('chat_id', chatId);
         }
-        return axios.post(`/api/msgs/file/`, formData, {headers: {'Content-Type': 'multipart/form-data'}});
+        return api.post(`/api/msgs/file/`, formData, {headers: {'Content-Type': 'multipart/form-data'}});
     }
 }
