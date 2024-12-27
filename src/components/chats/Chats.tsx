@@ -57,9 +57,16 @@ const Chats: React.FC<Props> = (props) => {
                                 }}
                 >
                     <ListItemText
+                        sx={{
+                            '& .MuiListItemText-primary, & .MuiListItemText-secondary': {
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
+                                textOverflow: 'ellipsis',
+                                display: 'block',
+                            },
+                        }}
                         primary={chat.name}
                         secondary={getSecondary(chat)}
-                        classes={{primary: 'truncated-text', secondary: 'truncated-text'}}
                     />
                 </ListItemButton>
             ))}

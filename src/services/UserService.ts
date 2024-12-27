@@ -1,5 +1,4 @@
 import {api} from './ApiSettingsService';
-import axios from 'axios';
 
 export default class UserService {
 
@@ -20,7 +19,7 @@ export default class UserService {
             name: name,
             contact: contact
         }
-        return axios.post('/api/users/', request);
+        return api.post('/api/users/', request);
     }
 
     update(login: string, picture: Blob) {

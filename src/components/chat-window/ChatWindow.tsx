@@ -129,7 +129,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                     </Toolbar>
                 </AppBar>
             )}
-            <div id='scrollableMessages' style={{overflow: 'auto', flex: 1 }}>
+            <div id='scrollableMessages' className={'messages'}>
                 <InfiniteScroll
                     className={'messages'}
                     dataLength={messages.length}
@@ -137,6 +137,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                     next={() => fetchMessages(offset + limit)}
                     hasMore={true}
                     loader={''}
+                    inverse={true}
                 >
                     {messages.map((message, index) => {
                         const user: ExtUser | undefined | null =
@@ -149,6 +150,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                             </div>
                         );
                     })}
+                    {/*<div ref={anchorRef}></--div>*/}
                 </InfiniteScroll>
             </div>
             {blobs.length !== 0 && (
