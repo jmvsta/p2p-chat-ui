@@ -23,7 +23,7 @@ const InfoPopup: React.FC = () => {
     }
 
     return (
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog id='info-popup' open={open} onClose={handleClose}>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent className={'popup-content'}>
                 <Typography>{message}</Typography>

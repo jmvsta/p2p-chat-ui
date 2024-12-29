@@ -7,6 +7,6 @@ export default class ServerService {
     }
 
     read() {
-        return api.get('/api/servers/list')
+        return api.get('/api/servers/list/')
     }
 }

@@ -1,10 +1,10 @@
 import {useCallback} from 'react';
-import {Chat, Message} from '../types';
+import {Message} from '../types';
 import {useStore} from '../Store';
 import ApiSettingsService from "../services/ApiSettingsService";
 import UserService from "../services/UserService";
 import MessageService from "../services/MessageService";
-import ChatService from "../services/ChatService";
+import ChatService, {chatsComparator} from "../services/ChatService";
 import ServerService from "../services/ServerService";
 
 export const useFetchData = () => {
@@ -91,11 +91,7 @@ export const useFetchData = () => {
                         setContacts(result.value.data.users);
                         break;
                     case 'chats':
-                        setChats(
-                            result.value.data.chats?.sort((first: Chat, second: Chat) =>
-                                first.last_active.localeCompare(second.last_active)
-                            )
-                        );
+                        setChats(result.value.data.chats?.sort(chatsComparator));
                         break;
                     case 'messages': {
                         const messages = result.value.data.msgs || [];

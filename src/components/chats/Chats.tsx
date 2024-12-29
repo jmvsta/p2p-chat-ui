@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {List, ListItemButton, ListItemText} from '@mui/material';
 import {Chat} from '../../types'
 import {useStore} from '../../Store';
-import ChatService from "../../services/ChatService";
+import ChatService, {chatsComparator} from "../../services/ChatService";
 
 interface Props {
     style?: React.CSSProperties;
@@ -24,11 +24,7 @@ const Chats: React.FC<Props> = (props) => {
         if (selectedServer && apiInited) {
             chatService.read(0, 1000, true)
                 .then((result) => {
-                    setChats(
-                        result.data.chats?.sort((first: Chat, second: Chat) =>
-                            first.last_active.localeCompare(second.last_active)
-                        )
-                    );
+                    setChats(result.data.chats?.sort(chatsComparator));
                 });
         }
     }, [selectedServer, apiInited]);

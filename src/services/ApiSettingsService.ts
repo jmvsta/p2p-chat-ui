@@ -2,7 +2,7 @@ import axios from 'axios';
 import {sha3_512} from 'js-sha3';
 
 export const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
+    baseURL: (import.meta as any).env.VITE_API_BASE_URL,
 });
 
 export default class ApiSettingsService {
@@ -12,7 +12,7 @@ export default class ApiSettingsService {
     }
 
     create(password: string) {
-        return api.post(`/api/settings/init/?pwd=${sha3_512(password)}}`);
+        return api.post(`/api/settings/init/?pwd=${sha3_512(password)}`);
     }
 
 }
