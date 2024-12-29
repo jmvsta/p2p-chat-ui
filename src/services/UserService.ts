@@ -3,15 +3,15 @@ import {api} from './ApiSettingsService';
 export default class UserService {
 
     read() {
-        return api.get('/api/users/list')
+        return api.get('/api/users/list/')
     }
 
     readCurrent() {
-        return api.get('/api/settings/me')
+        return api.get('/api/settings/me/')
     }
 
     readContact() {
-        return api.get(`/api/users/my-contact`);
+        return api.get(`/api/users/my-contact/`);
     }
 
     create(name: string, contact: string) {

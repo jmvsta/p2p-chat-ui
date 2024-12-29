@@ -38,7 +38,7 @@ const Server: React.FC<Props> = (props) => {
     };
 
     return (
-        <Box className='server-wrapper' style={{
+        <Box id='server-component' style={{
             ...props?.style,
             flex: "0 0 50%",
             height: "100vh",

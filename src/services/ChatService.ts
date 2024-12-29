@@ -1,10 +1,10 @@
 import {api} from './ApiSettingsService';
 import {Chat} from "../types";
 
-export default class ChatService {
+export const chatsComparator = (first: Chat, second: Chat) =>
+    first.last_active.localeCompare(second.last_active);
 
-    chatsComparator = (first: Chat, second: Chat) =>
-        second.last_active.localeCompare(first.last_active);
+export default class ChatService {
 
     create(name: string, userIds: string[]) {
         const request = {

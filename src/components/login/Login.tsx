@@ -54,7 +54,7 @@ const Login: React.FC<Props> = (props) => {
     }
 
     return (
-        <Box style={{
+        <Box id='login-component' style={{
             ...props?.style,
             flex: "0 0 50%",
             height: "100vh",
@@ -68,6 +68,7 @@ const Login: React.FC<Props> = (props) => {
                 Complete registration to sign in
             </Typography>
             <TextField
+                id='login-input'
                 sx={{width: "60%", margin: "5px 0"}}
                 variant='outlined'
                 label='Enter login'
@@ -75,6 +76,7 @@ const Login: React.FC<Props> = (props) => {
                 onChange={(e) => setLogin(e.target.value)}
             />
             <TextField
+                id='password-input'
                 sx={{width: "60%", margin: "5px 0"}}
                 variant='outlined'
                 label='Enter password'
@@ -101,7 +103,7 @@ const Login: React.FC<Props> = (props) => {
                     <AddLinkIcon/>
                 </IconButton>
                 <input
-                    id='upload-image'
+                    id='file-input'
                     hidden
                     accept='*/*'
                     type='file'
@@ -110,6 +112,7 @@ const Login: React.FC<Props> = (props) => {
                 />
             </Box>
             <Button
+                id='login-button'
                 sx={{
                     width: "60%",
                     alignSelf: "center",
