@@ -9,4 +9,8 @@ export default class ServerService {
     read() {
         return api.get('/api/servers/list/')
     }
+
+    delete(id: string | undefined) {
+        return api.delete(`/api/servers/?id=${id}`);
+    }
 }

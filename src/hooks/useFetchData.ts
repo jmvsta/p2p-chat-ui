@@ -68,7 +68,7 @@ export const useFetchData = () => {
             apiRequests.push({
                 key: 'servers',
                 request: () => serverService.read(),
-                errorMessage: 'Server request error',
+                errorMessage: 'ServerPage request error',
             });
         }
 
