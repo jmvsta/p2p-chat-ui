@@ -4,7 +4,7 @@ import Chats from './components/chats/Chats';
 import ChatWindow from './components/chat-window/ChatWindow';
 import {AppBar, IconButton, Menu, MenuItem, Toolbar, Typography} from '@mui/material';
 import Login from './components/login/Login';
-import Server from './components/server/Server';
+import ServerPage from './components/server/ServerPage.tsx';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoPopup from './components/popup/InfoPopup';
 import ContactPopup from './components/popup/ContactPopup';
@@ -100,7 +100,7 @@ const App: React.FC = () => {
                             freely, use it anywhere, anonymously.
                         </Typography>
                     </div>
-                    <Server style={{width: '50%'}}/>
+                    <ServerPage style={{width: '50%'}}/>
                 </div>
             }
             {apiInited && selectedServer !== null &&
