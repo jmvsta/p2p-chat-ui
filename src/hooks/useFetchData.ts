@@ -1,11 +1,8 @@
 import {useCallback} from 'react';
 import {Message} from '../types';
 import {useStore} from '../Store';
-import ApiSettingsService from "../services/ApiSettingsService";
-import UserService from "../services/UserService";
-import MessageService from "../services/MessageService";
-import ChatService, {chatsComparator} from "../services/ChatService";
-import ServerService from "../services/ServerService";
+import {chatsComparator} from '../services/ChatService';
+import {useServices} from '../services/ServiceProvider';
 
 export const useFetchData = () => {
 
@@ -23,11 +20,7 @@ export const useFetchData = () => {
         setChats,
     } = useStore();
 
-    const apiService = new ApiSettingsService();
-    const userService = new UserService();
-    const messageService = new MessageService();
-    const chatService = new ChatService();
-    const serverService = new ServerService();
+    const {settingsService, userService, messageService, chatService, serverService} = useServices();
 
     return useCallback(async (): Promise<void> => {
         const apiRequests: any[] = [];
@@ -48,13 +41,13 @@ export const useFetchData = () => {
         if (!apiInited) {
             apiRequests.push({
                 key: 'init',
-                request: () => apiService.read(),
+                request: () => settingsService.read(),
                 errorMessage: 'Init API status request error',
             });
         } else {
             apiRequests.push({
                 key: 'currentUser',
-                request: () => userService.readCurrent(),
+                request: () => settingsService.readCurrent(),
                 errorMessage: 'Error fetching user\'s data',
             });
             apiRequests.push({

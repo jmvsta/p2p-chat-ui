@@ -1,17 +1,17 @@
-import {api} from './ApiSettingsService';
+import Service from './Service';
 
-export default class UserService {
+export default class UserService extends Service {
 
     read() {
-        return api.get('/api/users/list/')
+        return this.api.get('/api/users/list/')
     }
 
-    readCurrent() {
-        return api.get('/api/settings/me/')
+    delete(id: string) {
+        return this.api.delete(`/api/users/id=${id}`)
     }
 
     readContact() {
-        return api.get(`/api/users/my-contact/`);
+        return this.api.get(`/api/users/my-contact/`);
     }
 
     create(name: string, contact: string) {
@@ -19,15 +19,24 @@ export default class UserService {
             name: name,
             contact: contact
         }
-        return api.post('/api/users/', request);
+        return this.api.post('/api/users/', request);
     }
 
-    update(login: string, picture: Blob) {
-        const formData = new FormData();
-        formData.append('name', login);
-        formData.append('pic', picture);
+    update(id: number, name: string, status: string) {
+        const request = {
+            id: id,
+            name: name,
+            status: status
+        }
+        return this.api.patch('/api/users/', request);
+    }
 
-        return api.post('/api/settings/me/', formData);
+    details(id: number) {
+        return this.api.get(`/api/users/${id}`);
+    }
+
+    decode(key: string) {
+        return this.api.post(`/api/users/decode`, key);
     }
 
 }

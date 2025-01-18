@@ -10,8 +10,8 @@ import InfoPopup from './components/popup/InfoPopup';
 import ContactPopup from './components/popup/ContactPopup';
 import ChatPopup from './components/popup/ChatPopup';
 import {useStore} from './Store';
-import {useFetchData} from "./hooks/useFetchData";
-import UserService from "./services/UserService";
+import {useFetchData} from './hooks/useFetchData';
+import UserService from './services/UserService';
 
 const App: React.FC = () => {
 

@@ -2,7 +2,8 @@ import React, {useEffect} from 'react';
 import {List, ListItemButton, ListItemText} from '@mui/material';
 import {Chat} from '../../types'
 import {useStore} from '../../Store';
-import ChatService, {chatsComparator} from "../../services/ChatService";
+import {useServices} from '../../services/ServiceProvider';
+import {chatsComparator} from '../../services/ChatService';
 
 interface Props {
     style?: React.CSSProperties;
@@ -10,15 +11,8 @@ interface Props {
 
 const Chats: React.FC<Props> = (props) => {
 
-    const {
-        chats,
-        selectedServer,
-        currentUser,
-        apiInited,
-        setSelectedChat,
-        setChats
-    } = useStore();
-    const chatService = new ChatService();
+    const {chats, selectedServer, currentUser, apiInited, setSelectedChat, setChats} = useStore();
+    const {chatService} = useServices();
 
     useEffect(() => {
         if (selectedServer && apiInited) {
