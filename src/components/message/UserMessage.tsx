@@ -2,7 +2,7 @@ import React from 'react';
 import {ExtUser, Message} from '../../types';
 import {Avatar, Box, Button, Typography} from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download'
-import FileService from "../../services/FileService";
+import {useServices} from '../../services/ServiceProvider';
 
 interface Props {
     message: Message;
@@ -11,7 +11,7 @@ interface Props {
 
 const UserMessage: React.FC<Props> = (props) => {
 
-    const fileService = new FileService();
+    const {fileService} = useServices();
 
     const handleDownload = () => {
         fileService

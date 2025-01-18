@@ -11,8 +11,7 @@ import {
 } from '@mui/material';
 import './Popup.css';
 import {useStore} from '../../Store';
-import ChatService from "../../services/ChatService";
-
+import {useServices} from '../../services/ServiceProvider';
 
 const ChatPopup: React.FC = () => {
     const [chatName, setChatName] = useState('');
@@ -22,7 +21,7 @@ const ChatPopup: React.FC = () => {
     const title = useStore((state) => state.chatPopupTitle);
     const message = useStore((state) => state.chatPopupMessage);
     const users = useStore((state) => state.contacts);
-    const chatService = new ChatService();
+    const {chatService} = useServices();
 
     const handleCreateChat = () => {
         chatService.create(chatName, userIds)

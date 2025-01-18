@@ -6,10 +6,8 @@ import AddLinkIcon from '@mui/icons-material/AddLink';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {useStore} from '../../Store';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import MessageService from "../../services/MessageService";
-import FileService from "../../services/FileService";
-import ChatService from "../../services/ChatService";
-import {ExtUser, Message} from "../../types";
+import {ExtUser, Message} from '../../types';
+import {useServices} from '../../services/ServiceProvider';
 
 interface Props {
     style?: React.CSSProperties;
@@ -32,9 +30,7 @@ const ChatWindow: React.FC<Props> = (props) => {
     const me = useStore((state) => state.currentUser);
     const users = useStore((state) => state.contacts);
     const limit = 10;
-    const messageService = new MessageService();
-    const fileService = new FileService();
-    const chatService = new ChatService();
+    const {messageService, fileService, chatService} = useServices();
 
     useEffect(() => {
         if (selectedChat) {
@@ -44,15 +40,17 @@ const ChatWindow: React.FC<Props> = (props) => {
 
     const fetchMessages = (newOffset: number) => {
         setOffset(newOffset);
-        messageService.read(selectedChat?.id, newOffset, limit)
-            .then((response) => {
-                const fetchedMessages = response.data.msgs || [];
-                const newMessages = fetchedMessages
-                    .filter((msg: Message) => !idsSet.has(msg.id))
-                appendMessagesTail(newMessages);
-                addIdsToSet(newMessages.map((msg: Message) => msg.id));
-            })
-            .catch((error) => console.error('Error loading messages:', error));
+        if (selectedChat) {
+            messageService.read(selectedChat.id, newOffset, limit)
+                .then((response) => {
+                    const fetchedMessages = response.data.msgs || [];
+                    const newMessages = fetchedMessages
+                        .filter((msg: Message) => !idsSet.has(msg.id))
+                    appendMessagesTail(newMessages);
+                    addIdsToSet(newMessages.map((msg: Message) => msg.id));
+                })
+                .catch((error) => console.error('Error loading messages:', error));
+        }
     };
 
     const handleSendMessage = (event: any) => {
@@ -69,13 +67,14 @@ const ChatWindow: React.FC<Props> = (props) => {
     };
 
     const sendMessage = () => {
+        if (!selectedChat) return;
         const requests = [];
         blobs?.forEach((file) => {
-            requests.push(fileService.create(file, selectedChat?.id));
+            requests.push(fileService.create(file, selectedChat.id));
         });
 
         if (text !== '') {
-            requests.push(messageService.create(selectedChat?.id, text));
+            requests.push(messageService.create(selectedChat.id, text));
         }
 
         Promise.all(requests)
@@ -90,12 +89,14 @@ const ChatWindow: React.FC<Props> = (props) => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                chatService.delete(selectedChat?.id)
-                    .then(() => {
-                        deleteChat(selectedChat);
-                        setSelectedChat(null);
-                    })
-                    .catch(error => console.error('f: ', error));
+                if (selectedChat) {
+                    chatService.delete(selectedChat.id)
+                        .then(() => {
+                            deleteChat(selectedChat);
+                            setSelectedChat(null);
+                        })
+                        .catch(error => console.error('f: ', error));
+                }
                 setAnchorEl(null);
                 break;
             default:

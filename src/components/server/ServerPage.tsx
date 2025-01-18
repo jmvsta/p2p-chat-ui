@@ -1,7 +1,7 @@
 import {Autocomplete, Box, Button, TextField, Typography} from '@mui/material';
 import React, {useState} from 'react';
 import {useStore} from '../../Store';
-import ServerService from "../../services/ServerService";
+import ServerService from '../../services/ServerService';
 import {Server} from '../../types';
 
 interface Props {
@@ -57,13 +57,13 @@ const ServerPage: React.FC<Props> = (props) => {
     return (
         <Box id='server-component' style={{
             ...props?.style,
-            flex: "0 0 50%",
-            height: "100vh",
-            display: "flex",
-            flexDirection: "column",
-            boxShadow: "none",
-            alignItems: "center",
-            justifyContent: "center"
+            flex: '0 0 50%',
+            height: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: 'none',
+            alignItems: 'center',
+            justifyContent: 'center'
         }}>
             <Typography variant='h5' gutterBottom sx={{
                 textAlign: 'left',
@@ -74,7 +74,7 @@ const ServerPage: React.FC<Props> = (props) => {
             <Autocomplete
                 id={'servers-autocomplete'}
                 disablePortal
-                sx={{width: "60%", margin: "5px 0"}}
+                sx={{width: '60%', margin: '5px 0'}}
                 onChange={(_event, server) => handleChooseServer(server)}
                 options={servers}
                 getOptionLabel={(option) => (typeof option === 'string' ? option : option.addr)}
@@ -84,7 +84,7 @@ const ServerPage: React.FC<Props> = (props) => {
                         <Box
                             key={key} {...restProps}
                             data-testid={`option-${option.id}`}
-                            component="li"
+                            component='li'
                             sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}
                         >
                             <span style={{flex: 1}}>{option.addr}</span>
@@ -120,7 +120,7 @@ const ServerPage: React.FC<Props> = (props) => {
             </Typography>
             <TextField
                 id='server-key-input'
-                sx={{width: "60%", margin: "5px 0"}}
+                sx={{width: '60%', margin: '5px 0'}}
                 label='enter server key'
                 value={serverKey}
                 onChange={e => setServerKey(e.target.value)}

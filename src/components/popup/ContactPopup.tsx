@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography} from '@mui/material';
 import './Popup.css';
 import {useStore} from '../../Store';
-import UserService from "../../services/UserService";
+import {useServices} from '../../services/ServiceProvider.tsx';
 
 const ContactPopup: React.FC = () => {
 
@@ -11,7 +11,7 @@ const ContactPopup: React.FC = () => {
     const open = useStore((state) => state.contactPopupOpen);
     const setOpen = useStore((state) => state.setContactPopupOpen);
     const showInfoPopup = useStore((state) => state.showInfoPopup);
-    const userService = new UserService();
+    const {userService} = useServices();
 
     const addContact = () => {
         userService

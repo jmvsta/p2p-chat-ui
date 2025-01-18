@@ -2,8 +2,7 @@ import {Box, Button, IconButton, TextField, Typography} from '@mui/material';
 import React, {RefObject, useState} from 'react';
 import {useStore} from '../../Store';
 import AddLinkIcon from '@mui/icons-material/AddLink';
-import UserService from "../../services/UserService";
-import ApiSettingsService from "../../services/ApiSettingsService";
+import {useServices} from '../../services/ServiceProvider';
 
 interface Props {
     style?: React.CSSProperties;
@@ -18,8 +17,7 @@ const Login: React.FC<Props> = (props) => {
     const fileInputRef: RefObject<any> = React.createRef();
     const setApiInited = useStore((state) => state.setApiInited);
     const showInfoPopup = useStore((state) => state.showInfoPopup);
-    const userService = new UserService();
-    const apiService = new ApiSettingsService();
+    const {settingsService} = useServices();
 
     const handleLogin = () => {
         if (login === '' || password === '' || photo === null) {
@@ -28,8 +26,8 @@ const Login: React.FC<Props> = (props) => {
         }
 
         Promise.all([
-            apiService.create(password),
-            userService.update(login, photo)
+            settingsService.create(password),
+            settingsService.updateCurrent(login, photo)
         ])
             .then(() => setApiInited(true))
             .catch((error: Error) => {
@@ -56,20 +54,20 @@ const Login: React.FC<Props> = (props) => {
     return (
         <Box id='login-component' style={{
             ...props?.style,
-            flex: "0 0 50%",
-            height: "100vh",
-            display: "flex",
-            flexDirection: "column",
-            boxShadow: "none",
-            alignItems: "center",
-            justifyContent: "center"
+            flex: '0 0 50%',
+            height: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: 'none',
+            alignItems: 'center',
+            justifyContent: 'center'
         }}>
             <Typography variant='h5' gutterBottom>
                 Complete registration to sign in
             </Typography>
             <TextField
                 id='login-input'
-                sx={{width: "60%", margin: "5px 0"}}
+                sx={{width: '60%', margin: '5px 0'}}
                 variant='outlined'
                 label='Enter login'
                 value={login}
@@ -77,7 +75,7 @@ const Login: React.FC<Props> = (props) => {
             />
             <TextField
                 id='password-input'
-                sx={{width: "60%", margin: "5px 0"}}
+                sx={{width: '60%', margin: '5px 0'}}
                 variant='outlined'
                 label='Enter password'
                 type='password'
@@ -114,12 +112,12 @@ const Login: React.FC<Props> = (props) => {
             <Button
                 id='login-button'
                 sx={{
-                    width: "60%",
-                    alignSelf: "center",
-                    margin: "5px 0",
-                    backgroundColor: "#000000",
-                    "&:hover": {
-                        backgroundColor: "#000000",
+                    width: '60%',
+                    alignSelf: 'center',
+                    margin: '5px 0',
+                    backgroundColor: '#000000',
+                    '&:hover': {
+                        backgroundColor: '#000000',
                     },
                 }}
                 variant='contained'
