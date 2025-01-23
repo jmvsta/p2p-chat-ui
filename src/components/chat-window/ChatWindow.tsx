@@ -28,7 +28,7 @@ const ChatWindow: React.FC<Props> = (props) => {
     const setSelectedChat = useStore((state) => state.setSelectedChat);
     const deleteChat = useStore((state) => state.deleteChat);
     const me = useStore((state) => state.currentUser);
-    const users = useStore((state) => state.contacts);
+    const {contacts, showChatPopup} = useStore();
     const limit = 10;
     const {messageService, fileService, chatService} = useServices();
 
@@ -86,20 +86,29 @@ const ChatWindow: React.FC<Props> = (props) => {
     };
 
     const handleMenuClick = (event: any, index: number) => {
+        if (!selectedChat) return;
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                if (selectedChat) {
-                    chatService.delete(selectedChat.id)
-                        .then(() => {
-                            deleteChat(selectedChat);
-                            setSelectedChat(null);
-                        })
-                        .catch(error => console.error('f: ', error));
-                }
+                showChatPopup('UPDATE', selectedChat, 'Update chat');
                 setAnchorEl(null);
                 break;
-            default:
+            case 1:
+                chatService.ban(selectedChat.id)
+                    .then(() => {
+                    //     TODO: behaviour on ban
+                    })
+                    .catch(error => console.error('f: ', error));
+                setAnchorEl(null);
+                break;
+            case 2:
+                chatService.delete(selectedChat.id)
+                    .then(() => {
+                        deleteChat(selectedChat);
+                        setSelectedChat(null);
+                    })
+                    .catch(error => console.error('f: ', error));
+                setAnchorEl(null);
                 break;
         }
     };
@@ -124,7 +133,11 @@ const ChatWindow: React.FC<Props> = (props) => {
                             onClose={() => setAnchorEl(null)}
                         >
                             <MenuItem
-                                onClick={(event) => handleMenuClick(event, 0)}>Delete</MenuItem>
+                                onClick={(event) => handleMenuClick(event, 0)}>Edit</MenuItem>
+                            <MenuItem
+                                onClick={(event) => handleMenuClick(event, 1)}>Ban</MenuItem>
+                            <MenuItem
+                                onClick={(event) => handleMenuClick(event, 2)}>Delete</MenuItem>
                         </Menu>
                         <Typography variant='h6'>{selectedChat?.name}</Typography>
                     </Toolbar>
@@ -140,10 +153,10 @@ const ChatWindow: React.FC<Props> = (props) => {
                     loader={''}
                     inverse={true}
                 >
-                    {messages.map((message, index) => {
+                    {messages.map((message: Message, index: number) => {
                         const user: ExtUser | undefined | null =
                             message.sender != null
-                                ? users.find((u) => u.id === message.sender)
+                                ? contacts.find((u) => u.id === message.sender)
                                 : me;
                         return (
                             <div className='message' key={index}>
@@ -151,7 +164,6 @@ const ChatWindow: React.FC<Props> = (props) => {
                             </div>
                         );
                     })}
-                    {/*<div ref={anchorRef}></--div>*/}
                 </InfiniteScroll>
             </div>
             {blobs.length !== 0 && (

@@ -1,16 +1,14 @@
 import React, {useState} from 'react';
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography} from '@mui/material';
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from '@mui/material';
 import './Popup.css';
 import {useStore} from '../../Store';
-import {useServices} from '../../services/ServiceProvider.tsx';
+import {useServices} from '../../services/ServiceProvider';
 
 const ContactPopup: React.FC = () => {
 
     const [name, setName]: [string, (name: string) => void] = useState('');
     const [contact, setContact]: [string, (contact: string) => void] = useState('');
-    const open = useStore((state) => state.contactPopupOpen);
-    const setOpen = useStore((state) => state.setContactPopupOpen);
-    const showInfoPopup = useStore((state) => state.showInfoPopup);
+    const {contactPopupOpen, setContactPopupOpen, showInfoPopup} = useStore();
     const {userService} = useServices();
 
     const addContact = () => {
@@ -19,31 +17,29 @@ const ContactPopup: React.FC = () => {
             .then(() => showInfoPopup('Success', `We\'ve sent invitation to ${name}. Once they accept it, the chat will be created`))
             .catch((error) => console.error('Error adding contact ', error))
             .finally(() => {
-                setOpen(false);
+                setContactPopupOpen(false);
                 setName('');
                 setContact('');
             })
     }
 
     return (
-        <Dialog open={open} onClose={() => setOpen(false)}>
+        <Dialog open={contactPopupOpen} onClose={() => setContactPopupOpen(false)} className={'popup'}>
             <DialogTitle>Add new contact</DialogTitle>
             <DialogContent>
-                <Typography>Enter user name</Typography>
                 <TextField
                     fullWidth
-                    className='contact-input'
+                    sx={{marginTop: '1rem'}}
                     variant='outlined'
-                    label='user name'
+                    label='User name'
                     value={name}
                     onChange={e => setName(e.target.value)}
                 />
-                <Typography>Enter contact key</Typography>
                 <TextField
                     fullWidth
-                    className='contact-input'
+                    sx={{marginTop: '1rem'}}
                     variant='outlined'
-                    label='user contact'
+                    label='User contact'
                     value={contact}
                     onChange={e => setContact(e.target.value)}
                 />
@@ -58,7 +54,7 @@ const ContactPopup: React.FC = () => {
                 <Button
                     className='popup-button'
                     variant='contained'
-                    onClick={() => setOpen(false)}>
+                    onClick={() => setContactPopupOpen(false)}>
                     CANCEL
                 </Button>
             </DialogActions>

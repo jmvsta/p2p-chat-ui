@@ -18,7 +18,7 @@ export default class ChatService extends Service {
         return this.api.get(`/api/chats/list/?offset=${offset}&limit=${limit}&filter_banned=${banned}`);
     }
 
-    update(chatId: number, name: string) {
+    rename(chatId: string, name: string) {
         const request = {
             chat_id: chatId,
             name: name
@@ -30,7 +30,7 @@ export default class ChatService extends Service {
         return this.api.post(`/api/chats/?chat_id=${id}`);
     }
 
-    addParticipant(chatId: string, userId: number) {
+    addParticipant(chatId: string, userId: string) {
         const request = {
             chat_id: chatId,
             user_id: userId
@@ -38,12 +38,12 @@ export default class ChatService extends Service {
         return this.api.post('/api/chats/', request);
     }
 
-    ban(chatId: number) {
+    ban(chatId: string) {
         return this.api.post(`/api/chats/?chat_id=${chatId}`);
     }
 
-    details(chatId: number) {
-        return this.api.post(`/api/chats/details/?id=${chatId}`);
+    details(chatId: string) {
+        return this.api.get(`/api/chats/details/?id=${chatId}`);
     }
 
 }

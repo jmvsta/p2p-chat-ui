@@ -21,3 +21,23 @@
     word-break: break-word;
     text-align: left;
 }
+
+.popup .MuiOutlinedInput-root fieldset {
+    border-color: black;
+}
+
+.popup .MuiOutlinedInput-root:hover fieldset {
+    border-color: black;
+}
+
+.popup .MuiOutlinedInput-root.Mui-focused fieldset {
+    border-color: black;
+}
+
+.popup .MuiInputLabel-root {
+    color: black;
+}
+
+.popup .MuiInputLabel-root.Mui-focused {
+    color: black;
+}
