@@ -23,8 +23,9 @@ export const useStore = create<StoreState>((set, get) => ({
     contactPopupMessage: '',
 
     chatPopupOpen: false,
+    chatPopupChat: null,
     chatPopupTitle: '',
-    chatPopupMessage: '',
+    chatPopupAction: null,
 
     setCurrentUser: (user: ExtUser | null): void => set({currentUser: user}),
     setServers: (servers: Server[]): void => set({servers: servers}),
@@ -62,9 +63,16 @@ export const useStore = create<StoreState>((set, get) => ({
     },
 
     setChatPopupOpen: (open: boolean) => set({chatPopupOpen: open}),
-    showChatPopup: (title: string, message: string) => {
+    resetChatPopup: () => {
+        set({chatPopupAction: null});
+        set({chatPopupChat: null});
+        set({chatPopupOpen: false});
+        set({chatPopupTitle: null});
+    },
+    showChatPopup: (action: string, chat: Chat | null, title: string) => {
+        set({chatPopupAction: action});
+        set({chatPopupChat: chat});
         set({chatPopupOpen: true});
         set({chatPopupTitle: title});
-        set({chatPopupMessage: message});
     }
 }));

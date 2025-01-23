@@ -24,6 +24,13 @@ export interface Chat {
     last_active: string;
 }
 
+export interface ChatDetails {
+    id: string;
+    name: string;
+    participants: number[];
+    last_active: string;
+}
+
 export interface Server {
     id: string;
     addr: string;
@@ -49,7 +56,7 @@ export interface ExtUser {
     activity: string
 }
 
-interface StoreState {
+export interface StoreState {
     currentUser: ExtUser | null,
     servers: Server[],
     chats: Chat[],
@@ -70,8 +77,9 @@ interface StoreState {
     contactPopupMessage: string,
 
     chatPopupOpen: boolean,
-    chatPopupTitle: string,
-    chatPopupMessage: string,
+    chatPopupChat: Chat | null,
+    chatPopupTitle: string | null,
+    chatPopupAction: string | null,
 
     setCurrentUser: (user: ExtUser | null) => void,
     setServers: (servers: Server[]) => void,
@@ -94,5 +102,6 @@ interface StoreState {
     showContactPopup: () => void,
 
     setChatPopupOpen: (open: boolean) => void,
-    showChatPopup: (title: string, message: string) => void
+    resetChatPopup: () => void,
+    showChatPopup: (action: string, chat: Chat | null, title: string) => void
 }

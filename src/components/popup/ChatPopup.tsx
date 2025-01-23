@@ -1,35 +1,61 @@
-import React, {useState} from 'react';
-import {
-    Autocomplete,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    TextField,
-    Typography
-} from '@mui/material';
+import React, {useEffect, useState} from 'react';
+import {Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from '@mui/material';
 import './Popup.css';
 import {useStore} from '../../Store';
 import {useServices} from '../../services/ServiceProvider';
+import {ChatDetails, ExtUser} from "../../types";
 
 const ChatPopup: React.FC = () => {
-    const [chatName, setChatName] = useState('');
-    const [userIds, setUserIds] = useState<string[]>([]);
-    const open = useStore((state) => state.chatPopupOpen);
-    const setOpen = useStore((state) => state.setChatPopupOpen);
-    const title = useStore((state) => state.chatPopupTitle);
-    const message = useStore((state) => state.chatPopupMessage);
-    const users = useStore((state) => state.contacts);
+    const {
+        chatPopupAction,
+        chatPopupChat,
+        chatPopupOpen,
+        resetChatPopup,
+        chatPopupTitle,
+        contacts
+    } = useStore();
     const {chatService} = useServices();
+    const [chatName, setChatName] = useState('');
+    const [participants, setParticipants] = useState<ExtUser[]>([]);
+    const [userIds, setUserIds] = useState<string[]>([]);
 
-    const handleCreateChat = () => {
-        chatService.create(chatName, userIds)
-            .catch((error) => console.error('Error adding chats ', error))
+    useEffect(() => {
+        if (chatPopupChat) {
+            setChatName(chatPopupChat.name);
+            chatService.details(chatPopupChat.id)
+                .then((response) => {
+                    const chatDetails: ChatDetails = response.data;
+                    if (chatDetails) {
+                        setParticipants(contacts.filter(contact => !chatDetails.participants.includes(contact.id)));
+                    }
+                })
+                .catch(console.error)
+        }
+    }, [chatPopupChat, contacts]);
+
+    const handleOk = () => {
+        const requests = [];
+        switch (chatPopupAction) {
+            case 'CREATE':
+                requests.push(chatService.create(chatName, userIds));
+                break;
+            case 'UPDATE':
+                if (chatPopupChat === null) break;
+                if (chatPopupChat.name !== chatName) {
+                    requests.push(chatService.rename(chatPopupChat.id, chatName));
+                }
+                userIds.forEach((userId) => {
+                    requests.push(chatService.addParticipant(chatPopupChat.id, userId));
+                });
+                break;
+        }
+        Promise.all([requests])
+            .catch((error) => console.error(`Chat ${chatPopupAction} error: `, error))
             .finally(() => {
                 setUserIds([]);
-                setChatName('');
-                setOpen(false);
+                setChatName(chatPopupChat?.name ?? '');
+                setParticipants([])
+                resetChatPopup();
             });
     }
 
@@ -42,39 +68,44 @@ const ChatPopup: React.FC = () => {
     }
 
     const handleClose = () => {
-        setOpen(false);
+        setUserIds([]);
+        setChatName(chatPopupChat?.name ?? '');
+        setParticipants([])
+        resetChatPopup();
     };
 
     return (
-        <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>{title}</DialogTitle>
+        <Dialog open={chatPopupOpen} onClose={handleClose} className={'popup'}>
+            <DialogTitle>{chatPopupTitle}</DialogTitle>
             <DialogContent>
-                <Typography>{message}</Typography>
                 <TextField
                     fullWidth
-                    className='login-text-field'
+                    sx={{marginTop: '1rem'}}
                     variant='outlined'
                     label='chat name'
-                    name={chatName}
+                    value={chatName}
                     onChange={e => handleSetChatName(e.target.value)}
                 />
-                <Autocomplete
-                    fullWidth
-                    multiple
-                    disablePortal
-                    className='autocomplete'
-                    onChange={(_, value) => handleChooseItem(value.map(item => item.ext_id))}
-                    options={users || []}
-                    getOptionLabel={(option) => option.name}
-                    renderInput={(params) => <TextField {...params} label='start typing...'/>}
-                />
+                {chatPopupChat === null || chatPopupChat.id[0] === 'C' &&
+                    <Autocomplete
+                        fullWidth
+                        sx={{marginTop: '1rem'}}
+                        multiple
+                        disablePortal={false}
+                        className='autocomplete'
+                        onChange={(_, value) => handleChooseItem(value.map(item => item.ext_id))}
+                        options={participants}
+                        getOptionLabel={(option) => option.name}
+                        renderInput={(params) => <TextField {...params} label='start typing participant...'/>}
+                    />
+                }
             </DialogContent>
             <DialogActions>
                 <Button
                     className='popup-button'
                     variant='contained'
-                    onClick={handleCreateChat}>
-                    CREATE
+                    onClick={handleOk}>
+                    {chatPopupAction}
                 </Button>
                 <Button
                     className='popup-button'

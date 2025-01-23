@@ -5,35 +5,31 @@ import {useStore} from '../../Store';
 
 const InfoPopup: React.FC = () => {
 
-    const open = useStore((state) => state.infoPopupOpen);
-    const setOpen = useStore((state) => state.setInfoPopupOpen);
-    const title = useStore((state) => state.infoPopupTitle);
-    const message = useStore((state) => state.infoPopupMessage);
-    const buttonText = useStore((state) => state.infoPopupButtonText);
+    const {infoPopupOpen, setInfoPopupOpen, infoPopupTitle, infoPopupMessage, infoPopupButtonText} = useStore();
 
     const handleClose = () => {
-        if (buttonText === 'COPY') {
-            navigator.clipboard.writeText(message).then(() => {
+        if (infoPopupButtonText === 'COPY') {
+            navigator.clipboard.writeText(infoPopupMessage).then(() => {
                 console.log('Message copied to clipboard');
             }).catch((err) => {
                 console.error('Failed to copy message: ', err);
             });
         }
-        setOpen(false);
+        setInfoPopupOpen(false);
     }
 
     return (
-        <Dialog id='info-popup' open={open} onClose={handleClose}>
-            <DialogTitle>{title}</DialogTitle>
+        <Dialog id='info-popup' open={infoPopupOpen} onClose={handleClose} className={'popup'}>
+            <DialogTitle>{infoPopupTitle}</DialogTitle>
             <DialogContent className={'popup-content'}>
-                <Typography>{message}</Typography>
+                <Typography>{infoPopupMessage}</Typography>
             </DialogContent>
             <DialogActions>
                 <Button
                     className='popup-button'
                     variant='contained'
                     onClick={handleClose}>
-                    {buttonText}
+                    {infoPopupButtonText}
                 </Button>
             </DialogActions>
         </Dialog>

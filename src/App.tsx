@@ -4,14 +4,14 @@ import Chats from './components/chats/Chats';
 import ChatWindow from './components/chat-window/ChatWindow';
 import {AppBar, IconButton, Menu, MenuItem, Toolbar, Typography} from '@mui/material';
 import Login from './components/login/Login';
-import ServerPage from './components/server/ServerPage.tsx';
+import ServerPage from './components/server/ServerPage';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoPopup from './components/popup/InfoPopup';
 import ContactPopup from './components/popup/ContactPopup';
 import ChatPopup from './components/popup/ChatPopup';
 import {useStore} from './Store';
 import {useFetchData} from './hooks/useFetchData';
-import UserService from './services/UserService';
+import {useServices} from "./services/ServiceProvider";
 
 const App: React.FC = () => {
 
@@ -29,7 +29,7 @@ const App: React.FC = () => {
     } = useStore();
 
     const [anchorEl, setAnchorEl] = useState(null);
-    const userService = new UserService();
+    const {userService} = useServices();
 
     useEffect(() => {
         fetchData();
@@ -45,7 +45,7 @@ const App: React.FC = () => {
                 setAnchorEl(null);
                 break;
             case 1:
-                showChatPopup('Create chat', 'Enter chat name');
+                showChatPopup('CREATE', null, 'Create chat');
                 setAnchorEl(null);
                 break;
             case 2:
