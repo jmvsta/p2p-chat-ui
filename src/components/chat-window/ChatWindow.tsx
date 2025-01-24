@@ -30,7 +30,7 @@ const ChatWindow: React.FC<Props> = (props) => {
     const me = useStore((state) => state.currentUser);
     const {contacts, showChatPopup} = useStore();
     const limit = 10;
-    const {messageService, fileService, chatService} = useServices();
+    const {messageService, chatService} = useServices();
 
     useEffect(() => {
         if (selectedChat) {
@@ -70,7 +70,7 @@ const ChatWindow: React.FC<Props> = (props) => {
         if (!selectedChat) return;
         const requests = [];
         blobs?.forEach((file) => {
-            requests.push(fileService.create(file, selectedChat.id));
+            requests.push(messageService.createFile(selectedChat.id, file));
         });
 
         if (text !== '') {
@@ -199,7 +199,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                 </Box>
             )}
             {selectedChat != null && (
-                <div className='input'>
+                <div className='message-input'>
                     <TextField
                         fullWidth
                         className='input'

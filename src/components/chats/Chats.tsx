@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {List, ListItemButton, ListItemText} from '@mui/material';
+import {Avatar, List, ListItemButton, ListItemText} from '@mui/material';
 import {Chat} from '../../types'
 import {useStore} from '../../Store';
 import {useServices} from '../../services/ServiceProvider';
@@ -46,8 +46,18 @@ const Chats: React.FC<Props> = (props) => {
                                     },
                                 }}
                 >
+                    <Avatar
+                        src={''}
+                        alt='avatar'
+                        sx={{
+                            width: 40,
+                            height: 40,
+                            bgcolor: 'black',
+                        }}
+                    />
                     <ListItemText
                         sx={{
+                            marginLeft: '1rem',
                             '& .MuiListItemText-primary, & .MuiListItemText-secondary': {
                                 overflow: 'hidden',
                                 whiteSpace: 'nowrap',

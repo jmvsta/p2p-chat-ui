@@ -8,10 +8,11 @@ import ServerPage from './components/server/ServerPage';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoPopup from './components/popup/InfoPopup';
 import ContactPopup from './components/popup/ContactPopup';
-import ChatPopup from './components/popup/ChatPopup';
+import ChatEditPopup from './components/popup/ChatEditPopup';
 import {useStore} from './Store';
 import {useFetchData} from './hooks/useFetchData';
 import {useServices} from "./services/ServiceProvider";
+import ContactsPopup from "./components/contacts/ContactsPopup";
 
 const App: React.FC = () => {
 
@@ -24,7 +25,7 @@ const App: React.FC = () => {
         selectedServer,
         setSelectedServer,
         showInfoPopup,
-        showContactPopup,
+        setContactsPopupOpen,
         showChatPopup
     } = useStore();
 
@@ -41,7 +42,7 @@ const App: React.FC = () => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                showContactPopup();
+                setContactsPopupOpen(true);
                 setAnchorEl(null);
                 break;
             case 1:
@@ -78,7 +79,8 @@ const App: React.FC = () => {
         <div className='app'>
             <InfoPopup/>
             <ContactPopup/>
-            <ChatPopup/>
+            <ChatEditPopup/>
+            <ContactsPopup/>
             {!apiInited &&
                 <div style={{display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
                     <div style={{width: '50%'}}>
@@ -119,7 +121,7 @@ const App: React.FC = () => {
                                 onClose={handleCloseMenu}
                             >
                                 <MenuItem onClick={(event) =>
-                                    handleMenuClick({event: event, index: 0})}>New Contact</MenuItem>
+                                    handleMenuClick({event: event, index: 0})}>Contacts</MenuItem>
                                 <MenuItem onClick={(event) =>
                                     handleMenuClick({event: event, index: 1})}>New Chat</MenuItem>
                                 <MenuItem onClick={(event) =>

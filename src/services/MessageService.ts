@@ -15,11 +15,10 @@ export default class MessageService extends Service {
     }
 
     createFile(chatId: string, file: Blob) {
-        const body = {
-            chat_id: chatId,
-            file: file,
-        };
-        return this.api.post('/api/msgs/file/', JSON.stringify(body));
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        formData.append('file', file);
+        return this.api.post(`/api/msgs/file/`, formData, {headers: {'Content-Type': 'multipart/form-data'}});
     }
 
     delete(msgId: string) {

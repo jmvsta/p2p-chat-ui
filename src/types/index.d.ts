@@ -76,6 +76,8 @@ export interface StoreState {
     contactPopupTitle: string,
     contactPopupMessage: string,
 
+    contactsPopupOpen: boolean,
+
     chatPopupOpen: boolean,
     chatPopupChat: Chat | null,
     chatPopupTitle: string | null,
@@ -99,7 +101,8 @@ export interface StoreState {
     showInfoPopup: (title: string, message: string, buttonText?: string) => void,
 
     setContactPopupOpen: (open: boolean) => void,
-    showContactPopup: () => void,
+
+    setContactsPopupOpen: (open: boolean) => void,
 
     setChatPopupOpen: (open: boolean) => void,
     resetChatPopup: () => void,
