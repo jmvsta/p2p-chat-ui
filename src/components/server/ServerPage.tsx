@@ -50,7 +50,6 @@ const ServerPage: React.FC<Props> = (props) => {
             })
             .catch(error => {
                 console.error('Add server api request error: ', error);
-                // showInfoPopup('Error', 'Error adding server');
             })
     }
 

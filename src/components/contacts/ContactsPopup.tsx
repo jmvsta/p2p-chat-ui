@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import {useStore} from '../../Store';
 import {ExtUser} from "../../types";
+import {useServices} from "../../services/ServiceProvider.tsx";
 
 const ContactsPopup: React.FC = () => {
     const {
@@ -21,6 +22,8 @@ const ContactsPopup: React.FC = () => {
         chats,
         contacts
     } = useStore();
+
+    const {userService} = useServices();
 
     const handleOk = () => {
         setContactsPopupOpen(false);
@@ -33,6 +36,13 @@ const ContactsPopup: React.FC = () => {
         if (chat) {
             setSelectedChat(chat);
         }
+    }
+
+    const handleRemoveItem = (user: ExtUser) => {
+        userService
+            .delete(user.id)
+            .then(() => {})
+            .catch(console.error);
     }
 
     const handleClose = () => {
@@ -81,6 +91,24 @@ const ContactsPopup: React.FC = () => {
                                 }}
                                 primary={contact.name}
                             />
+                            <button
+                                data-testid={`remove-contact-${contact.id}`}
+                                style={{
+                                    background: 'none',
+                                    color: 'red',
+                                    border: 'none',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer',
+                                    lineHeight: 1
+                                }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveItem(contact);
+                                }}
+                            >
+                                &times;
+                            </button>
                         </ListItemButton>
                     ))}
                 </List>

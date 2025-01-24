@@ -6,8 +6,8 @@ export default class UserService extends Service {
         return this.api.get('/api/users/list/')
     }
 
-    delete(id: string) {
-        return this.api.delete(`/api/users/id=${id}`)
+    delete(id: number) {
+        return this.api.delete(`/api/users/?id=${id}`)
     }
 
     readContact() {
