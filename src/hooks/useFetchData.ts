@@ -31,11 +31,6 @@ export const useFetchData = () => {
                 request: () => messageService.read(selectedChat.id, 0, 10),
                 errorMessage: 'Error fetching new messages',
             });
-            apiRequests.push({
-                key: 'contacts',
-                request: () => userService.read(),
-                errorMessage: 'Error fetching users',
-            });
         }
 
         if (!apiInited) {
@@ -49,6 +44,11 @@ export const useFetchData = () => {
                 key: 'currentUser',
                 request: () => settingsService.readCurrent(),
                 errorMessage: 'Error fetching user\'s data',
+            });
+            apiRequests.push({
+                key: 'contacts',
+                request: () => userService.read(),
+                errorMessage: 'Error fetching users',
             });
             apiRequests.push({
                 key: 'chats',

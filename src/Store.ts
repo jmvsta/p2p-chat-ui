@@ -22,6 +22,8 @@ export const useStore = create<StoreState>((set, get) => ({
     contactPopupTitle: '',
     contactPopupMessage: '',
 
+    contactsPopupOpen: false,
+
     chatPopupOpen: false,
     chatPopupChat: null,
     chatPopupTitle: '',
@@ -58,10 +60,7 @@ export const useStore = create<StoreState>((set, get) => ({
     },
 
     setContactPopupOpen: (open: boolean): void => set({contactPopupOpen: open}),
-    showContactPopup: () => {
-        set({contactPopupOpen: true});
-    },
-
+    setContactsPopupOpen: (open: boolean): void => set({contactsPopupOpen: open}),
     setChatPopupOpen: (open: boolean) => set({chatPopupOpen: open}),
     resetChatPopup: () => {
         set({chatPopupAction: null});

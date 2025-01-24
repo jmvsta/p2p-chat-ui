@@ -6,10 +6,10 @@ export const chatsComparator = (first: Chat, second: Chat) =>
 
 export default class ChatService extends Service {
 
-    create(name: string, userIds: string[]) {
+    create(name: string, userIds: number[]) {
         const request = {
             name: name,
-            users: userIds
+            participants: userIds
         }
         return this.api.post('/api/chats/', request);
     }
@@ -30,7 +30,7 @@ export default class ChatService extends Service {
         return this.api.post(`/api/chats/?chat_id=${id}`);
     }
 
-    addParticipant(chatId: string, userId: string) {
+    addParticipant(chatId: string, userId: number) {
         const request = {
             chat_id: chatId,
             user_id: userId

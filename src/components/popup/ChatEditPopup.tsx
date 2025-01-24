@@ -5,7 +5,7 @@ import {useStore} from '../../Store';
 import {useServices} from '../../services/ServiceProvider';
 import {ChatDetails, ExtUser} from "../../types";
 
-const ChatPopup: React.FC = () => {
+const ChatEditPopup: React.FC = () => {
     const {
         chatPopupAction,
         chatPopupChat,
@@ -17,21 +17,23 @@ const ChatPopup: React.FC = () => {
     const {chatService} = useServices();
     const [chatName, setChatName] = useState('');
     const [participants, setParticipants] = useState<ExtUser[]>([]);
-    const [userIds, setUserIds] = useState<string[]>([]);
+    const [userIds, setUserIds] = useState<number[]>([]);
 
     useEffect(() => {
-        if (chatPopupChat) {
+        if (chatPopupOpen && chatPopupChat) {
             setChatName(chatPopupChat.name);
             chatService.details(chatPopupChat.id)
                 .then((response) => {
                     const chatDetails: ChatDetails = response.data;
                     if (chatDetails) {
-                        setParticipants(contacts.filter(contact => !chatDetails.participants.includes(contact.id)));
+                        setParticipants(contacts.filter(contact => !chatDetails.participants.includes(contact.id) && !userIds.includes(contact.id)));
                     }
                 })
                 .catch(console.error)
+        } else if (chatPopupOpen && chatPopupAction === 'CREATE') {
+            setParticipants(contacts.filter(contact => !userIds.includes(contact.id)));
         }
-    }, [chatPopupChat, contacts]);
+    }, [chatPopupOpen, chatPopupChat, contacts]);
 
     const handleOk = () => {
         const requests = [];
@@ -59,8 +61,8 @@ const ChatPopup: React.FC = () => {
             });
     }
 
-    const handleChooseItem = (userIds: string[]) => {
-        setUserIds((prevUserIds) => [...prevUserIds, ...userIds]);
+    const handleChooseItem = (userIds: number[]) => {
+        setUserIds(userIds);
     }
 
     const handleSetChatName = (chatName: string) => {
@@ -69,7 +71,7 @@ const ChatPopup: React.FC = () => {
 
     const handleClose = () => {
         setUserIds([]);
-        setChatName(chatPopupChat?.name ?? '');
+        setChatName('');
         setParticipants([])
         resetChatPopup();
     };
@@ -82,21 +84,22 @@ const ChatPopup: React.FC = () => {
                     fullWidth
                     sx={{marginTop: '1rem'}}
                     variant='outlined'
-                    label='chat name'
+                    label='Chat name'
                     value={chatName}
                     onChange={e => handleSetChatName(e.target.value)}
                 />
-                {chatPopupChat === null || chatPopupChat.id[0] === 'C' &&
+                {(chatPopupChat === null || chatPopupChat.id[0] === 'C') &&
                     <Autocomplete
                         fullWidth
                         sx={{marginTop: '1rem'}}
                         multiple
                         disablePortal={false}
                         className='autocomplete'
-                        onChange={(_, value) => handleChooseItem(value.map(item => item.ext_id))}
+                        onChange={(_, value) => handleChooseItem(value.map(item => item.id))}
                         options={participants}
                         getOptionLabel={(option) => option.name}
-                        renderInput={(params) => <TextField {...params} label='start typing participant...'/>}
+                        renderInput={(params) => <TextField {...params} label='Start typing participant...'/>}
+                        isOptionEqualToValue={(option, value) => option.id === value.id}
                     />
                 }
             </DialogContent>
@@ -118,4 +121,4 @@ const ChatPopup: React.FC = () => {
     );
 };
 
-export default ChatPopup;
+export default ChatEditPopup;
