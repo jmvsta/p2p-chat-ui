@@ -73,6 +73,8 @@ export interface StoreState {
     infoPopupButtonText: string,
 
     contactPopupOpen: boolean,
+    contactPopupUser: ExtUser | null,
+    contactPopupAction: string,
     contactPopupTitle: string,
     contactPopupMessage: string,
 
@@ -97,14 +99,14 @@ export interface StoreState {
     setApiInited: (inited: boolean) => void,
     setSelectedServer: (server: string | null) => void,
 
-    setInfoPopupOpen: (open: boolean) => void,
-    showInfoPopup: (title: string, message: string, buttonText?: string) => void,
+    closeInfoPopup: () => void,
+    openInfoPopup: (title: string, message: string, buttonText?: string) => void,
 
-    setContactPopupOpen: (open: boolean) => void,
+    openContactPopup: (action: string, user: ExtUser | null) => void,
+    closeContactPopup: () => void,
 
     setContactsPopupOpen: (open: boolean) => void,
-
-    setChatPopupOpen: (open: boolean) => void,
-    resetChatPopup: () => void,
-    showChatPopup: (action: string, chat: Chat | null, title: string) => void
+    
+    closeChatPopup: () => void,
+    openChatPopup: (action: string, chat: Chat | null, title: string) => void
 }

@@ -27,7 +27,7 @@ export default class ChatService extends Service {
     }
 
     delete(id: string) {
-        return this.api.post(`/api/chats/?chat_id=${id}`);
+        return this.api.delete(`/api/chats/?chat_id=${id}`);
     }
 
     addParticipant(chatId: string, userId: number) {
@@ -35,7 +35,7 @@ export default class ChatService extends Service {
             chat_id: chatId,
             user_id: userId
         }
-        return this.api.post('/api/chats/', request);
+        return this.api.post('/api/chats/add-participant/', request);
     }
 
     ban(chatId: string) {

@@ -3,6 +3,7 @@ import {ExtUser, Message} from '../../types';
 import {Avatar, Box, Button, Typography} from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download'
 import {useServices} from '../../services/ServiceProvider';
+import {useStore} from "../../Store";
 
 interface Props {
     message: Message;
@@ -11,6 +12,7 @@ interface Props {
 
 const UserMessage: React.FC<Props> = (props) => {
 
+    const {currentUser} = useStore();
     const {fileService} = useServices();
 
     const handleDownload = () => {
@@ -32,7 +34,7 @@ const UserMessage: React.FC<Props> = (props) => {
                     }}
                 />
                 <Typography variant='body1' fontWeight='bold'>
-                    {props.user?.name || 'Unknown User'}
+                    {props.user?.name || currentUser?.name}
                 </Typography>
             </Box>
 

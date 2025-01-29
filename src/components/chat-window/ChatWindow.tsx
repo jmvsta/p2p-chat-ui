@@ -28,7 +28,7 @@ const ChatWindow: React.FC<Props> = (props) => {
     const setSelectedChat = useStore((state) => state.setSelectedChat);
     const deleteChat = useStore((state) => state.deleteChat);
     const me = useStore((state) => state.currentUser);
-    const {contacts, showChatPopup} = useStore();
+    const {contacts, openChatPopup} = useStore();
     const limit = 10;
     const {messageService, chatService} = useServices();
 
@@ -90,7 +90,7 @@ const ChatWindow: React.FC<Props> = (props) => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                showChatPopup('UPDATE', selectedChat, 'Update chat');
+                openChatPopup('UPDATE', selectedChat, 'Update chat');
                 setAnchorEl(null);
                 break;
             case 1:
@@ -98,7 +98,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                     .then(() => {
                     //     TODO: behaviour on ban
                     })
-                    .catch(error => console.error('f: ', error));
+                    .catch(console.error);
                 setAnchorEl(null);
                 break;
             case 2:
@@ -107,7 +107,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                         deleteChat(selectedChat);
                         setSelectedChat(null);
                     })
-                    .catch(error => console.error('f: ', error));
+                    .catch(console.error);
                 setAnchorEl(null);
                 break;
         }
