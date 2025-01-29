@@ -16,12 +16,12 @@ const Login: React.FC<Props> = (props) => {
     const [fileName, setFileName] = useState('');
     const fileInputRef: RefObject<any> = React.createRef();
     const setApiInited = useStore((state) => state.setApiInited);
-    const showInfoPopup = useStore((state) => state.showInfoPopup);
+    const openInfoPopup = useStore((state) => state.openInfoPopup);
     const {settingsService} = useServices();
 
     const handleLogin = () => {
         if (login === '' || password === '' || photo === null) {
-            showInfoPopup('Error', 'All fields are required');
+            openInfoPopup('Error', 'All fields are required');
             return;
         }
 
@@ -32,7 +32,7 @@ const Login: React.FC<Props> = (props) => {
             .then(() => setApiInited(true))
             .catch((error: Error) => {
                 console.error('Login: Api init get error: ', error);
-                showInfoPopup('Error', 'Login error');
+                openInfoPopup('Error', 'Login error');
             })
             .finally(() => {
                 setPhoto(null);

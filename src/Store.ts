@@ -19,6 +19,8 @@ export const useStore = create<StoreState>((set, get) => ({
     infoPopupButtonText: 'OK',
 
     contactPopupOpen: false,
+    contactPopupUser: null,
+    contactPopupAction: '',
     contactPopupTitle: '',
     contactPopupMessage: '',
 
@@ -51,24 +53,33 @@ export const useStore = create<StoreState>((set, get) => ({
     setApiInited: (inited: boolean): void => set({apiInited: inited}),
     setSelectedServer: (server: string | null): void => set({selectedServer: server}),
 
-    setInfoPopupOpen: (open: boolean): void => set({infoPopupOpen: open}),
-    showInfoPopup: (title: string, message: string, buttonText?: string) => {
+    closeInfoPopup: (): void => set({infoPopupOpen: false}),
+    openInfoPopup: (title: string, message: string, buttonText?: string) => {
         set({infoPopupOpen: true});
         set({infoPopupTitle: title});
         set({infoPopupMessage: message});
         set({infoPopupButtonText: buttonText ? buttonText : 'OK'});
     },
-
-    setContactPopupOpen: (open: boolean): void => set({contactPopupOpen: open}),
+    
+    openContactPopup: (action: string, user: ExtUser | null): void => {
+        set({contactPopupOpen: true})
+        set({contactPopupAction: action})
+        set({contactPopupUser: user})
+    },
+    closeContactPopup: (): void => {
+        set({contactPopupOpen: false})
+        set({contactPopupAction: ''})
+        set({contactPopupUser: null})
+    },
     setContactsPopupOpen: (open: boolean): void => set({contactsPopupOpen: open}),
-    setChatPopupOpen: (open: boolean) => set({chatPopupOpen: open}),
-    resetChatPopup: () => {
+    
+    closeChatPopup: () => {
         set({chatPopupAction: null});
         set({chatPopupChat: null});
         set({chatPopupOpen: false});
         set({chatPopupTitle: null});
     },
-    showChatPopup: (action: string, chat: Chat | null, title: string) => {
+    openChatPopup: (action: string, chat: Chat | null, title: string) => {
         set({chatPopupAction: action});
         set({chatPopupChat: chat});
         set({chatPopupOpen: true});

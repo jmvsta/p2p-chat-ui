@@ -5,7 +5,7 @@ import {useStore} from '../../Store';
 
 const InfoPopup: React.FC = () => {
 
-    const {infoPopupOpen, setInfoPopupOpen, infoPopupTitle, infoPopupMessage, infoPopupButtonText} = useStore();
+    const {infoPopupOpen, closeInfoPopup, infoPopupTitle, infoPopupMessage, infoPopupButtonText} = useStore();
 
     const handleClose = () => {
         if (infoPopupButtonText === 'COPY') {
@@ -15,7 +15,7 @@ const InfoPopup: React.FC = () => {
                 console.error('Failed to copy message: ', err);
             });
         }
-        setInfoPopupOpen(false);
+        closeInfoPopup();
     }
 
     return (

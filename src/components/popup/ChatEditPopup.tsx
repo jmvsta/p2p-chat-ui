@@ -10,7 +10,7 @@ const ChatEditPopup: React.FC = () => {
         chatPopupAction,
         chatPopupChat,
         chatPopupOpen,
-        resetChatPopup,
+        closeChatPopup,
         chatPopupTitle,
         contacts
     } = useStore();
@@ -18,15 +18,21 @@ const ChatEditPopup: React.FC = () => {
     const [chatName, setChatName] = useState('');
     const [participants, setParticipants] = useState<ExtUser[]>([]);
     const [userIds, setUserIds] = useState<number[]>([]);
+    const [isNameSet, setIsNameSet] = useState<boolean>(false);
 
     useEffect(() => {
         if (chatPopupOpen && chatPopupChat) {
-            setChatName(chatPopupChat.name);
+            if (!isNameSet) {
+                setChatName(chatPopupChat.name);
+                setIsNameSet(true);
+            }
+
             chatService.details(chatPopupChat.id)
                 .then((response) => {
                     const chatDetails: ChatDetails = response.data;
                     if (chatDetails) {
-                        setParticipants(contacts.filter(contact => !chatDetails.participants.includes(contact.id) && !userIds.includes(contact.id)));
+                        setParticipants(contacts.filter(contact =>
+                            !chatDetails.participants.includes(contact.id) && !userIds.includes(contact.id)));
                     }
                 })
                 .catch(console.error)
@@ -57,7 +63,7 @@ const ChatEditPopup: React.FC = () => {
                 setUserIds([]);
                 setChatName(chatPopupChat?.name ?? '');
                 setParticipants([])
-                resetChatPopup();
+                closeChatPopup();
             });
     }
 
@@ -73,7 +79,8 @@ const ChatEditPopup: React.FC = () => {
         setUserIds([]);
         setChatName('');
         setParticipants([])
-        resetChatPopup();
+        closeChatPopup();
+        setIsNameSet(false);
     };
 
     return (

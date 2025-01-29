@@ -7,7 +7,7 @@ import Login from './components/login/Login';
 import ServerPage from './components/server/ServerPage';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoPopup from './components/popup/InfoPopup';
-import ContactPopup from './components/popup/ContactPopup';
+import ContactPopup from './components/contacts/ContactPopup.tsx';
 import ChatEditPopup from './components/popup/ChatEditPopup';
 import {useStore} from './Store';
 import {useFetchData} from './hooks/useFetchData';
@@ -24,9 +24,9 @@ const App: React.FC = () => {
         apiInited,
         selectedServer,
         setSelectedServer,
-        showInfoPopup,
+        openInfoPopup,
         setContactsPopupOpen,
-        showChatPopup
+        openChatPopup
     } = useStore();
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -46,13 +46,13 @@ const App: React.FC = () => {
                 setAnchorEl(null);
                 break;
             case 1:
-                showChatPopup('CREATE', null, 'Create chat');
+                openChatPopup('CREATE', null, 'Create chat');
                 setAnchorEl(null);
                 break;
             case 2:
                 userService
                     .readContact()
-                    .then((response) => showInfoPopup('Your contact', response.data, 'COPY'))
+                    .then((response) => openInfoPopup('Your contact', response.data, 'COPY'))
                     .catch(error => console.error('Error fetching currentUser\'s friends: ', error));
                 setAnchorEl(null);
                 break;

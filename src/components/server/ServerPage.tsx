@@ -13,7 +13,7 @@ const ServerPage: React.FC<Props> = (props) => {
     const servers = useStore((state) => state.servers);
     const setServers = useStore((state) => state.setServers);
     const setSelectedServer = useStore((state) => state.setSelectedServer);
-    const showInfoPopup = useStore((state) => state.showInfoPopup);
+    const openInfoPopup = useStore((state) => state.openInfoPopup);
     const [serverKey, setServerKey] = useState('');
     const serverService = new ServerService();
 
@@ -29,15 +29,15 @@ const ServerPage: React.FC<Props> = (props) => {
             serverService
                 .create(serverKey)
                 .then(() => {
-                    showInfoPopup('Success', 'Added server successfully');
+                    openInfoPopup('Success', 'Added server successfully');
                 })
                 .catch(error => {
                     console.error('Add server api request error: ', error);
-                    showInfoPopup('Error', 'Error adding server');
+                    openInfoPopup('Error', 'Error adding server');
                 })
                 .finally(() => setServerKey(''));
         } else {
-            showInfoPopup('Error', 'Server key must be provided');
+            openInfoPopup('Error', 'Server key must be provided');
             return
         }
     };

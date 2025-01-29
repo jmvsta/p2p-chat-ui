@@ -5,7 +5,8 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogTitle, List,
+    DialogTitle,
+    List,
     ListItemButton,
     ListItemText
 } from '@mui/material';
@@ -17,7 +18,7 @@ const ContactsPopup: React.FC = () => {
     const {
         contactsPopupOpen,
         setContactsPopupOpen,
-        setContactPopupOpen,
+        openContactPopup,
         setSelectedChat,
         chats,
         contacts
@@ -27,7 +28,7 @@ const ContactsPopup: React.FC = () => {
 
     const handleOk = () => {
         setContactsPopupOpen(false);
-        setContactPopupOpen(true);
+        openContactPopup('CREATE', null);
     }
 
     const handleChooseItem = (id: number) => {
@@ -38,10 +39,13 @@ const ContactsPopup: React.FC = () => {
         }
     }
 
+    const handleEditItem = (user: ExtUser) => {
+        openContactPopup('UPDATE', user);
+    }
+
     const handleRemoveItem = (user: ExtUser) => {
         userService
             .delete(user.id)
-            .then(() => {})
             .catch(console.error);
     }
 
@@ -51,10 +55,10 @@ const ContactsPopup: React.FC = () => {
 
     return (
         <Dialog open={contactsPopupOpen} onClose={handleClose} className={'popup'} sx={{
-                '& .MuiDialog-paper': {
-                    width: '40%',
-                    maxWidth: '300px',
-                }
+            '& .MuiDialog-paper': {
+                width: '40%',
+                maxWidth: '300px',
+            }
         }}>
             <DialogTitle>My contacts</DialogTitle>
             <DialogContent className={'popup-content'}>
@@ -73,11 +77,7 @@ const ContactsPopup: React.FC = () => {
                             <Avatar
                                 src={''}
                                 alt='avatar'
-                                sx={{
-                                    width: 40,
-                                    height: 40,
-                                    bgcolor: 'black',
-                                }}
+                                sx={{width: 40, height: 40, bgcolor: 'black'}}
                             />
                             <ListItemText
                                 sx={{
@@ -91,6 +91,24 @@ const ContactsPopup: React.FC = () => {
                                 }}
                                 primary={contact.name}
                             />
+                            <button
+                                data-testid={`edit-contact-${contact.id}`}
+                                style={{
+                                    background: 'none',
+                                    color: 'green',
+                                    border: 'none',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer',
+                                    lineHeight: 1,
+                                    content: '✎'
+                                }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditItem(contact);
+                                }}
+                            >✎
+                            </button>
                             <button
                                 data-testid={`remove-contact-${contact.id}`}
                                 style={{
