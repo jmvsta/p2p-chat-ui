@@ -2,7 +2,7 @@ import React from 'react';
 import {ExtUser, Message} from '../../types';
 import {Avatar, Box, Button, Typography} from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download'
-import {useServices} from '../../services/ServiceProvider';
+import {useServices} from '../../Providers';
 import {useStore} from "../../Store";
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 
 const UserMessage: React.FC<Props> = (props) => {
 
-    const {currentUser} = useStore();
+    const currentUser = useStore((state) => state.currentUser);
     const {fileService} = useServices();
 
     const handleDownload = () => {

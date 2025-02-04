@@ -9,7 +9,6 @@ export const useStore = create<StoreState>((set, get) => ({
     chats: [],
     selectedChat: null,
     apiInited: false,
-    selectedServer: JSON.parse(<string>localStorage.getItem('server')),
     messages: [],
     idsSet: new Set<number>(),
 
@@ -17,6 +16,7 @@ export const useStore = create<StoreState>((set, get) => ({
     infoPopupTitle: '',
     infoPopupMessage: '',
     infoPopupButtonText: 'OK',
+    infoPopupAction: () => {},
 
     contactPopupOpen: false,
     contactPopupUser: null,
@@ -51,14 +51,14 @@ export const useStore = create<StoreState>((set, get) => ({
         set({messages: []});
     },
     setApiInited: (inited: boolean): void => set({apiInited: inited}),
-    setSelectedServer: (server: string | null): void => set({selectedServer: server}),
 
     closeInfoPopup: (): void => set({infoPopupOpen: false}),
-    openInfoPopup: (title: string, message: string, buttonText?: string) => {
+    openInfoPopup: (title: string, message: string, buttonText?: string, action?: () => void) => {
         set({infoPopupOpen: true});
         set({infoPopupTitle: title});
         set({infoPopupMessage: message});
         set({infoPopupButtonText: buttonText ? buttonText : 'OK'});
+        set({infoPopupAction: action ? action : () => {}});
     },
     
     openContactPopup: (action: string, user: ExtUser | null): void => {

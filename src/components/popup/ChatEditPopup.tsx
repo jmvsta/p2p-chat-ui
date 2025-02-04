@@ -2,18 +2,17 @@ import React, {useEffect, useState} from 'react';
 import {Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from '@mui/material';
 import './Popup.css';
 import {useStore} from '../../Store';
-import {useServices} from '../../services/ServiceProvider';
+import {useServices} from '../../Providers';
 import {ChatDetails, ExtUser} from "../../types";
 
 const ChatEditPopup: React.FC = () => {
-    const {
-        chatPopupAction,
-        chatPopupChat,
-        chatPopupOpen,
-        closeChatPopup,
-        chatPopupTitle,
-        contacts
-    } = useStore();
+
+    const chatPopupAction = useStore((state) => state.chatPopupAction);
+    const chatPopupChat = useStore((state) => state.chatPopupChat);
+    const chatPopupOpen = useStore((state) => state.chatPopupOpen);
+    const closeChatPopup = useStore((state) => state.closeChatPopup);
+    const chatPopupTitle = useStore((state) => state.chatPopupTitle);
+    const contacts = useStore((state) => state.contacts);
     const {chatService} = useServices();
     const [chatName, setChatName] = useState('');
     const [participants, setParticipants] = useState<ExtUser[]>([]);

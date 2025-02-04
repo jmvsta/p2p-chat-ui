@@ -63,7 +63,6 @@ export interface StoreState {
     contacts: ExtUser[],
     selectedChat: Chat | null,
     apiInited: boolean,
-    selectedServer: string | null,
     messages: Message[],
     idsSet: Set<number>,
 
@@ -71,6 +70,7 @@ export interface StoreState {
     infoPopupTitle: string,
     infoPopupMessage: string,
     infoPopupButtonText: string,
+    infoPopupAction: () => void,
 
     contactPopupOpen: boolean,
     contactPopupUser: ExtUser | null,
@@ -97,10 +97,9 @@ export interface StoreState {
     setIdsSet: (idsSet: Set<number>) => void,
     addIdsToSet: (ids: number[]) => void,
     setApiInited: (inited: boolean) => void,
-    setSelectedServer: (server: string | null) => void,
 
     closeInfoPopup: () => void,
-    openInfoPopup: (title: string, message: string, buttonText?: string) => void,
+    openInfoPopup: (title: string, message: string, buttonText?: string, action?: () => void) => void,
 
     openContactPopup: (action: string, user: ExtUser | null) => void,
     closeContactPopup: () => void,

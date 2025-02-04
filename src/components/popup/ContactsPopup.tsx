@@ -12,17 +12,16 @@ import {
 } from '@mui/material';
 import {useStore} from '../../Store';
 import {ExtUser} from "../../types";
-import {useServices} from "../../services/ServiceProvider.tsx";
+import {useServices} from "../../Providers";
 
 const ContactsPopup: React.FC = () => {
-    const {
-        contactsPopupOpen,
-        setContactsPopupOpen,
-        openContactPopup,
-        setSelectedChat,
-        chats,
-        contacts
-    } = useStore();
+
+    const contactsPopupOpen = useStore((state) => state.contactsPopupOpen);
+    const setContactsPopupOpen = useStore((state) => state.setContactsPopupOpen);
+    const openContactPopup = useStore((state) => state.openContactPopup);
+    const setSelectedChat = useStore((state) => state.setSelectedChat);
+    const chats = useStore((state) => state.chats);
+    const contacts = useStore((state) => state.contacts);
 
     const {userService} = useServices();
 

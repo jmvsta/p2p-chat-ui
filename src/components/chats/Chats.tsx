@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {Avatar, List, ListItemButton, ListItemText} from '@mui/material';
 import {Chat} from '../../types'
 import {useStore} from '../../Store';
-import {useServices} from '../../services/ServiceProvider';
+import {useServices} from '../../Providers';
 import {chatsComparator} from '../../services/ChatService';
 
 interface Props {
@@ -11,17 +11,21 @@ interface Props {
 
 const Chats: React.FC<Props> = (props) => {
 
-    const {chats, selectedServer, currentUser, apiInited, setSelectedChat, setChats} = useStore();
-    const {chatService} = useServices();
+    const chats = useStore((state) => state.chats);
+    const currentUser = useStore((state) => state.currentUser);
+    const apiInited = useStore((state) => state.apiInited);
+    const setSelectedChat = useStore((state) => state.setSelectedChat);
+    const setChats = useStore((state) => state.setChats);
+    const {chatService} = useServices()
 
     useEffect(() => {
-        if (selectedServer && apiInited) {
+        if (apiInited) {
             chatService.read(0, 1000, true)
                 .then((result) => {
                     setChats(result.data.chats?.sort(chatsComparator));
                 });
         }
-    }, [selectedServer, apiInited]);
+    }, [apiInited]);
 
     const getSecondary = (chat: Chat): string => {
         if (chat.last_msg_user == null && chat.last_msg_txt == null) return ''

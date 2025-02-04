@@ -1,14 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Switch, TextField} from '@mui/material';
-import '../popup/Popup.css';
-import {useStore} from '../../Store.ts';
-import {useServices} from '../../services/ServiceProvider';
+import './Popup.css';
+import {useStore} from '../../Store';
+import {useServices} from '../../Providers';
 
 const ContactPopup: React.FC = () => {
 
     const [name, setName]: [string, (name: string) => void] = useState('');
     const [contact, setContact]: [string, (contact: string) => void] = useState('');
-    const {contactPopupOpen, closeContactPopup, openInfoPopup, contactPopupUser, contactPopupAction} = useStore();
+    const contactPopupOpen = useStore((state) => state.contactPopupOpen);
+    const closeContactPopup = useStore((state) => state.closeContactPopup);
+    const openInfoPopup = useStore((state) => state.openInfoPopup);
+    const contactPopupUser = useStore((state) => state.contactPopupUser);
+    const contactPopupAction = useStore((state) => state.contactPopupAction);
     const [isNameSet, setIsNameSet] = useState<boolean>(false);
     const [popupHeader, setPopupHeader] = useState<string>('');
     const [isBanned, setIsBanned] = useState<boolean>(false);
@@ -50,8 +54,6 @@ const ContactPopup: React.FC = () => {
         closeContactPopup()
         setName('');
         setContact('');
-        setContact('');
-        setIsNameSet(false);
         setIsNameSet(false);
     };
 
