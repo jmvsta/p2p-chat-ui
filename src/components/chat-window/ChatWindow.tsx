@@ -7,7 +7,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import {useStore} from '../../Store';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import {ExtUser, Message} from '../../types';
-import {useServices} from '../../services/ServiceProvider';
+import {useServices} from '../../Providers';
 
 interface Props {
     style?: React.CSSProperties;
@@ -28,7 +28,8 @@ const ChatWindow: React.FC<Props> = (props) => {
     const setSelectedChat = useStore((state) => state.setSelectedChat);
     const deleteChat = useStore((state) => state.deleteChat);
     const me = useStore((state) => state.currentUser);
-    const {contacts, openChatPopup} = useStore();
+    const contacts = useStore((state) => state.contacts);
+    const openChatPopup = useStore((state) => state.openChatPopup);
     const limit = 10;
     const {messageService, chatService} = useServices();
 
@@ -96,7 +97,7 @@ const ChatWindow: React.FC<Props> = (props) => {
             case 1:
                 chatService.ban(selectedChat.id)
                     .then(() => {
-                    //     TODO: behaviour on ban
+                        //     TODO: behaviour on ban
                     })
                     .catch(console.error);
                 setAnchorEl(null);

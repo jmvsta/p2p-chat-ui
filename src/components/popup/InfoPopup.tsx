@@ -5,17 +5,16 @@ import {useStore} from '../../Store';
 
 const InfoPopup: React.FC = () => {
 
-    const {infoPopupOpen, closeInfoPopup, infoPopupTitle, infoPopupMessage, infoPopupButtonText} = useStore();
+    const infoPopupAction = useStore((state) => state.infoPopupAction);
+    const infoPopupOpen = useStore((state) => state.infoPopupOpen);
+    const closeInfoPopup = useStore((state) => state.closeInfoPopup);
+    const infoPopupTitle = useStore((state) => state.infoPopupTitle);
+    const infoPopupMessage = useStore((state) => state.infoPopupMessage);
+    const infoPopupButtonText = useStore((state) => state.infoPopupButtonText);
 
     const handleClose = () => {
-        if (infoPopupButtonText === 'COPY') {
-            navigator.clipboard.writeText(infoPopupMessage).then(() => {
-                console.log('Message copied to clipboard');
-            }).catch((err) => {
-                console.error('Failed to copy message: ', err);
-            });
-        }
         closeInfoPopup();
+        infoPopupAction();
     }
 
     return (

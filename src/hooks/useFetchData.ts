@@ -2,24 +2,20 @@ import {useCallback} from 'react';
 import {Message} from '../types';
 import {useStore} from '../Store';
 import {chatsComparator} from '../services/ChatService';
-import {useServices} from '../services/ServiceProvider';
+import {useServices} from '../Providers';
 
 export const useFetchData = () => {
 
-    const {
-        selectedChat,
-        selectedServer,
-        apiInited,
-        idsSet,
-        appendMessagesHead,
-        addIdsToSet,
-        setApiInited,
-        setCurrentUser,
-        setServers,
-        setContacts,
-        setChats,
-    } = useStore();
-
+    const selectedChat = useStore((state) => state.selectedChat);
+    const apiInited = useStore((state) => state.apiInited);
+    const idsSet = useStore((state) => state.idsSet);
+    const appendMessagesHead = useStore((state) => state.appendMessagesHead);
+    const addIdsToSet = useStore((state) => state.addIdsToSet);
+    const setApiInited = useStore((state) => state.setApiInited);
+    const setCurrentUser = useStore((state) => state.setCurrentUser);
+    const setServers = useStore((state) => state.setServers);
+    const setContacts = useStore((state) => state.setContacts);
+    const setChats = useStore((state) => state.setChats);
     const {settingsService, userService, messageService, chatService, serverService} = useServices();
 
     return useCallback(async (): Promise<void> => {
@@ -55,13 +51,10 @@ export const useFetchData = () => {
                 request: () => chatService.read(0, 1000, true),
                 errorMessage: 'Error fetching chats',
             });
-        }
-
-        if (!selectedServer) {
             apiRequests.push({
                 key: 'servers',
                 request: () => serverService.read(),
-                errorMessage: 'ServerPage request error',
+                errorMessage: 'ServersPage request error',
             });
         }
 
@@ -102,5 +95,5 @@ export const useFetchData = () => {
                 console.error(errorMessage, result.reason);
             }
         });
-    }, [selectedChat, selectedServer, apiInited, idsSet]);
+    }, [selectedChat, apiInited, idsSet]);
 };
