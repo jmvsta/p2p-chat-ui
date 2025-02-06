@@ -9,6 +9,17 @@ interface Props {
     style?: React.CSSProperties;
 }
 
+const buttonStyle = {
+    width: '30%',
+    alignSelf: 'flex-start',
+    margin: '5px 0',
+    backgroundColor: '#000000',
+    color: '#ffffff',
+    '&:hover': {
+        backgroundColor: '#000000',
+    },
+};
+
 const ServersPage: React.FC<Props> = (props) => {
 
     const servers = useStore((state) => state.servers);
@@ -127,22 +138,22 @@ const ServersPage: React.FC<Props> = (props) => {
                     value={serverKey}
                     onChange={e => setServerKey(e.target.value)}
                 />
-                <Button
-                    id='add-server-button'
-                    sx={{
-                        width: '60%',
-                        alignSelf: 'left',
-                        margin: '5px 0',
-                        backgroundColor: '#000000',
-                        color: '#ffffff',
-                        '&:hover': {
-                            backgroundColor: '#000000',
-                        },
-                    }}
-                    variant='contained'
-                    onClick={handleAddServer}>
-                    ADD
-                </Button>
+                <div style={{display: 'flex', gap: '5px'}}>
+                    <Button
+                        id='add-server-button'
+                        sx={buttonStyle}
+                        variant='contained'
+                        onClick={handleAddServer}>
+                        ADD
+                    </Button>
+                    <Button
+                        id='skip-button'
+                        sx={buttonStyle}
+                        variant='contained'
+                        onClick={() => navigate('/')}>
+                        SKIP
+                    </Button>
+                </div>
             </Box>
         </div>
     );

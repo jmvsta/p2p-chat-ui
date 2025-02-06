@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {AppBar, IconButton, Menu, MenuItem, Toolbar, Typography,} from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {useStore} from '../../Store';
@@ -15,12 +15,19 @@ const HomePage: React.FC<Props> = (props) => {
 
     const openChatPopup = useStore((state) => state.openChatPopup);
     const setCurrentUser = useStore((state) => state.setCurrentUser);
+    const apiInited = useStore((state) => state.apiInited);
     const setApiInited = useStore((state) => state.setApiInited);
     const openInfoPopup = useStore((state) => state.openInfoPopup);
     const setContactsPopupOpen = useStore((state) => state.setContactsPopupOpen);
     const {userService} = useServices();
     const [anchorEl, setAnchorEl] = useState(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!apiInited) {
+            navigate('/login');
+        }
+    }, [apiInited]);
 
     const handleMenuClick = ({event, index}: { event: any, index: number }) => {
         setAnchorEl(event.currentTarget);

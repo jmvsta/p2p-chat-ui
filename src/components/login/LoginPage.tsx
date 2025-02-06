@@ -3,6 +3,7 @@ import React, {RefObject, useState} from 'react';
 import {useStore} from '../../Store';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import {useServices} from '../../Providers';
+import {useNavigate} from 'react-router';
 
 interface Props {
     style?: React.CSSProperties;
@@ -18,7 +19,8 @@ const LoginPage: React.FC<Props> = (props) => {
     const setApiInited = useStore((state) => state.setApiInited);
     const openInfoPopup = useStore((state) => state.openInfoPopup);
     const {settingsService} = useServices();
-
+    const navigate = useNavigate();
+    
     const handleLogin = () => {
         if (login === '' || password === '' || photo === null) {
             openInfoPopup('Error', 'All fields are required');
@@ -29,7 +31,10 @@ const LoginPage: React.FC<Props> = (props) => {
             settingsService.create(password),
             settingsService.updateCurrent(login, photo)
         ])
-            .then(() => setApiInited(true))
+            .then(() => {
+                setApiInited(true);
+                navigate('/servers');
+            })
             .catch((error: Error) => {
                 console.error('LoginPage: Api init get error: ', error);
                 openInfoPopup('Error', 'LoginPage error');
