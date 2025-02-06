@@ -64,10 +64,10 @@ const HomePage: React.FC<Props> = (props) => {
     };
 
     return (
-        <div className='app' style={{...props.style}}>
+        <div className='app' style={{...props.style, display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
             <div style={{display: 'flex', flexDirection: 'column', height: '100vh', width: '100%'}}>
                 <AppBar position='static'>
-                    <Toolbar className='toolbar'>
+                    <Toolbar sx={{backgroundColor: '#3B3B3B'}}>
                         <IconButton edge='start' aria-label='menu'
                                     onClick={(event) => handleMenuClick({event: event, index: -1})}>
                             <SettingsIcon/>

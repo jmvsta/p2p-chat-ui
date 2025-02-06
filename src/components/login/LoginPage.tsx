@@ -59,8 +59,8 @@ const LoginPage: React.FC<Props> = (props) => {
     return (
         <div style={{display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
             <div style={{width: '50%'}}>
-                <img className='logo-img' src='/logo.jpg' alt='logo image'/>
-                <Typography className='text-field' variant='h6' gutterBottom>
+                <img style={{height: '50%', margin: '0 auto'}} src='/logo.jpg' alt='logo image'/>
+                <Typography sx={{alignSelf: 'center', width: '80%'}} variant='h6' gutterBottom>
                     This secure chat will help you to communicate without sacrificing your safety. Connect
                     freely, use it anywhere, anonymously.
                 </Typography>
