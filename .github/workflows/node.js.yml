@@ -4,9 +4,6 @@ on:
   push:
       branches:
         - master
-  pull_request:
-    branches:
-      - master
   workflow_dispatch:
     inputs:
       api_base_url:
@@ -46,17 +43,33 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Set Full Version
-        run: echo "VERSION=${{ env.MAJOR_MINOR }}.${{ env.PATCH }}" >> $GITHUB_ENV
+        id: set_versio
+        run: |
+          VERSION="${{ env.MAJOR_MINOR }}.${{ env.PATCH }}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
         
       - name: Print Version
         run: echo "Building version ${{ env.VERSION }}"
 
-      - name: Tag and Push New Version
+      - name: Tag and Push New Version (Master)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag v${{ env.VERSION }}
           git push origin v${{ env.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Test Tag (Manual)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          TEST_TAG="test-${{ env.VERSION }}-${{ github.run_number }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag $TEST_TAG
+          git push origin $TEST_TAG
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -102,11 +115,25 @@ jobs:
           path: dist/
 
       - name: Create GitHub Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/** 
-          tag_name: v${{ env.VERSION }}
-          release_name: "Release v${{ env.VERSION }}"
+          files: dist/**
+          tag_name: v${{ needs.build.outputs.VERSION }}
+          name: "Release v${{ needs.build.outputs.VERSION }}"
+          body: "Automated release from GitHub Actions"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Test Release
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**
+          tag_name: "v${{ needs.build.outputs.VERSION }}-${{ github.run_number }}"
+          name: "Test release v${{ needs.build.outputs.VERSION }}-${{ github.run_number }}"
           body: "Automated release from GitHub Actions"
           draft: false
           prerelease: false
