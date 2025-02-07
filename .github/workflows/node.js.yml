@@ -17,7 +17,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    outputs:
+      version: ${{ steps.set_version.outputs.VERSION }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -43,7 +44,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Set Full Version
-        id: set_versio
+        id: set_version
         run: |
           VERSION="${{ env.MAJOR_MINOR }}.${{ env.PATCH }}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -119,8 +120,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/**
-          tag_name: v${{ needs.build.outputs.VERSION }}
-          name: "Release v${{ needs.build.outputs.VERSION }}"
+          tag_name: v${{ needs.build.outputs.version }}
+          name: "Release v${{ needs.build.outputs.version }}"
           body: "Automated release from GitHub Actions"
           draft: false
           prerelease: false
@@ -132,8 +133,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/**
-          tag_name: "v${{ needs.build.outputs.VERSION }}-${{ github.run_number }}"
-          name: "Test release v${{ needs.build.outputs.VERSION }}-${{ github.run_number }}"
+          tag_name: "v${{ needs.build.outputs.version }}-${{ github.run_number }}"
+          name: "Test release v${{ needs.build.outputs.version }}-${{ github.run_number }}"
           body: "Automated release from GitHub Actions"
           draft: false
           prerelease: false
