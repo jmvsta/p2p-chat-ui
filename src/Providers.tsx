@@ -9,6 +9,8 @@ import InfoPopup from './components/popup/InfoPopup';
 import ContactPopup from './components/popup/ContactPopup';
 import ChatEditPopup from './components/popup/ChatEditPopup';
 import ContactsPopup from './components/popup/ContactsPopup';
+import ListEditPopup from './components/popup/ListEditPopup';
+import {BrowserRouter} from 'react-router';
 
 const Context = createContext({
     chatService: new ChatService(),
@@ -23,21 +25,24 @@ export const useServices = () => useContext(Context);
 
 export const Providers: React.FC<{ children: React.ReactNode }> = ({children}) => {
     return (
-        <Context.Provider
-            value={{
-                chatService: new ChatService(),
-                fileService: new FileService(),
-                messageService: new MessageService(),
-                serverService: new ServerService(),
-                settingsService: new SettingsService(),
-                userService: new UserService()
-            }}
-        >
-            <InfoPopup/>
-            <ContactPopup/>
-            <ChatEditPopup/>
-            <ContactsPopup/>
-            {children}
-        </Context.Provider>
+        <BrowserRouter>
+            <Context.Provider
+                value={{
+                    chatService: new ChatService(),
+                    fileService: new FileService(),
+                    messageService: new MessageService(),
+                    serverService: new ServerService(),
+                    settingsService: new SettingsService(),
+                    userService: new UserService()
+                }}
+            >
+                <InfoPopup/>
+                <ContactPopup/>
+                <ChatEditPopup/>
+                <ContactsPopup/>
+                <ListEditPopup/>
+                {children}
+            </Context.Provider>
+        </BrowserRouter>
     );
 };

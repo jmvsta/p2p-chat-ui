@@ -16,7 +16,8 @@ export const useStore = create<StoreState>((set, get) => ({
     infoPopupTitle: '',
     infoPopupMessage: '',
     infoPopupButtonText: 'OK',
-    infoPopupAction: () => {},
+    infoPopupAction: () => {
+    },
 
     contactPopupOpen: false,
     contactPopupUser: null,
@@ -58,9 +59,12 @@ export const useStore = create<StoreState>((set, get) => ({
         set({infoPopupTitle: title});
         set({infoPopupMessage: message});
         set({infoPopupButtonText: buttonText ? buttonText : 'OK'});
-        set({infoPopupAction: action ? action : () => {}});
+        set({
+            infoPopupAction: action ? action : () => {
+            }
+        });
     },
-    
+
     openContactPopup: (action: string, user: ExtUser | null): void => {
         set({contactPopupOpen: true})
         set({contactPopupAction: action})
@@ -71,8 +75,8 @@ export const useStore = create<StoreState>((set, get) => ({
         set({contactPopupAction: ''})
         set({contactPopupUser: null})
     },
-    setContactsPopupOpen: (open: boolean): void => set({contactsPopupOpen: open}),
-    
+    openContactsPopup: (open: boolean): void => set({contactsPopupOpen: open}),
+
     closeChatPopup: () => {
         set({chatPopupAction: null});
         set({chatPopupChat: null});
@@ -84,5 +88,24 @@ export const useStore = create<StoreState>((set, get) => ({
         set({chatPopupChat: chat});
         set({chatPopupOpen: true});
         set({chatPopupTitle: title});
+    },
+    listEditPopupTitle: '',
+    listEditPopupOpen: false,
+    listEditPopupUpdateFunction: () => {},
+    listEditPopupContent: null,
+    listEditPopupButtons: [],
+    openListEditPopup: (title: string, updateFunction: any | null, content: any, buttons: any[]) => {
+        set({listEditPopupTitle: title});
+        set({listEditPopupOpen: true});
+        set({listEditPopupUpdateFunction: updateFunction});
+        set({listEditPopupContent: content});
+        set({listEditPopupButtons: buttons});
+    },
+    closeListEditPopup: () => {
+        set({listEditPopupOpen: false});
+        set({listEditPopupTitle: ''});
+        set({listEditPopupUpdateFunction: () => {}});
+        set({listEditPopupContent: null});
+        set({listEditPopupButtons: []});
     }
 }));

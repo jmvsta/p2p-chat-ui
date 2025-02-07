@@ -1,24 +1,15 @@
-import {Box, Button, List, ListItem, ListItemText, TextField, Typography} from "@mui/material";
-import {Server} from "../../types";
-import React, {useState} from "react";
-import ServerService from "../../services/ServerService.ts";
-import {useNavigate} from "react-router";
-import {useStore} from "../../Store.ts";
+import {Box, List, ListItem, ListItemText, TextField, Typography} from '@mui/material';
+import {Server} from '../../types';
+import React, {ReactNode, useState} from 'react';
+import ServerService from '../../services/ServerService.ts';
+import {useNavigate} from 'react-router';
+import {useStore} from '../../Store';
+import ServerButton from "./ServerButton.tsx";
 
 interface Props {
     style?: React.CSSProperties;
+    buttons?: ReactNode;
 }
-
-const buttonStyle = {
-    width: '30%',
-    alignSelf: 'flex-start',
-    margin: '5px 0',
-    backgroundColor: '#000000',
-    color: '#ffffff',
-    '&:hover': {
-        backgroundColor: '#000000',
-    },
-};
 
 const ServersList: React.FC<Props> = (props) => {
 
@@ -45,6 +36,9 @@ const ServersList: React.FC<Props> = (props) => {
             openInfoPopup('Error', 'Server key must be provided');
         }
     };
+    // const buttons = [,
+    //     <ServerButton id='skip-button' name={'SKIP'} onClick={() => navigate('/')}
+    //                   style={{width: '100% !import', height: '100% !import'}}/>]
 
     const handleRemoveItem = (server: Server) => {
         serverService
@@ -131,20 +125,9 @@ const ServersList: React.FC<Props> = (props) => {
                 onChange={e => setServerKey(e.target.value)}
             />
             <div style={{display: 'flex', gap: '5px'}}>
-                <Button
-                    id='add-server-button'
-                    sx={buttonStyle}
-                    variant='contained'
-                    onClick={handleAddServer}>
-                    ADD
-                </Button>
-                <Button
-                    id='skip-button'
-                    sx={buttonStyle}
-                    variant='contained'
-                    onClick={() => navigate('/')}>
-                    SKIP
-                </Button>
+                <ServerButton id='add-server-button' name={'ADD'} onClick={handleAddServer}
+                              style={{width: '100% !import', height: '100% !import'}}/>
+                {props?.buttons}
             </div>
         </Box>)
 }

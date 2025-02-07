@@ -85,6 +85,12 @@ export interface StoreState {
     chatPopupTitle: string | null,
     chatPopupAction: string | null,
 
+    listEditPopupTitle: string,
+    listEditPopupOpen: boolean,
+    listEditPopupUpdateFunction: () => void,
+    listEditPopupContent: any,
+    listEditPopupButtons: any[],
+
     setCurrentUser: (user: ExtUser | null) => void,
     setServers: (servers: Server[]) => void,
     setChats: (chats: Chat[]) => void,
@@ -104,8 +110,10 @@ export interface StoreState {
     openContactPopup: (action: string, user: ExtUser | null) => void,
     closeContactPopup: () => void,
 
-    setContactsPopupOpen: (open: boolean) => void,
+    openContactsPopup: (open: boolean) => void,
     
-    closeChatPopup: () => void,
     openChatPopup: (action: string, chat: Chat | null, title: string) => void
+    closeChatPopup: () => void,
+    openListEditPopup: (title: string, updateFunction: any|null, content: any, buttons: any[]) => void
+    closeListEditPopup: () => void
 }

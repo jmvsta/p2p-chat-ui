@@ -4,7 +4,7 @@ import HomePage from './components/home/HomePage';
 import LoginPage from './components/login/LoginPage';
 import ServersPage from './components/server/ServersPage';
 import {useFetchData} from './hooks/useFetchData';
-import {BrowserRouter as Router, Route, Routes} from 'react-router';
+import {Route, Routes} from 'react-router';
 
 const App: React.FC = () => {
 
@@ -17,13 +17,11 @@ const App: React.FC = () => {
     }, [fetchData]);
 
     return (
-        <Router>
-            <Routes>
-                <Route path='/login' element={<LoginPage/>}/>
-                <Route path='/servers' element={<ServersPage/>}/>
-                <Route path='/' element={<HomePage/>}/>
-            </Routes>
-        </Router>
+        <Routes>
+            <Route path='/login' element={<LoginPage/>}/>
+            <Route path='/servers' element={<ServersPage/>}/>
+            <Route path='/' element={<HomePage/>}/>
+        </Routes>
     );
 }
 

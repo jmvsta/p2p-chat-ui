@@ -1,8 +1,9 @@
 import {Typography} from '@mui/material';
 import React, {useEffect} from 'react';
-import ServersList from "./ServersList.tsx";
-import {useStore} from "../../Store.ts";
+import ServersList from "./ServersList";
+import {useStore} from "../../Store";
 import {useNavigate} from "react-router";
+import ServerButton from "./ServerButton.tsx";
 
 interface Props {
     style?: React.CSSProperties;
@@ -28,7 +29,8 @@ const ServersPage: React.FC<Props> = (props) => {
                     freely, use it anywhere, anonymously.
                 </Typography>
             </div>
-            <ServersList/>
+            <ServersList buttons={<ServerButton id='skip-button' name={'SKIP'} onClick={() => navigate('/')}
+                                  style={{width: '100% !import', height: '100% !import'}}/>}/>
         </div>
     );
 }

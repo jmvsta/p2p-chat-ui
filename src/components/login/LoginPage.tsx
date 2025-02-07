@@ -1,5 +1,5 @@
 import {Box, Button, IconButton, TextField, Typography} from '@mui/material';
-import React, {RefObject, useState} from 'react';
+import React, {RefObject, useEffect, useState} from 'react';
 import {useStore} from '../../Store';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import {useServices} from '../../Providers';
@@ -18,8 +18,15 @@ const LoginPage: React.FC<Props> = (props) => {
     const fileInputRef: RefObject<any> = React.createRef();
     const setApiInited = useStore((state) => state.setApiInited);
     const openInfoPopup = useStore((state) => state.openInfoPopup);
+    const apiInited = useStore((state) => state.apiInited);
     const {settingsService} = useServices();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (apiInited) {
+            navigate('/');
+        }
+    }, [apiInited]);
     
     const handleLogin = () => {
         if (login === '' || password === '' || photo === null) {

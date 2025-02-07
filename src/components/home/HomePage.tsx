@@ -6,6 +6,8 @@ import Chats from "../chats/Chats";
 import ChatWindow from "../chat-window/ChatWindow";
 import {useServices} from "../../Providers";
 import {useNavigate} from "react-router";
+import ServersList from "../server/ServersList.tsx";
+import ServerButton from "../server/ServerButton.tsx";
 
 interface Props {
     style?: React.CSSProperties;
@@ -18,7 +20,8 @@ const HomePage: React.FC<Props> = (props) => {
     const apiInited = useStore((state) => state.apiInited);
     const setApiInited = useStore((state) => state.setApiInited);
     const openInfoPopup = useStore((state) => state.openInfoPopup);
-    const setContactsPopupOpen = useStore((state) => state.setContactsPopupOpen);
+    const openListEditPopup = useStore((state) => state.openListEditPopup);
+    const openContactsPopup = useStore((state) => state.openContactsPopup);
     const {userService} = useServices();
     const [anchorEl, setAnchorEl] = useState(null);
     const navigate = useNavigate();
@@ -33,7 +36,7 @@ const HomePage: React.FC<Props> = (props) => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                setContactsPopupOpen(true);
+                openContactsPopup(true);
                 setAnchorEl(null);
                 break;
             case 1:
@@ -48,7 +51,10 @@ const HomePage: React.FC<Props> = (props) => {
                 setAnchorEl(null);
                 break;
             case 3:
-                navigate('/servers');
+                // navigate('/servers');
+                openListEditPopup('Edit servers', null, <ServersList/>, [
+                    <ServerButton id='add-server-popup-button' name={'ADD'} onClick={() => navigate('/')} style={{width: '100% !import', alignSelf: 'flex-center'}}/>,
+                    <ServerButton id='close-popup-button' name={'CLOSE'} onClick={() => navigate('/')} style={{width: '100% !import', alignSelf: 'flex-center'}}/>]);
                 setAnchorEl(null);
                 break;
             case 4:
@@ -86,7 +92,7 @@ const HomePage: React.FC<Props> = (props) => {
                             <MenuItem onClick={(event) =>
                                 handleMenuClick({event: event, index: 2})}>My key</MenuItem>
                             <MenuItem onClick={(event) =>
-                                handleMenuClick({event: event, index: 3})}>Server</MenuItem>
+                                handleMenuClick({event: event, index: 3})}>Servers</MenuItem>
                             <MenuItem onClick={(event) =>
                                 handleMenuClick({event: event, index: 4})}>Logout</MenuItem>
                         </Menu>
