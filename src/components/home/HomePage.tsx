@@ -61,7 +61,6 @@ const HomePage: React.FC<Props> = (props) => {
                 setAnchorEl(null);
                 break;
             case 3:
-                // navigate('/servers');
                 openListEditPopup(null, null, <ServersList style={serversPopupStyle} buttons={
                     <ServerButton id='close-popup-button' name={'CLOSE'} onClick={() => closeListEditPopup()}
                                   style={{width: '100% !important', alignSelf: 'flex-center'}}/>
