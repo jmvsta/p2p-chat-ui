@@ -1,8 +1,9 @@
 import {Box, Button, IconButton, TextField, Typography} from '@mui/material';
-import React, {RefObject, useState} from 'react';
+import React, {RefObject, useEffect, useState} from 'react';
 import {useStore} from '../../Store';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import {useServices} from '../../Providers';
+import {useNavigate} from 'react-router';
 
 interface Props {
     style?: React.CSSProperties;
@@ -17,8 +18,16 @@ const LoginPage: React.FC<Props> = (props) => {
     const fileInputRef: RefObject<any> = React.createRef();
     const setApiInited = useStore((state) => state.setApiInited);
     const openInfoPopup = useStore((state) => state.openInfoPopup);
+    const apiInited = useStore((state) => state.apiInited);
     const {settingsService} = useServices();
+    const navigate = useNavigate();
 
+    useEffect(() => {
+        if (apiInited) {
+            navigate('/');
+        }
+    }, [apiInited]);
+    
     const handleLogin = () => {
         if (login === '' || password === '' || photo === null) {
             openInfoPopup('Error', 'All fields are required');
@@ -29,7 +38,10 @@ const LoginPage: React.FC<Props> = (props) => {
             settingsService.create(password),
             settingsService.updateCurrent(login, photo)
         ])
-            .then(() => setApiInited(true))
+            .then(() => {
+                setApiInited(true);
+                navigate('/servers');
+            })
             .catch((error: Error) => {
                 console.error('LoginPage: Api init get error: ', error);
                 openInfoPopup('Error', 'LoginPage error');
@@ -54,8 +66,8 @@ const LoginPage: React.FC<Props> = (props) => {
     return (
         <div style={{display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
             <div style={{width: '50%'}}>
-                <img className='logo-img' src='/logo.jpg' alt='logo image'/>
-                <Typography className='text-field' variant='h6' gutterBottom>
+                <img style={{height: '50%', margin: '0 auto'}} src='/logo.jpg' alt='logo image'/>
+                <Typography sx={{alignSelf: 'center', width: '80%'}} variant='h6' gutterBottom>
                     This secure chat will help you to communicate without sacrificing your safety. Connect
                     freely, use it anywhere, anonymously.
                 </Typography>

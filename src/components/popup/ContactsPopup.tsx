@@ -17,7 +17,7 @@ import {useServices} from "../../Providers";
 const ContactsPopup: React.FC = () => {
 
     const contactsPopupOpen = useStore((state) => state.contactsPopupOpen);
-    const setContactsPopupOpen = useStore((state) => state.setContactsPopupOpen);
+    const openContactsPopup = useStore((state) => state.openContactsPopup);
     const openContactPopup = useStore((state) => state.openContactPopup);
     const setSelectedChat = useStore((state) => state.setSelectedChat);
     const chats = useStore((state) => state.chats);
@@ -26,12 +26,12 @@ const ContactsPopup: React.FC = () => {
     const {userService} = useServices();
 
     const handleOk = () => {
-        setContactsPopupOpen(false);
+        openContactsPopup(false);
         openContactPopup('CREATE', null);
     }
 
     const handleChooseItem = (id: number) => {
-        setContactsPopupOpen(false);
+        openContactsPopup(false);
         const chat = chats.find(chat => chat.id === `U${id}`);
         if (chat) {
             setSelectedChat(chat);
@@ -49,7 +49,7 @@ const ContactsPopup: React.FC = () => {
     }
 
     const handleClose = () => {
-        setContactsPopupOpen(false);
+        openContactsPopup(false);
     };
 
     return (

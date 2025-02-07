@@ -118,7 +118,7 @@ const ChatWindow: React.FC<Props> = (props) => {
         <div style={{...props.style, display: 'flex', flexDirection: 'column', height: '100%'}}>
             {selectedChat !== null && (
                 <AppBar position='static'>
-                    <Toolbar className='chat-toolbar'>
+                    <Toolbar sx={{backgroundColor: '#808080'}}>
                         <IconButton
                             edge='start'
                             aria-label='menu'

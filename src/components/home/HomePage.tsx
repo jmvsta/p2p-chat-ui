@@ -1,32 +1,52 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {AppBar, IconButton, Menu, MenuItem, Toolbar, Typography,} from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {useStore} from '../../Store';
-import Chats from "../chats/Chats";
-import ChatWindow from "../chat-window/ChatWindow";
-import {useServices} from "../../Providers";
-import {useNavigate} from "react-router";
+import Chats from '../chats/Chats';
+import ChatWindow from '../chat-window/ChatWindow';
+import {useServices} from '../../Providers';
+import {useNavigate} from 'react-router';
+import ServersList from '../server/ServersList';
+import ServerButton from '../server/ServerButton';
 
 interface Props {
     style?: React.CSSProperties;
 }
 
+const serversPopupStyle: React.CSSProperties = {
+    flex: '0 0 100%',
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    boxShadow: 'none',
+    alignItems: 'flex-start',
+};
+
 const HomePage: React.FC<Props> = (props) => {
 
     const openChatPopup = useStore((state) => state.openChatPopup);
-    const setCurrentUser = useStore((state) => state.setCurrentUser);
-    const setApiInited = useStore((state) => state.setApiInited);
+    const apiInited = useStore((state) => state.apiInited);
     const openInfoPopup = useStore((state) => state.openInfoPopup);
-    const setContactsPopupOpen = useStore((state) => state.setContactsPopupOpen);
+    const openListEditPopup = useStore((state) => state.openListEditPopup);
+    const closeListEditPopup = useStore((state) => state.closeListEditPopup);
+    const openContactsPopup = useStore((state) => state.openContactsPopup);
     const {userService} = useServices();
     const [anchorEl, setAnchorEl] = useState(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!apiInited) {
+            console.log('refered to login from home')
+            navigate('/login');
+        }
+    }, [apiInited]);
 
     const handleMenuClick = ({event, index}: { event: any, index: number }) => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
-                setContactsPopupOpen(true);
+                openContactsPopup(true);
                 setAnchorEl(null);
                 break;
             case 1:
@@ -41,12 +61,10 @@ const HomePage: React.FC<Props> = (props) => {
                 setAnchorEl(null);
                 break;
             case 3:
-                navigate('/servers');
-                setAnchorEl(null);
-                break;
-            case 4:
-                setCurrentUser(null);
-                setApiInited(false);
+                openListEditPopup(null, null, <ServersList style={serversPopupStyle} buttons={
+                    <ServerButton id='close-popup-button' name={'CLOSE'} onClick={() => closeListEditPopup()}
+                                  style={{width: '100% !important', alignSelf: 'flex-center'}}/>
+                }/>, []);
                 setAnchorEl(null);
                 break;
         }
@@ -57,10 +75,11 @@ const HomePage: React.FC<Props> = (props) => {
     };
 
     return (
-        <div className='app' style={{...props.style}}>
+        <div className='app'
+             style={{...props.style, display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
             <div style={{display: 'flex', flexDirection: 'column', height: '100vh', width: '100%'}}>
                 <AppBar position='static'>
-                    <Toolbar className='toolbar'>
+                    <Toolbar sx={{backgroundColor: '#3B3B3B'}}>
                         <IconButton edge='start' aria-label='menu'
                                     onClick={(event) => handleMenuClick({event: event, index: -1})}>
                             <SettingsIcon/>
@@ -79,9 +98,7 @@ const HomePage: React.FC<Props> = (props) => {
                             <MenuItem onClick={(event) =>
                                 handleMenuClick({event: event, index: 2})}>My key</MenuItem>
                             <MenuItem onClick={(event) =>
-                                handleMenuClick({event: event, index: 3})}>Server</MenuItem>
-                            <MenuItem onClick={(event) =>
-                                handleMenuClick({event: event, index: 4})}>Logout</MenuItem>
+                                handleMenuClick({event: event, index: 3})}>Servers</MenuItem>
                         </Menu>
                         <Typography variant='h6'>p2p-chat-ui</Typography>
                     </Toolbar>
