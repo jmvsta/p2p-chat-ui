@@ -13,6 +13,10 @@ on:
         description: "Set the API Base URL"
         required: true
         default: "http://localhost:8080"
+        
+permissions:
+  contents: write
+  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,6 +24,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Read Major.Minor Version
         id: get_major_minor
@@ -47,8 +53,12 @@ jobs:
 
       - name: Tag and Push New Version
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag v${{ env.VERSION }}
           git push origin v${{ env.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -100,3 +110,5 @@ jobs:
           body: "Automated release from GitHub Actions"
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
