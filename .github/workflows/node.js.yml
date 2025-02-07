@@ -80,7 +80,7 @@ jobs:
         run: |
           mkdir -p release
           cp -r dist/* release/
-          zip -r release.zip release/
+          zip -r release${{ env.VERSION }}.zip release/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
