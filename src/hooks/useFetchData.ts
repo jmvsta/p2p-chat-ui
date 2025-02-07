@@ -28,14 +28,12 @@ export const useFetchData = () => {
                 errorMessage: 'Error fetching new messages',
             });
         }
-
-        if (!apiInited) {
-            apiRequests.push({
-                key: 'init',
-                request: () => settingsService.read(),
-                errorMessage: 'Init API status request error',
-            });
-        } else {
+        apiRequests.push({
+            key: 'init',
+            request: () => settingsService.read(),
+            errorMessage: 'Init API status request error',
+        });
+        if (apiInited) {
             apiRequests.push({
                 key: 'currentUser',
                 request: () => settingsService.readCurrent(),

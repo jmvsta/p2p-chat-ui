@@ -1,15 +1,25 @@
-import {Box, List, ListItem, ListItemText, TextField, Typography} from '@mui/material';
+import {List, ListItem, ListItemText, TextField, Typography} from '@mui/material';
 import {Server} from '../../types';
 import React, {ReactNode, useState} from 'react';
 import ServerService from '../../services/ServerService.ts';
 import {useNavigate} from 'react-router';
 import {useStore} from '../../Store';
-import ServerButton from "./ServerButton.tsx";
+import ServerButton from './ServerButton';
 
 interface Props {
     style?: React.CSSProperties;
+    width?: string;
     buttons?: ReactNode;
 }
+
+const serversPopupDefaultStyle: React.CSSProperties = {
+    flex: '0 0 50%',
+    display: 'flex',
+    flexDirection: 'column',
+    boxShadow: 'none',
+    alignItems: 'flex-start',
+    justifyContent: 'center'
+};
 
 const ServersList: React.FC<Props> = (props) => {
 
@@ -36,9 +46,6 @@ const ServersList: React.FC<Props> = (props) => {
             openInfoPopup('Error', 'Server key must be provided');
         }
     };
-    // const buttons = [,
-    //     <ServerButton id='skip-button' name={'SKIP'} onClick={() => navigate('/')}
-    //                   style={{width: '100% !import', height: '100% !import'}}/>]
 
     const handleRemoveItem = (server: Server) => {
         serverService
@@ -50,24 +57,9 @@ const ServersList: React.FC<Props> = (props) => {
     }
 
     return (
-        <Box id='server-component' style={{
-            ...props?.style,
-            flex: '0 0 50%',
-            width: '50%',
-            height: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            boxShadow: 'none',
-            alignItems: 'left',
-            justifyContent: 'center'
-        }}>
-            <Typography variant='h5' gutterBottom sx={{
-                textAlign: 'left',
-                width: '60%',
-            }}>
-                Servers list
-            </Typography>
-            <List style={{overflowY: 'auto', alignItems: 'left', width: '60%'}}>
+        <div id='server-component' style={{...serversPopupDefaultStyle, ...props?.style}}>
+            <Typography variant='h5' gutterBottom>Servers list</Typography>
+            <List sx={{width: props?.width ?? '100%'}}>
                 {servers?.map((server: Server) => (
                     <ListItem key={server.id}
                               sx={{
@@ -111,25 +103,19 @@ const ServersList: React.FC<Props> = (props) => {
                     </ListItem>
                 ))}
             </List>
-            <Typography variant='h5' gutterBottom sx={{
-                textAlign: 'left',
-                width: '60%',
-            }}>
-                Add server
-            </Typography>
+            <Typography variant='h5' gutterBottom>Add server</Typography>
             <TextField
                 id='server-key-input'
-                sx={{width: '60%', margin: '5px 0'}}
+                sx={{width: props?.width ?? '100%', margin: '5px 0'}}
                 label='enter server key'
                 value={serverKey}
                 onChange={e => setServerKey(e.target.value)}
             />
-            <div style={{display: 'flex', gap: '5px'}}>
-                <ServerButton id='add-server-button' name={'ADD'} onClick={handleAddServer}
-                              style={{width: '100% !import', height: '100% !import'}}/>
+            <div style={{display: 'flex', alignItems: 'flex-end', gap: '5px', width: props?.width ?? '100%'}}>
+                <ServerButton id='add-server-button' name={'ADD'} onClick={handleAddServer}/>
                 {props?.buttons}
             </div>
-        </Box>)
+        </div>)
 }
 
 export default ServersList;

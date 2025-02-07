@@ -94,7 +94,7 @@ export const useStore = create<StoreState>((set, get) => ({
     listEditPopupUpdateFunction: () => {},
     listEditPopupContent: null,
     listEditPopupButtons: [],
-    openListEditPopup: (title: string, updateFunction: any | null, content: any, buttons: any[]) => {
+    openListEditPopup: (title: string | null, updateFunction: any | null, content: any, buttons: any[]) => {
         set({listEditPopupTitle: title});
         set({listEditPopupOpen: true});
         set({listEditPopupUpdateFunction: updateFunction});

@@ -24,9 +24,13 @@ const ListEditPopup: React.FC = () => {
 
     return (
         <Dialog open={isOpen} onClose={handleClose} className={'popup'}>
-            <DialogTitle>{title}</DialogTitle>
+            {title &&
+                <DialogTitle>{title}</DialogTitle>
+            }
             <DialogContent>{content}</DialogContent>
-            <DialogActions>{buttons}</DialogActions>
+            {buttons.length > 0 &&
+                <DialogActions>{buttons}</DialogActions>
+            }
         </Dialog>
     );
 };

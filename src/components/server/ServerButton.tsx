@@ -11,7 +11,7 @@ interface Props {
 const ServerButton: React.FC<Props> = (props) => {
 
     const buttonStyle = {
-        width: '30%',
+        width: '100%',
         alignSelf: 'flex-start',
         margin: '5px 0',
         backgroundColor: '#000000',

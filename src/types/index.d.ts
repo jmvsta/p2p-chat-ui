@@ -85,7 +85,7 @@ export interface StoreState {
     chatPopupTitle: string | null,
     chatPopupAction: string | null,
 
-    listEditPopupTitle: string,
+    listEditPopupTitle: string|null,
     listEditPopupOpen: boolean,
     listEditPopupUpdateFunction: () => void,
     listEditPopupContent: any,
@@ -111,9 +111,9 @@ export interface StoreState {
     closeContactPopup: () => void,
 
     openContactsPopup: (open: boolean) => void,
-    
+
     openChatPopup: (action: string, chat: Chat | null, title: string) => void
     closeChatPopup: () => void,
-    openListEditPopup: (title: string, updateFunction: any|null, content: any, buttons: any[]) => void
+    openListEditPopup: (title: string | null, updateFunction: any | null, content: any, buttons: any[]) => void
     closeListEditPopup: () => void
 }

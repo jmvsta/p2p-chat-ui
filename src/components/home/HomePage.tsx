@@ -2,25 +2,34 @@ import React, {useEffect, useState} from 'react';
 import {AppBar, IconButton, Menu, MenuItem, Toolbar, Typography,} from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {useStore} from '../../Store';
-import Chats from "../chats/Chats";
-import ChatWindow from "../chat-window/ChatWindow";
-import {useServices} from "../../Providers";
-import {useNavigate} from "react-router";
-import ServersList from "../server/ServersList.tsx";
-import ServerButton from "../server/ServerButton.tsx";
+import Chats from '../chats/Chats';
+import ChatWindow from '../chat-window/ChatWindow';
+import {useServices} from '../../Providers';
+import {useNavigate} from 'react-router';
+import ServersList from '../server/ServersList';
+import ServerButton from '../server/ServerButton';
 
 interface Props {
     style?: React.CSSProperties;
 }
 
+const serversPopupStyle: React.CSSProperties = {
+    flex: '0 0 100%',
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    boxShadow: 'none',
+    alignItems: 'flex-start',
+};
+
 const HomePage: React.FC<Props> = (props) => {
 
     const openChatPopup = useStore((state) => state.openChatPopup);
-    const setCurrentUser = useStore((state) => state.setCurrentUser);
     const apiInited = useStore((state) => state.apiInited);
-    const setApiInited = useStore((state) => state.setApiInited);
     const openInfoPopup = useStore((state) => state.openInfoPopup);
     const openListEditPopup = useStore((state) => state.openListEditPopup);
+    const closeListEditPopup = useStore((state) => state.closeListEditPopup);
     const openContactsPopup = useStore((state) => state.openContactsPopup);
     const {userService} = useServices();
     const [anchorEl, setAnchorEl] = useState(null);
@@ -28,6 +37,7 @@ const HomePage: React.FC<Props> = (props) => {
 
     useEffect(() => {
         if (!apiInited) {
+            console.log('refered to login from home')
             navigate('/login');
         }
     }, [apiInited]);
@@ -52,14 +62,10 @@ const HomePage: React.FC<Props> = (props) => {
                 break;
             case 3:
                 // navigate('/servers');
-                openListEditPopup('Edit servers', null, <ServersList/>, [
-                    <ServerButton id='add-server-popup-button' name={'ADD'} onClick={() => navigate('/')} style={{width: '100% !import', alignSelf: 'flex-center'}}/>,
-                    <ServerButton id='close-popup-button' name={'CLOSE'} onClick={() => navigate('/')} style={{width: '100% !import', alignSelf: 'flex-center'}}/>]);
-                setAnchorEl(null);
-                break;
-            case 4:
-                setCurrentUser(null);
-                setApiInited(false);
+                openListEditPopup(null, null, <ServersList style={serversPopupStyle} buttons={
+                    <ServerButton id='close-popup-button' name={'CLOSE'} onClick={() => closeListEditPopup()}
+                                  style={{width: '100% !important', alignSelf: 'flex-center'}}/>
+                }/>, []);
                 setAnchorEl(null);
                 break;
         }
@@ -70,7 +76,8 @@ const HomePage: React.FC<Props> = (props) => {
     };
 
     return (
-        <div className='app' style={{...props.style, display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
+        <div className='app'
+             style={{...props.style, display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
             <div style={{display: 'flex', flexDirection: 'column', height: '100vh', width: '100%'}}>
                 <AppBar position='static'>
                     <Toolbar sx={{backgroundColor: '#3B3B3B'}}>
@@ -93,8 +100,6 @@ const HomePage: React.FC<Props> = (props) => {
                                 handleMenuClick({event: event, index: 2})}>My key</MenuItem>
                             <MenuItem onClick={(event) =>
                                 handleMenuClick({event: event, index: 3})}>Servers</MenuItem>
-                            <MenuItem onClick={(event) =>
-                                handleMenuClick({event: event, index: 4})}>Logout</MenuItem>
                         </Menu>
                         <Typography variant='h6'>p2p-chat-ui</Typography>
                     </Toolbar>

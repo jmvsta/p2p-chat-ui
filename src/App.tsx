@@ -1,4 +1,3 @@
-import './App.css';
 import React, {useEffect} from 'react';
 import HomePage from './components/home/HomePage';
 import LoginPage from './components/login/LoginPage';
