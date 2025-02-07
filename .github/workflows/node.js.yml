@@ -2,8 +2,11 @@ name: Build and Release
 
 on:
   push:
+      branches:
+        - master
+  pull_request:
     branches:
-      - main
+      - master
   workflow_dispatch:
     inputs:
       api_base_url:
@@ -17,6 +20,35 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Read Major.Minor Version
+        id: get_major_minor
+        run: echo "MAJOR_MINOR=$(cat version)" >> $GITHUB_ENV
+        
+      - name: Fetch Previous Build Number (if exists)
+        id: get_previous_build
+        run: |
+          PREV_VERSION=$(gh release list --limit 1 | awk '{print $1}' | tr -d 'v' || echo "")
+          if [[ "$PREV_VERSION" == "${{ env.MAJOR_MINOR }}."* ]]; then
+            PATCH=$(echo $PREV_VERSION | cut -d '.' -f3)
+            PATCH=$((PATCH + 1))
+          else
+            PATCH=0
+          fi
+          echo "PATCH=$PATCH" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Set Full Version
+        run: echo "VERSION=${{ env.MAJOR_MINOR }}.${{ env.PATCH }}" >> $GITHUB_ENV
+        
+      - name: Print Version
+        run: echo "Building version ${{ env.VERSION }}"
+
+      - name: Tag and Push New Version
+        run: |
+          git tag v${{ env.VERSION }}
+          git push origin v${{ env.VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -44,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-artifact
-          path: release.zip
+          path: release${{ env.VERSION }}.zip
 
   release:
     needs: build
@@ -63,8 +95,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/** 
-          tag_name: v1.0.${{ github.run_number }}  # Auto-increment tag
-          release_name: "Release v1.0.${{ github.run_number }}"
+          tag_name: v${{ env.VERSION }}
+          release_name: "Release v${{ env.VERSION }}"
           body: "Automated release from GitHub Actions"
           draft: false
           prerelease: false
