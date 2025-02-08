@@ -25,54 +25,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Read Major.Minor Version
-        id: get_major_minor
-        run: echo "MAJOR_MINOR=$(cat version)" >> $GITHUB_ENV
-        
-      - name: Fetch Previous Build Number (if exists)
-        id: get_previous_build
-        run: |
-          PREV_VERSION=$(gh release list --limit 1 | awk '{print $1}' | tr -d 'v' || echo "")
-          if [[ "$PREV_VERSION" == "${{ env.MAJOR_MINOR }}."* ]]; then
-            PATCH=$(echo $PREV_VERSION | cut -d '.' -f3)
-            PATCH=$((PATCH + 1))
-          else
-            PATCH=0
-          fi
-          echo "PATCH=$PATCH" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-      - name: Set Full Version
+      - name: Set Version
         id: set_version
         run: |
-          VERSION="${{ env.MAJOR_MINOR }}.${{ env.PATCH }}"
+          VERSION=$(cat version)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-        
-      - name: Print Version
-        run: echo "Building version ${{ env.VERSION }}"
-
-      - name: Tag and Push New Version (Master)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag v${{ env.VERSION }}
-          git push origin v${{ env.VERSION }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create Test Tag (Manual)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          TEST_TAG="test-${{ env.VERSION }}-${{ github.run_number }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag $TEST_TAG
-          git push origin $TEST_TAG
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -137,6 +95,6 @@ jobs:
           name: "Test release v${{ needs.build.outputs.version }}-${{ github.run_number }}"
           body: "Automated release from GitHub Actions"
           draft: false
-          prerelease: false
+          prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
