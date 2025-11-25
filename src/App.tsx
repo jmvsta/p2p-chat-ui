@@ -4,6 +4,7 @@ import LoginPage from './components/login/LoginPage';
 import ServersPage from './components/server/ServersPage';
 import {useFetchData} from './hooks/useFetchData';
 import {Route, Routes} from 'react-router';
+import VideoWindow from "./components/video-window/VideoWindow.tsx";
 
 const App: React.FC = () => {
 
@@ -19,6 +20,7 @@ const App: React.FC = () => {
         <Routes>
             <Route path='/login' element={<LoginPage/>}/>
             <Route path='/servers' element={<ServersPage/>}/>
+            <Route path='/call' element={<VideoWindow/>}/>
             <Route path='/' element={<HomePage/>}/>
         </Routes>
     );

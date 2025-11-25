@@ -8,6 +8,7 @@ import {useStore} from '../../Store';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import {ExtUser, Message} from '../../types';
 import {useServices} from '../../Providers';
+import {useNavigate} from "react-router";
 
 interface Props {
     style?: React.CSSProperties;
@@ -32,6 +33,7 @@ const ChatWindow: React.FC<Props> = (props) => {
     const openChatPopup = useStore((state) => state.openChatPopup);
     const limit = 10;
     const {messageService, chatService} = useServices();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (selectedChat) {
@@ -91,10 +93,14 @@ const ChatWindow: React.FC<Props> = (props) => {
         setAnchorEl(event.currentTarget);
         switch (index) {
             case 0:
+                setAnchorEl(null);
+                navigate('/call');
+                break;
+            case 1:
                 openChatPopup('UPDATE', selectedChat, 'Update chat');
                 setAnchorEl(null);
                 break;
-            case 1:
+            case 2:
                 chatService.ban(selectedChat.id)
                     .then(() => {
                         //     TODO: behaviour on ban
@@ -102,7 +108,7 @@ const ChatWindow: React.FC<Props> = (props) => {
                     .catch(console.error);
                 setAnchorEl(null);
                 break;
-            case 2:
+            case 3:
                 chatService.delete(selectedChat.id)
                     .then(() => {
                         deleteChat(selectedChat);
@@ -134,11 +140,13 @@ const ChatWindow: React.FC<Props> = (props) => {
                             onClose={() => setAnchorEl(null)}
                         >
                             <MenuItem
-                                onClick={(event) => handleMenuClick(event, 0)}>Edit</MenuItem>
+                                onClick={(event) => handleMenuClick(event, 0)}>Call</MenuItem>
                             <MenuItem
-                                onClick={(event) => handleMenuClick(event, 1)}>Ban</MenuItem>
+                                onClick={(event) => handleMenuClick(event, 1)}>Edit</MenuItem>
                             <MenuItem
-                                onClick={(event) => handleMenuClick(event, 2)}>Delete</MenuItem>
+                                onClick={(event) => handleMenuClick(event, 2)}>Ban</MenuItem>
+                            <MenuItem
+                                onClick={(event) => handleMenuClick(event, 3)}>Delete</MenuItem>
                         </Menu>
                         <Typography variant='h6'>{selectedChat?.name}</Typography>
                     </Toolbar>
