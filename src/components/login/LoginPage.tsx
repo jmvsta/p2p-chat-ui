@@ -39,7 +39,6 @@ const LoginPage: React.FC<Props> = (props) => {
             settingsService.updateCurrent(login, photo)
         ])
             .then(() => {
-                setApiInited(true);
                 navigate('/servers');
             })
             .catch((error: Error) => {
@@ -64,7 +63,7 @@ const LoginPage: React.FC<Props> = (props) => {
     }
 
     return (
-        <div style={{display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
+        <div style={{display: 'flex', flexDirection: 'row'}}>
             <div style={{width: '50%'}}>
                 <img style={{height: '50%', margin: '0 auto'}} src='/logo.jpg' alt='logo image'/>
                 <Typography sx={{alignSelf: 'center', width: '80%'}} variant='h6' gutterBottom>
