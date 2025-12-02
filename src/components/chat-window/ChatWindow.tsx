@@ -30,6 +30,8 @@ const ChatWindow: React.FC<Props> = (props) => {
     const deleteChat = useStore((state) => state.deleteChat);
     const me = useStore((state) => state.currentUser);
     const contacts = useStore((state) => state.contacts);
+    const setRoom = useStore((state) => state.setCallId);
+    // const openInfoPopup = useStore((state) => state.openInfoPopup);
     const openChatPopup = useStore((state) => state.openChatPopup);
     const limit = 10;
     const {messageService, chatService} = useServices();
@@ -94,7 +96,13 @@ const ChatWindow: React.FC<Props> = (props) => {
         switch (index) {
             case 0:
                 setAnchorEl(null);
-                // sendMessage();
+                messageService.updateCall(selectedChat.id, "INIT").then(r => {
+                    setRoom(r.data);
+                    console.log(`Room id is: ${r.data}`);
+                });
+                // openInfoPopup(`Calling ${selectedChat.name}`, '', 'Cancel',
+                //     () => messageService.updateCall(selectedChat.id, "CANCEL"))
+                // setRoom("room")
                 navigate('/call');
                 break;
             case 1:

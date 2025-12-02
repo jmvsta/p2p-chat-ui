@@ -4,7 +4,7 @@ import LoginPage from './components/login/LoginPage';
 import ServersPage from './components/server/ServersPage';
 import {useFetchData} from './hooks/useFetchData';
 import {Route, Routes} from 'react-router';
-import VideoWindow from "./components/video-window/VideoWindow.tsx";
+import {VideoWindow} from "./components/video-window/VideoWindow.tsx";
 
 const App: React.FC = () => {
 

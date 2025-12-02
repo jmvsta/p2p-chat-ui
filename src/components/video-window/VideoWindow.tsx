@@ -1,11 +1,10 @@
 import {useEffect, useRef, useState} from 'react'
-import io from 'socket.io-client'
 import {useNavigate} from "react-router";
 import {useStore} from "../../Store";
 
-const socket = io('http://192.168.1.4:8181', {autoConnect: false})
+let ws: WebSocket | null = null
 
-export default function VideoWindow() {
+export function VideoWindow() {
     const localVideo = useRef<HTMLVideoElement | null>(null)
     const remoteVideo = useRef<HTMLVideoElement | null>(null)
     const pcRef = useRef<RTCPeerConnection | null>(null)
@@ -21,193 +20,140 @@ export default function VideoWindow() {
         } else if (!room) {
             navigate('/');
         }
-        socket.on('created', async (room: string) => {
-            console.log('[Socket] created room', room)
-            await init(true)
-        })
-
-        socket.on('joined', async (room: string) => {
-            console.log('[Socket] joined room', room)
-            await init(false)
-        })
-
-        socket.on('join', () => {
-            console.log('[Socket] another peer joined, sending offer...')
-            createOffer();
-        })
-
-        socket.on('message', async (message: any) => {
-            const pc = pcRef.current
-
-            if (!pc) return
-
-            if (message.type === 'offer') {
-                if (!pc.getSenders().length) {
-                    const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true})
-                    if (localVideo.current) localVideo.current.srcObject = stream
-                    stream.getTracks().forEach(track => pc.addTrack(track, stream))
-                }
-                await pc.setRemoteDescription(new RTCSessionDescription(message as RTCSessionDescriptionInit))
-                const answer = await pc.createAnswer()
-                await pc.setLocalDescription(answer)
-                socket.emit('message', {...answer, channel: room})
-            } else if (message.type === 'answer') {
-                await pc.setRemoteDescription(new RTCSessionDescription(message as RTCSessionDescriptionInit))
-            } else if (message.type === 'candidate') {
-                try {
-                    await pc.addIceCandidate(message.candidate as RTCIceCandidateInit)
-                } catch (err) {
-                    console.error('Error adding ICE candidate', err)
-                }
-            }
-        })
-
         return () => {
-            socket.off()
-            pcRef.current?.close()
-        }
-    }, [apiInited]);
+            try {
+                ws?.close();
+            } catch {
+                console.warn('[WS] failed to close websocket')
+            }
+            pcRef.current?.close();
+        };
+    }, [apiInited, room]);
 
     async function startCall(): Promise<void> {
-        if (callStarted) return
-        setCallStarted(true)
-        socket.connect()
-        socket.emit('create or join', room)
+        if (callStarted) return;
+        setCallStarted(true);
+        ws = new WebSocket(`ws://localhost:8080/ws`);
+        ws.onopen = () => {
+            ws!.send(JSON.stringify({event: "create_or_join", room}));
+        };
+        ws.onmessage = async (msg) => {
+            const data = JSON.parse(msg.data);
+            switch (data.event) {
+                case "created":
+                    await init(true);
+                    break;
+                case "joined":
+                    await init(false);
+                    break;
+                case "join":
+                    createOffer();
+                    break;
+                case "signal":
+                    await handleSignal(data.data);
+                    break;
+            }
+        };
+        ws.onclose = () => console.log("WS closed");
     }
 
     function stopCall(): void {
         try {
-            const dc = dataChannelRef.current
-            if (dc && dc.readyState !== 'closed') {
-                try {
-                    dc.close()
-                } catch {
-                    console.warn('[Data] failed to close data channel')
-                }
-            }
-
-            const pc = pcRef.current
-            if (pc) {
-                try {
-                    pc.getSenders().forEach(s => {
-                        try {
-                            s.track?.stop()
-                        } catch {
-                            console.warn('[RTC] failed to stop remote tracks')
-                        }
-                    })
-                } catch {
-                    console.warn('[RTC] failed to stop local tracks')
-                }
-                try {
-                    pc.close()
-                } catch {
-                    console.warn('[RTC] failed to close peer connection')
-                }
-                pcRef.current = null
-            }
-
-            const localEl = localVideo.current
-            if (localEl && localEl.srcObject) {
-                const stream = localEl.srcObject as MediaStream
-                stream.getTracks().forEach(t => {
-                    try {
-                        t.stop()
-                    } catch {
-                    }
-                })
-                localEl.srcObject = null
-            }
-
-            const remoteEl = remoteVideo.current
-            if (remoteEl && remoteEl.srcObject) {
-                const rstream = remoteEl.srcObject as MediaStream
-                rstream.getTracks().forEach(t => {
-                    try {
-                        t.stop()
-                    } catch {
-                        console.warn('[RTC] failed to stop remote track')
-                    }
-                })
-                remoteEl.srcObject = null
-            }
-
-            try {
-                socket.off()
-            } catch {
-                console.warn('[Socket] failed to detach socket listeners')
-            }
-            try {
-                if (socket.connected) socket.disconnect()
-            } catch {
-                console.warn('[Socket] failed to disconnect socket')
-            }
-        } finally {
-            setCallStarted(false)
-            navigate('/')
+            dataChannelRef.current?.close();
+            pcRef.current?.close();
+            ws?.close();
+        } catch {
+            console.warn('[WS] failed to close websocket')
         }
+        if (localVideo.current?.srcObject) {
+            const stream = localVideo.current.srcObject as MediaStream;
+            stream.getTracks().forEach(t => t.stop());
+            localVideo.current.srcObject = null;
+        }
+        if (remoteVideo.current?.srcObject) {
+            const stream = remoteVideo.current.srcObject as MediaStream;
+            stream.getTracks().forEach(t => t.stop());
+            remoteVideo.current.srcObject = null;
+        }
+        setCallStarted(false);
+        navigate('/');
     }
 
     async function init(isCaller: boolean): Promise<void> {
-        const config: RTCConfiguration = {
-            iceServers: [
-                {urls: ['stun:stun.l.google.com:19302']}
-            ],
+        const pc = new RTCPeerConnection({
+            iceServers: [{urls: ['stun:stun.l.google.com:19302']}],
             iceCandidatePoolSize: 10
-        }
+        });
+        pcRef.current = pc;
 
-        console.log('[RTC] initializing')
-        const pc = new RTCPeerConnection(config)
-        pcRef.current = pc
-
-        const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true})
-        if (localVideo.current) localVideo.current.srcObject = stream
-        stream.getTracks().forEach(track => pc.addTrack(track, stream))
-
-        pc.ontrack = (event: RTCTrackEvent) => {
-            console.log('[RTC] remote stream received')
-            if (remoteVideo.current) remoteVideo.current.srcObject = event.streams[0]
-        }
-
-        pc.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
-            console.log('[RTC] on candidate')
-            if (event.candidate) {
-                socket.emit('message', {type: 'candidate', candidate: event.candidate, channel: room})
+        const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+        localVideo.current!.srcObject = stream;
+        stream.getTracks().forEach(track => pc.addTrack(track, stream));
+        pc.ontrack = (e) => {
+            remoteVideo.current!.srcObject = e.streams[0];
+        };
+        pc.onicecandidate = (e) => {
+            if (e.candidate) {
+                ws!.send(JSON.stringify({
+                    event: "signal",
+                    room,
+                    data: {type: "candidate", candidate: e.candidate}
+                }));
             }
-        }
-
-        pc.oniceconnectionstatechange = () => console.log('ICE state:', pc.iceConnectionState)
-
+        };
         if (isCaller) {
-            console.log('[RTC] caller initialized')
-            const channel = pc.createDataChannel('chat')
-            dataChannelRef.current = channel
-            setupDataChannel(channel)
+            const ch = pc.createDataChannel('chat');
+            dataChannelRef.current = ch;
+            setupDataChannel(ch);
         } else {
-            console.log('[RTC] not caller initialized')
-            pc.ondatachannel = (event: RTCDataChannelEvent) => {
-                const channel = event.channel
-                dataChannelRef.current = channel
-                setupDataChannel(channel)
+            pc.ondatachannel = (e) => {
+                const ch = e.channel;
+                dataChannelRef.current = ch;
+                setupDataChannel(ch);
+            };
+        }
+    }
+
+    async function createOffer() {
+        const pc = pcRef.current;
+        const offer = await pc!.createOffer({iceRestart: true});
+        await pc!.setLocalDescription(offer);
+
+        ws!.send(JSON.stringify({event: "signal", room, data: offer}));
+    }
+
+    async function handleSignal(m) {
+        const pc = pcRef.current;
+        if (!pc) return;
+
+        switch (m.type) {
+            case "offer": {
+                if (!pc.getSenders().length) {
+                    const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+                    localVideo.current!.srcObject = stream;
+                    stream.getTracks().forEach(t => pc.addTrack(t, stream));
+                }
+
+                await pc.setRemoteDescription(new RTCSessionDescription(m));
+                const answer: RTCLocalSessionDescriptionInit = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+
+                ws!.send(JSON.stringify({event: "signal", room, data: answer}));
+                break;
             }
+            case "answer":
+                await pc.setRemoteDescription(new RTCSessionDescription(m));
+                break;
+            case "candidate":
+                await pc.addIceCandidate(m.candidate);
+                break;
         }
     }
 
-    function setupDataChannel(channel: RTCDataChannel): void {
-        channel.onopen = () => console.log('[Data] channel open')
-        channel.onclose = () => console.log('[Data] channel closed')
-        channel.onmessage = (e: MessageEvent<string>) => {
-            console.log('[Data] message:', e.data)
-            // setMessages(prev => [...prev, {from: 'remote', text: e.data}])
-        }
-    }
-
-    async function createOffer(): Promise<void> {
-        const pc = pcRef.current
-        if (!pc) return
-        const offer = await pc.createOffer({iceRestart: true})
-        await pc.setLocalDescription(offer)
-        socket.emit('message', {...offer, channel: room})
+    function setupDataChannel(channel: RTCDataChannel) {
+        channel.onopen = () => console.log("DC open");
+        channel.onclose = () => console.log("DC closed");
+        channel.onmessage = (e) => console.log("DC message", e.data);
     }
 
     return (

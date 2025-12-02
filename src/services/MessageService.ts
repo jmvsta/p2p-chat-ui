@@ -21,7 +21,13 @@ export default class MessageService extends Service {
         return this.api.post(`/api/msgs/file/`, formData, {headers: {'Content-Type': 'multipart/form-data'}});
     }
 
-    createCall(chatId: string) {
+    updateCall(chatId: string, status: string) {
+        const body = {
+            chat_id: chatId,
+            status: status,
+            code: ''
+        };
+        return this.api.post('/api/msgs/call/', JSON.stringify(body));
     }
 
     delete(msgId: string) {
