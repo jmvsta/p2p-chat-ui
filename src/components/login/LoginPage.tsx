@@ -16,7 +16,6 @@ const LoginPage: React.FC<Props> = (props) => {
     const [password, setPassword]: [string, (password: string) => void] = useState('');
     const [fileName, setFileName] = useState('');
     const fileInputRef: RefObject<any> = React.createRef();
-    const setApiInited = useStore((state) => state.setApiInited);
     const openInfoPopup = useStore((state) => state.openInfoPopup);
     const apiInited = useStore((state) => state.apiInited);
     const {settingsService} = useServices();

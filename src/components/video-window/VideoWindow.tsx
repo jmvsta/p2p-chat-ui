@@ -1,31 +1,25 @@
-import React, {useEffect, useRef, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import io from 'socket.io-client'
 import {useNavigate} from "react-router";
-import {useStore} from "../../Store.ts";
+import {useStore} from "../../Store";
 
 const socket = io('http://192.168.1.4:8181', {autoConnect: false})
-
-// type ChatMessage = {
-//     from: 'local' | 'remote'
-//     text: string
-// }
 
 export default function VideoWindow() {
     const localVideo = useRef<HTMLVideoElement | null>(null)
     const remoteVideo = useRef<HTMLVideoElement | null>(null)
     const pcRef = useRef<RTCPeerConnection | null>(null)
     const dataChannelRef = useRef<RTCDataChannel | null>(null)
-    const [room, setRoom] = useState<string>('room1')
-    // const [connected, setConnected] = useState<boolean>(false)
-    // const [message, setMessage] = useState<string>('')
+    const room = useStore((state) => state.callId);
     const [callStarted, setCallStarted] = useState<boolean>(false)
     const navigate = useNavigate();
     const apiInited = useStore((state) => state.apiInited);
 
     useEffect(() => {
         if (!apiInited) {
-            console.log('refered to login from home')
             navigate('/login');
+        } else if (!room) {
+            navigate('/');
         }
         socket.on('created', async (room: string) => {
             console.log('[Socket] created room', room)
@@ -83,7 +77,6 @@ export default function VideoWindow() {
 
     function stopCall(): void {
         try {
-            // Stop data channel
             const dc = dataChannelRef.current
             if (dc && dc.readyState !== 'closed') {
                 try {
@@ -93,7 +86,6 @@ export default function VideoWindow() {
                 }
             }
 
-            // Close peer connection
             const pc = pcRef.current
             if (pc) {
                 try {
@@ -115,7 +107,6 @@ export default function VideoWindow() {
                 pcRef.current = null
             }
 
-            // Stop local media tracks
             const localEl = localVideo.current
             if (localEl && localEl.srcObject) {
                 const stream = localEl.srcObject as MediaStream
@@ -128,7 +119,6 @@ export default function VideoWindow() {
                 localEl.srcObject = null
             }
 
-            // Clear remote media
             const remoteEl = remoteVideo.current
             if (remoteEl && remoteEl.srcObject) {
                 const rstream = remoteEl.srcObject as MediaStream
@@ -142,7 +132,6 @@ export default function VideoWindow() {
                 remoteEl.srcObject = null
             }
 
-            // Detach socket listeners and disconnect
             try {
                 socket.off()
             } catch {
@@ -202,8 +191,6 @@ export default function VideoWindow() {
                 setupDataChannel(channel)
             }
         }
-
-        // setConnected(true)
     }
 
     function setupDataChannel(channel: RTCDataChannel): void {
@@ -222,17 +209,6 @@ export default function VideoWindow() {
         await pc.setLocalDescription(offer)
         socket.emit('message', {...offer, channel: room})
     }
-
-    // function sendMessage(): void {
-    //     const channel = dataChannelRef.current
-    //     if (channel && channel.readyState === 'open') {
-    //         channel.send(message)
-    //         // setMessages(prev => [...prev, {from: 'local', text: message}])
-    //         setMessage('')
-    //     } else {
-    //         console.warn('[Data] no active channel')
-    //     }
-    // }
 
     return (
         <div

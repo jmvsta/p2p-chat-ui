@@ -11,6 +11,7 @@ export const useStore = create<StoreState>((set, get) => ({
     apiInited: false,
     messages: [],
     idsSet: new Set<number>(),
+    callId: null,
 
     infoPopupOpen: false,
     infoPopupTitle: '',
@@ -107,5 +108,8 @@ export const useStore = create<StoreState>((set, get) => ({
         set({listEditPopupUpdateFunction: () => {}});
         set({listEditPopupContent: null});
         set({listEditPopupButtons: []});
+    },
+    setCallId: (id: string) => {
+        set({callId: id});
     }
 }));

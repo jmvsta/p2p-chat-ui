@@ -65,6 +65,7 @@ export interface StoreState {
     apiInited: boolean,
     messages: Message[],
     idsSet: Set<number>,
+    callId: string | null,
 
     infoPopupOpen: boolean,
     infoPopupTitle: string,
@@ -116,4 +117,5 @@ export interface StoreState {
     closeChatPopup: () => void,
     openListEditPopup: (title: string | null, updateFunction: any | null, content: any, buttons: any[]) => void
     closeListEditPopup: () => void
+    setCallId: (id: string) => void
 }

@@ -94,6 +94,7 @@ const ChatWindow: React.FC<Props> = (props) => {
         switch (index) {
             case 0:
                 setAnchorEl(null);
+                // sendMessage();
                 navigate('/call');
                 break;
             case 1:
