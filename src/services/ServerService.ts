@@ -1,6 +1,6 @@
-import Service from './Service';
+import IService from './IService.ts';
 
-export default class ServerService extends Service {
+export default class ServerService extends IService {
 
     create(key: string) {
         return this.api.post('/api/servers/', key);

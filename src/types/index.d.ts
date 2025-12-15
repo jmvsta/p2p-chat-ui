@@ -6,6 +6,8 @@ export interface Message {
     payload: Payload;
     received: boolean;
     read: boolean;
+    status?: string;
+    code?: string;
 }
 
 export interface Payload {

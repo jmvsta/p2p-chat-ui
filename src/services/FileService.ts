@@ -1,6 +1,6 @@
-import Service from './Service';
+import IService from './IService.ts';
 
-export default class FileService extends Service {
+export default class FileService extends IService {
 
     readAll() {
         return this.api.get('/api/downloads/all');

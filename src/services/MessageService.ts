@@ -1,6 +1,6 @@
-import Service from './Service';
+import IService from './IService.ts';
 
-export default class MessageService extends Service {
+export default class MessageService extends IService {
 
     read(chatId: string, offset: number, limit: number) {
         return this.api.get(`/api/msgs/chat/?chat_id=${chatId}&offset=${offset}&limit=${limit}`);

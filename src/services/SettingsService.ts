@@ -1,7 +1,7 @@
 import {sha3_512} from 'js-sha3';
-import Service from './Service';
+import IService from './IService.ts';
 
-export default class SettingsService extends Service {
+export default class SettingsService extends IService {
 
     read() {
         return this.api.get(`/api/settings/status/`);

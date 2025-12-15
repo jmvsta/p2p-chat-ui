@@ -33,7 +33,7 @@ export function VideoWindow() {
     async function startCall(): Promise<void> {
         if (callStarted) return;
         setCallStarted(true);
-        ws = new WebSocket(`ws://localhost:8080/ws`);
+        ws = new WebSocket(`ws://localhost:8082/ws`);
         ws.onopen = () => {
             ws!.send(JSON.stringify({event: "create_or_join", room}));
         };
@@ -122,7 +122,7 @@ export function VideoWindow() {
         ws!.send(JSON.stringify({event: "signal", room, data: offer}));
     }
 
-    async function handleSignal(m) {
+    async function handleSignal(m: any) {
         const pc = pcRef.current;
         if (!pc) return;
 

@@ -1,6 +1,6 @@
-import Service from './Service';
+import IService from './IService.ts';
 
-export default class UserService extends Service {
+export default class UserService extends IService {
 
     read() {
         return this.api.get('/api/users/list/')

@@ -1,10 +1,10 @@
-import Service from './Service';
+import IService from './IService.ts';
 import {Chat} from '../types';
 
 export const chatsComparator = (first: Chat, second: Chat) =>
     first.last_active.localeCompare(second.last_active);
 
-export default class ChatService extends Service {
+export default class ChatService extends IService {
 
     create(name: string, userIds: number[]) {
         const request = {
