@@ -16,7 +16,8 @@ export const useFetchData = () => {
     const setServers = useStore((state) => state.setServers);
     const setContacts = useStore((state) => state.setContacts);
     const setChats = useStore((state) => state.setChats);
-    const {settingsService, userService, messageService, chatService, serverService} = useServices();
+    const setCalls = useStore((state) => state.setCalls);
+    const {settingsService, userService, messageService, chatService, serverService, callService} = useServices();
 
     return useCallback(async (): Promise<void> => {
         const apiRequests: any[] = [];
@@ -54,6 +55,11 @@ export const useFetchData = () => {
                 request: () => serverService.read(),
                 errorMessage: 'ServersPage request error',
             });
+            apiRequests.push({
+                key: 'calls',
+                request: () => callService.read(0, 1000),
+                errorMessage: 'Calls request error',
+            });
         }
 
         const results = await Promise.allSettled(apiRequests.map((api) => api.request()));
@@ -84,6 +90,10 @@ export const useFetchData = () => {
                             appendMessagesHead(newMessages);
                             addIdsToSet(newMessages.map((msg: Message) => msg.id));
                         }
+                        break;
+                    }
+                    case 'calls': {
+                        setCalls(result.value.data.calls);
                         break;
                     }
                     default:

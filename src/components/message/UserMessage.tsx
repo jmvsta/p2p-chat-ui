@@ -4,7 +4,6 @@ import {Avatar, Box, Button, Typography} from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download'
 import {useServices} from '../../Providers';
 import {useStore} from "../../Store";
-import {useNavigate} from "react-router";
 
 interface Props {
     message: Message;
@@ -15,14 +14,15 @@ const UserMessage: React.FC<Props> = (props) => {
 
     const currentUser = useStore((state) => state.currentUser);
     const {fileService} = useServices();
-    // const {messageService} = useServices();
-    const navigate = useNavigate();
-    const setRoom = useStore((state) => state.setCallId);
-    console.log(`DEBUG: ${props.user?.ext_id} ${JSON.stringify(props.message)}`);
-    if (props.user !== currentUser && props.message.payload.type === 'call' && props.message.status === 'INIT') {
-        setRoom(props.message.code || '');
-        navigate('/call');
-    }
+    // const openInfoPopup = useStore((state) => state.openInfoPopup);
+    // const navigate = useNavigate();
+    // const setRoom = useStore((state) => state.setCallId);
+    // // console.log(`DEBUG: ${props.user?.ext_id} ${JSON.stringify(props.message)}`);
+    // if (props.message.sender !== null && props.message.payload.type === 'call' && props.message.payload.status === 'INIT') {
+    //     setRoom(props.message.payload.data || '');
+    //     // openInfoPopup(${props.user?.name} is calling, '', 'Answer', () => navigate('/call'))
+    //     openInfoPopup(`Test is calling`, '', 'Answer', () => navigate('/call'))
+    // }
 
     const handleDownload = () => {
         fileService

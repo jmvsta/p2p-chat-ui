@@ -2,7 +2,7 @@ import {Typography} from '@mui/material';
 import React from 'react';
 import ServersList from './ServersList';
 import {useNavigate} from 'react-router';
-import ServerButton from './ServerButton';
+import ActionButton from '../action-button/ActionButton.tsx';
 
 interface Props {
     style?: React.CSSProperties;
@@ -22,7 +22,7 @@ const ServersPage: React.FC<Props> = (props) => {
                 </Typography>
             </div>
             <ServersList style={{flex: '0 0 50%'}} width={'50%'} buttons={
-                <ServerButton id='next-button' name={'NEXT'} onClick={() => navigate('/')}/>}/>
+                <ActionButton id='next-button' name={'NEXT'} onClick={() => navigate('/')}/>}/>
         </div>
     );
 }

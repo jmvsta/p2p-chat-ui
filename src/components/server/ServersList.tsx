@@ -4,7 +4,7 @@ import React, {ReactNode, useState} from 'react';
 import ServerService from '../../services/ServerService.ts';
 import {useNavigate} from 'react-router';
 import {useStore} from '../../Store';
-import ServerButton from './ServerButton';
+import ActionButton from '../action-button/ActionButton.tsx';
 
 interface Props {
     style?: React.CSSProperties;
@@ -112,7 +112,7 @@ const ServersList: React.FC<Props> = (props) => {
                 onChange={e => setServerKey(e.target.value)}
             />
             <div style={{display: 'flex', alignItems: 'flex-end', gap: '5px', width: props?.width ?? '100%'}}>
-                <ServerButton id='add-server-button' name={'ADD'} onClick={handleAddServer}/>
+                <ActionButton id='add-server-button' name={'ADD'} onClick={handleAddServer}/>
                 {props?.buttons}
             </div>
         </div>)

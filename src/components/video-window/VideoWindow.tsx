@@ -10,7 +10,8 @@ export function VideoWindow() {
     const pcRef = useRef<RTCPeerConnection | null>(null)
     const dataChannelRef = useRef<RTCDataChannel | null>(null)
     const room = useStore((state) => state.callId);
-    const [callStarted, setCallStarted] = useState<boolean>(false)
+    const callStarted = useStore((state) => state.callStarted);
+    const setCallStarted = useStore((state) => state.setCallStarted);
     const navigate = useNavigate();
     const apiInited = useStore((state) => state.apiInited);
 
@@ -20,12 +21,9 @@ export function VideoWindow() {
         } else if (!room) {
             navigate('/');
         }
+        startCall()
         return () => {
-            try {
-                ws?.close();
-            } catch {
-                console.warn('[WS] failed to close websocket')
-            }
+            ws?.close();
             pcRef.current?.close();
         };
     }, [apiInited, room]);
@@ -35,12 +33,13 @@ export function VideoWindow() {
         setCallStarted(true);
         ws = new WebSocket(`ws://localhost:8082/ws`);
         ws.onopen = () => {
-            ws!.send(JSON.stringify({event: "create_or_join", room}));
+            ws!.send(JSON.stringify({type: "create_or_join", room: room}));
         };
         ws.onmessage = async (msg) => {
             const data = JSON.parse(msg.data);
-            switch (data.event) {
+            switch (data.type) {
                 case "created":
+                    console.log("Received created", data);
                     await init(true);
                     break;
                 case "joined":
@@ -58,13 +57,9 @@ export function VideoWindow() {
     }
 
     function stopCall(): void {
-        try {
-            dataChannelRef.current?.close();
-            pcRef.current?.close();
-            ws?.close();
-        } catch {
-            console.warn('[WS] failed to close websocket')
-        }
+        dataChannelRef.current?.close();
+        pcRef.current?.close();
+        ws?.close();
         if (localVideo.current?.srcObject) {
             const stream = localVideo.current.srcObject as MediaStream;
             stream.getTracks().forEach(t => t.stop());
@@ -119,7 +114,7 @@ export function VideoWindow() {
         const offer = await pc!.createOffer({iceRestart: true});
         await pc!.setLocalDescription(offer);
 
-        ws!.send(JSON.stringify({event: "signal", room, data: offer}));
+        ws!.send(JSON.stringify({type: "signal", room, data: offer}));
     }
 
     async function handleSignal(m: any) {
@@ -138,7 +133,7 @@ export function VideoWindow() {
                 const answer: RTCLocalSessionDescriptionInit = await pc.createAnswer();
                 await pc.setLocalDescription(answer);
 
-                ws!.send(JSON.stringify({event: "signal", room, data: answer}));
+                ws!.send(JSON.stringify({type: "signal", room, data: answer}));
                 break;
             }
             case "answer":
@@ -198,21 +193,21 @@ export function VideoWindow() {
                 }}
             />
 
-            {!callStarted && (
-                <button
-                    onClick={startCall}
-                    style={{
-                        position: 'absolute',
-                        top: '16px',
-                        left: '16px',
-                        padding: '8px 16px',
-                        fontSize: '16px',
-                        zIndex: 30,
-                    }}
-                >
-                    Start
-                </button>
-            )}
+            {/*{!callStarted && (*/}
+            {/*    <button*/}
+            {/*        onClick={startCall}*/}
+            {/*        style={{*/}
+            {/*            position: 'absolute',*/}
+            {/*            top: '16px',*/}
+            {/*            left: '16px',*/}
+            {/*            padding: '8px 16px',*/}
+            {/*            fontSize: '16px',*/}
+            {/*            zIndex: 30,*/}
+            {/*        }}*/}
+            {/*    >*/}
+            {/*        Start*/}
+            {/*    </button>*/}
+            {/*)}*/}
             {callStarted && (
                 <button
                     onClick={stopCall}

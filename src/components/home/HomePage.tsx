@@ -7,7 +7,8 @@ import ChatWindow from '../chat-window/ChatWindow';
 import {useServices} from '../../Providers';
 import {useNavigate} from 'react-router';
 import ServersList from '../server/ServersList';
-import ServerButton from '../server/ServerButton';
+import ActionButton from '../action-button/ActionButton.tsx';
+import Calls from '../video-window/Calls.tsx';
 
 interface Props {
     style?: React.CSSProperties;
@@ -62,7 +63,7 @@ const HomePage: React.FC<Props> = (props) => {
                 break;
             case 3:
                 openListEditPopup(null, null, <ServersList style={serversPopupStyle} buttons={
-                    <ServerButton id='close-popup-button' name={'CLOSE'} onClick={() => closeListEditPopup()}
+                    <ActionButton id='close-popup-button' name={'CLOSE'} onClick={() => closeListEditPopup()}
                                   style={{width: '100% !important', alignSelf: 'flex-center'}}/>
                 }/>, []);
                 setAnchorEl(null);
@@ -108,6 +109,7 @@ const HomePage: React.FC<Props> = (props) => {
                     <ChatWindow style={{width: '80%'}}/>
                 </div>
             </div>
+            <Calls/>
         </div>
     );
 }

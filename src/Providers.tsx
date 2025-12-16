@@ -11,11 +11,13 @@ import ChatEditPopup from './components/popup/ChatEditPopup';
 import ContactsPopup from './components/popup/ContactsPopup';
 import ListEditPopup from './components/popup/ListEditPopup';
 import {BrowserRouter} from 'react-router';
+import CallService from "./services/CallService.ts";
 
 const Context = createContext({
     chatService: new ChatService(),
     fileService: new FileService(),
     messageService: new MessageService(),
+    callService: new CallService(),
     serverService: new ServerService(),
     settingsService: new SettingsService(),
     userService: new UserService()
@@ -31,6 +33,7 @@ export const Providers: React.FC<{ children: React.ReactNode }> = ({children}) =
                     chatService: new ChatService(),
                     fileService: new FileService(),
                     messageService: new MessageService(),
+                    callService: new CallService(),
                     serverService: new ServerService(),
                     settingsService: new SettingsService(),
                     userService: new UserService()

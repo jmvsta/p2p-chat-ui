@@ -34,7 +34,7 @@ const ChatWindow: React.FC<Props> = (props) => {
     // const openInfoPopup = useStore((state) => state.openInfoPopup);
     const openChatPopup = useStore((state) => state.openChatPopup);
     const limit = 10;
-    const {messageService, chatService} = useServices();
+    const {messageService, callService, chatService} = useServices();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -96,14 +96,14 @@ const ChatWindow: React.FC<Props> = (props) => {
         switch (index) {
             case 0:
                 setAnchorEl(null);
-                messageService.updateCall(selectedChat.id, "INIT").then(r => {
+                callService.create(selectedChat.id).then(r => {
+                    console.log(`Room num ${r.data}`)
                     setRoom(r.data);
-                    console.log(`Room id is: ${r.data}`);
+                    navigate('/call');
                 });
                 // openInfoPopup(`Calling ${selectedChat.name}`, '', 'Cancel',
                 //     () => messageService.updateCall(selectedChat.id, "CANCEL"))
                 // setRoom("room")
-                navigate('/call');
                 break;
             case 1:
                 openChatPopup('UPDATE', selectedChat, 'Update chat');

@@ -6,8 +6,6 @@ export interface Message {
     payload: Payload;
     received: boolean;
     read: boolean;
-    status?: string;
-    code?: string;
 }
 
 export interface Payload {
@@ -40,11 +38,11 @@ export interface Server {
     last_check: string;
 }
 
-export interface User {
+export interface Call {
     id: string;
-    name: string;
-    pic?: string;
-    key_code?: string;
+    chatId: string;
+    status: string;
+    code: string;
 }
 
 export interface ExtUser {
@@ -62,12 +60,14 @@ export interface StoreState {
     currentUser: ExtUser | null,
     servers: Server[],
     chats: Chat[],
+    calls: Call[],
     contacts: ExtUser[],
     selectedChat: Chat | null,
     apiInited: boolean,
     messages: Message[],
     idsSet: Set<number>,
     callId: string | null,
+    callStarted: boolean,
 
     infoPopupOpen: boolean,
     infoPopupTitle: string,
@@ -101,6 +101,8 @@ export interface StoreState {
     setContacts: (users: ExtUser[]) => void,
     setSelectedChat: (chat: Chat | null) => void,
     setMessages: (messages: Message[]) => void,
+    setCalls: (calls: Call[]) => void,
+    setCallStarted: (started: boolean) => void,
     appendMessagesHead: (messages: Message[]) => void,
     appendMessagesTail: (messages: Message[]) => void,
     setIdsSet: (idsSet: Set<number>) => void,

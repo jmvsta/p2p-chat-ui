@@ -8,7 +8,7 @@ interface Props {
     onClick?: () => void;
 }
 
-const ServerButton: React.FC<Props> = (props) => {
+const ActionButton: React.FC<Props> = (props) => {
 
     const buttonStyle = {
         width: '100%',
@@ -33,4 +33,4 @@ const ServerButton: React.FC<Props> = (props) => {
         </Button>)
 };
 
-export default ServerButton;
+export default ActionButton;

@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import {Chat, ExtUser, Message, Server, StoreState} from './types';
+import {Call, Chat, ExtUser, Message, Server, StoreState} from './types';
 
 export const useStore = create<StoreState>((set, get) => ({
 
@@ -7,11 +7,13 @@ export const useStore = create<StoreState>((set, get) => ({
     servers: [],
     contacts: [],
     chats: [],
+    calls: [],
     selectedChat: null,
     apiInited: false,
     messages: [],
     idsSet: new Set<number>(),
     callId: null,
+    callStarted: false,
 
     infoPopupOpen: false,
     infoPopupTitle: '',
@@ -36,6 +38,8 @@ export const useStore = create<StoreState>((set, get) => ({
     setCurrentUser: (user: ExtUser | null): void => set({currentUser: user}),
     setServers: (servers: Server[]): void => set({servers: servers}),
     setMessages: (messages: Message[]): void => set({messages: messages}),
+    setCalls: (calls: Call[]): void => set({calls: calls}),
+    setCallStarted: (started: boolean): void => set({callStarted: started}),
     appendMessagesHead: (messages: Message[]): void => set({messages: [...messages, ...get().messages]}),
     appendMessagesTail: (messages: Message[]): void => set({messages: [...get().messages, ...messages]}),
     addIdsToSet: (ids: number[]) =>
