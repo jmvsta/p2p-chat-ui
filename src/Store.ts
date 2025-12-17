@@ -14,7 +14,6 @@ export const useStore = create<StoreState>((set, get) => ({
     idsSet: new Set<number>(),
     callId: null,
     callStarted: false,
-
     infoPopupOpen: false,
     infoPopupTitle: '',
     infoPopupMessage: '',
@@ -96,7 +95,8 @@ export const useStore = create<StoreState>((set, get) => ({
     },
     listEditPopupTitle: '',
     listEditPopupOpen: false,
-    listEditPopupUpdateFunction: () => {},
+    listEditPopupUpdateFunction: () => {
+    },
     listEditPopupContent: null,
     listEditPopupButtons: [],
     openListEditPopup: (title: string | null, updateFunction: any | null, content: any, buttons: any[]) => {
@@ -109,7 +109,10 @@ export const useStore = create<StoreState>((set, get) => ({
     closeListEditPopup: () => {
         set({listEditPopupOpen: false});
         set({listEditPopupTitle: ''});
-        set({listEditPopupUpdateFunction: () => {}});
+        set({
+            listEditPopupUpdateFunction: () => {
+            }
+        });
         set({listEditPopupContent: null});
         set({listEditPopupButtons: []});
     },

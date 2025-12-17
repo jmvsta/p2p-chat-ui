@@ -1,4 +1,5 @@
 import IService from './IService.ts';
+import {Call} from "../types";
 
 export default class CallService extends IService {
 
@@ -7,12 +8,13 @@ export default class CallService extends IService {
     }
 
     create(chatId: string) {
-        const body = {
-            chat_id: chatId,
+        const call: Call = {
+            id: 0,
+            chatId: chatId,
             status: "PENDING",
             code: ''
         };
-        return this.api.post('/api/call/', JSON.stringify(body));
+        return this.api.post('/api/call/', JSON.stringify(call));
     }
 
     updateCall(callId: string, chatId: string, status: string) {

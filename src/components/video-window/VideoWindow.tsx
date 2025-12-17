@@ -1,8 +1,7 @@
 import {useEffect, useRef, useState} from 'react'
-import {useNavigate} from "react-router";
+import {useLocation, useNavigate} from "react-router";
 import {useStore} from "../../Store";
-
-let ws: WebSocket | null = null
+import {useWebSocket} from "../../hooks/useWebSocket.ts";
 
 export function VideoWindow() {
     const localVideo = useRef<HTMLVideoElement | null>(null)
@@ -14,32 +13,29 @@ export function VideoWindow() {
     const setCallStarted = useStore((state) => state.setCallStarted);
     const navigate = useNavigate();
     const apiInited = useStore((state) => state.apiInited);
+    const {connect, disconnect, send, wsRef} = useWebSocket();
+    const location = useLocation();
 
     useEffect(() => {
+        console.log("Location changed", location.pathname, apiInited, callStarted);
         if (!apiInited) {
             navigate('/login');
-        } else if (!room) {
-            navigate('/');
+        }
+        if (callStarted) {
+            return
         }
         startCall()
-        return () => {
-            ws?.close();
-            pcRef.current?.close();
-        };
-    }, [apiInited, room]);
+    }, [apiInited, location, callStarted]);
+
 
     async function startCall(): Promise<void> {
         if (callStarted) return;
         setCallStarted(true);
-        ws = new WebSocket(`ws://localhost:8082/ws`);
-        ws.onopen = () => {
-            ws!.send(JSON.stringify({type: "create_or_join", room: room}));
-        };
-        ws.onmessage = async (msg) => {
-            const data = JSON.parse(msg.data);
+        // ws = new WebSocket(`ws://localhost:8082/ws`);
+        const ws = connect(`ws://localhost:8082/ws`, async (data) => {
+            console.log("WS message", data);
             switch (data.type) {
                 case "created":
-                    console.log("Received created", data);
                     await init(true);
                     break;
                 case "joined":
@@ -49,17 +45,23 @@ export function VideoWindow() {
                     createOffer();
                     break;
                 case "signal":
+                    console.log("Received signal", data);
                     await handleSignal(data.data);
                     break;
             }
+        });
+
+        ws.onopen = () => {
+            send({type: "create_or_join", room: room});
         };
         ws.onclose = () => console.log("WS closed");
     }
 
     function stopCall(): void {
+        console.log("Stopping call");
         dataChannelRef.current?.close();
         pcRef.current?.close();
-        ws?.close();
+        // ws?.close();
         if (localVideo.current?.srcObject) {
             const stream = localVideo.current.srcObject as MediaStream;
             stream.getTracks().forEach(t => t.stop());
@@ -80,7 +82,7 @@ export function VideoWindow() {
             iceCandidatePoolSize: 10
         });
         pcRef.current = pc;
-
+        console.log("Created RTCPeerConnnection");
         const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
         localVideo.current!.srcObject = stream;
         stream.getTracks().forEach(track => pc.addTrack(track, stream));
@@ -89,10 +91,10 @@ export function VideoWindow() {
         };
         pc.onicecandidate = (e) => {
             if (e.candidate) {
-                ws!.send(JSON.stringify({
-                    event: "signal",
+                wsRef.current?.send(JSON.stringify({
+                    type: "signal",
                     room,
-                    data: {type: "candidate", candidate: e.candidate}
+                    data: {type: "candidate", candidate: e.candidate, channel: room}
                 }));
             }
         };
@@ -114,7 +116,7 @@ export function VideoWindow() {
         const offer = await pc!.createOffer({iceRestart: true});
         await pc!.setLocalDescription(offer);
 
-        ws!.send(JSON.stringify({type: "signal", room, data: offer}));
+        wsRef.current?.send(JSON.stringify({type: "signal", room, data: offer}));
     }
 
     async function handleSignal(m: any) {
@@ -133,14 +135,22 @@ export function VideoWindow() {
                 const answer: RTCLocalSessionDescriptionInit = await pc.createAnswer();
                 await pc.setLocalDescription(answer);
 
-                ws!.send(JSON.stringify({type: "signal", room, data: answer}));
+                wsRef.current?.send(JSON.stringify({
+                    type: "signal",
+                    room: room,
+                    data: {...answer, type: 'answer', channel: room}
+                }));
                 break;
             }
             case "answer":
+                console.log("Received answer", m);
                 await pc.setRemoteDescription(new RTCSessionDescription(m));
+                console.log("Set remote description success");
                 break;
             case "candidate":
+                console.log("Received candidate", m);
                 await pc.addIceCandidate(m.candidate);
+                console.log("Added ICE candidate success");
                 break;
         }
     }

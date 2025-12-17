@@ -39,7 +39,7 @@ export interface Server {
 }
 
 export interface Call {
-    id: string;
+    id: number;
     chatId: string;
     status: string;
     code: string;
@@ -68,7 +68,6 @@ export interface StoreState {
     idsSet: Set<number>,
     callId: string | null,
     callStarted: boolean,
-
     infoPopupOpen: boolean,
     infoPopupTitle: string,
     infoPopupMessage: string,
