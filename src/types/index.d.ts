@@ -38,11 +38,15 @@ export interface Server {
     last_check: string;
 }
 
-export interface Call {
-    id: number;
-    chatId: string;
-    status: string;
-    code: string;
+export interface Call extends Omit<Message, 'payload'> {
+    payload: CallPayload
+}
+
+export interface CallPayload extends Omit<Payload, 'data'> {
+    data: {
+        status: string
+        code: string
+    }
 }
 
 export interface ExtUser {

@@ -21,15 +21,6 @@ export default class MessageService extends IService {
         return this.api.post(`/api/msgs/file/`, formData, {headers: {'Content-Type': 'multipart/form-data'}});
     }
 
-    updateCall(chatId: string, status: string) {
-        const body = {
-            chat_id: chatId,
-            status: status,
-            code: ''
-        };
-        return this.api.post('/api/msgs/call/', JSON.stringify(body));
-    }
-
     delete(msgId: string) {
         return this.api.delete(`/api/msgs/chat/?msg_id=${msgId}`);
     }

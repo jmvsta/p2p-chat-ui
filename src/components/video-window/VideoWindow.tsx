@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react'
+import {useEffect, useRef} from 'react'
 import {useLocation, useNavigate} from "react-router";
 import {useStore} from "../../Store";
 import {useWebSocket} from "../../hooks/useWebSocket.ts";
@@ -9,6 +9,7 @@ export function VideoWindow() {
     const pcRef = useRef<RTCPeerConnection | null>(null)
     const dataChannelRef = useRef<RTCDataChannel | null>(null)
     const room = useStore((state) => state.callId);
+    const setRoom = useStore((state) => state.setCallId);
     const callStarted = useStore((state) => state.callStarted);
     const setCallStarted = useStore((state) => state.setCallStarted);
     const navigate = useNavigate();
@@ -17,23 +18,23 @@ export function VideoWindow() {
     const location = useLocation();
 
     useEffect(() => {
-        console.log("Location changed", location.pathname, apiInited, callStarted);
         if (!apiInited) {
             navigate('/login');
         }
         if (callStarted) {
+            console.log("Call already started");
             return
         }
-        startCall()
-    }, [apiInited, location, callStarted]);
+        if (room !== '') {
+            startCall()
+        }
+    }, [apiInited, location, callStarted, room]);
 
 
     async function startCall(): Promise<void> {
         if (callStarted) return;
         setCallStarted(true);
-        // ws = new WebSocket(`ws://localhost:8082/ws`);
-        const ws = connect(`ws://localhost:8082/ws`, async (data) => {
-            console.log("WS message", data);
+        const ws = connect(`ws://192.168.1.4:18086/ws`, async (data) => {
             switch (data.type) {
                 case "created":
                     await init(true);
@@ -58,10 +59,12 @@ export function VideoWindow() {
     }
 
     function stopCall(): void {
-        console.log("Stopping call");
+        disconnect()
+        setCallStarted(false);
+        setRoom('')
         dataChannelRef.current?.close();
         pcRef.current?.close();
-        // ws?.close();
+
         if (localVideo.current?.srcObject) {
             const stream = localVideo.current.srcObject as MediaStream;
             stream.getTracks().forEach(t => t.stop());
@@ -82,7 +85,6 @@ export function VideoWindow() {
             iceCandidatePoolSize: 10
         });
         pcRef.current = pc;
-        console.log("Created RTCPeerConnnection");
         const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
         localVideo.current!.srcObject = stream;
         stream.getTracks().forEach(track => pc.addTrack(track, stream));
@@ -143,14 +145,10 @@ export function VideoWindow() {
                 break;
             }
             case "answer":
-                console.log("Received answer", m);
                 await pc.setRemoteDescription(new RTCSessionDescription(m));
-                console.log("Set remote description success");
                 break;
             case "candidate":
-                console.log("Received candidate", m);
                 await pc.addIceCandidate(m.candidate);
-                console.log("Added ICE candidate success");
                 break;
         }
     }
@@ -203,21 +201,6 @@ export function VideoWindow() {
                 }}
             />
 
-            {/*{!callStarted && (*/}
-            {/*    <button*/}
-            {/*        onClick={startCall}*/}
-            {/*        style={{*/}
-            {/*            position: 'absolute',*/}
-            {/*            top: '16px',*/}
-            {/*            left: '16px',*/}
-            {/*            padding: '8px 16px',*/}
-            {/*            fontSize: '16px',*/}
-            {/*            zIndex: 30,*/}
-            {/*        }}*/}
-            {/*    >*/}
-            {/*        Start*/}
-            {/*    </button>*/}
-            {/*)}*/}
             {callStarted && (
                 <button
                     onClick={stopCall}

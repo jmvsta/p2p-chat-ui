@@ -93,7 +93,7 @@ export const useFetchData = () => {
                         break;
                     }
                     case 'calls': {
-                        setCalls(result.value.data.calls);
+                        setCalls(result.value.data.msgs || []);
                         break;
                     }
                     default:

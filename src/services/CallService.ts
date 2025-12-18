@@ -1,23 +1,22 @@
 import IService from './IService.ts';
-import {Call} from "../types";
 
 export default class CallService extends IService {
 
     read(offset: number, limit: number) {
-        return this.api.get(`/api/call/?offset=${offset}&limit=${limit}`);
+        return this.api.get(`/api/msgs/call/list/?offset=${offset}&limit=${limit}`);
     }
 
     create(chatId: string) {
-        const call: Call = {
+        const call = {
             id: 0,
             chatId: chatId,
             status: "PENDING",
             code: ''
         };
-        return this.api.post('/api/call/', JSON.stringify(call));
+        return this.api.post('/api/msgs/call/', JSON.stringify(call));
     }
 
-    updateCall(callId: string, chatId: string, status: string) {
-        return this.api.patch(`/api/call/?call_id=${callId}&chat_id=${chatId}`, status);
+    updateCall(callId: number, status: string) {
+        return this.api.patch(`/api/msgs/call/?call_id=${callId}`, status);
     }
 }

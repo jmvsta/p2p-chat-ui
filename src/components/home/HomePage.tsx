@@ -7,8 +7,7 @@ import ChatWindow from '../chat-window/ChatWindow';
 import {useServices} from '../../Providers';
 import {useNavigate} from 'react-router';
 import ServersList from '../server/ServersList';
-import ActionButton from '../action-button/ActionButton.tsx';
-import Calls from '../video-window/Calls.tsx';
+import ActionButton from '../action-button/ActionButton';
 
 interface Props {
     style?: React.CSSProperties;
@@ -35,6 +34,10 @@ const HomePage: React.FC<Props> = (props) => {
     const {userService} = useServices();
     const [anchorEl, setAnchorEl] = useState(null);
     const navigate = useNavigate();
+    const calls = useStore((state) => state.calls);
+    const callStarted = useStore((state) => state.callStarted);
+    const setRoom = useStore((state) => state.setCallId);
+    const {callService} = useServices()
 
     useEffect(() => {
         if (!apiInited) {
@@ -42,6 +45,32 @@ const HomePage: React.FC<Props> = (props) => {
             navigate('/login');
         }
     }, [apiInited]);
+
+    useEffect(() => {
+        if (callStarted) return;
+        const pendingCalls = calls.filter(call => call.payload.data.status === 'PENDING' && call.sender !== null)
+        if (pendingCalls.length >= 1) {
+            const call = pendingCalls[0]
+            if (!callStarted) {
+                openListEditPopup(`Test is calling`, null, null, [
+                    <ActionButton key='close-popup-button1' id='close-popup-button' name={'ANSWER'} onClick={() => {
+                        callService.updateCall(call.id,'ACCEPTED').then(() => {
+                            setRoom(call.payload.data.code)
+                            navigate('/call')
+                        })
+                        closeListEditPopup()
+                    }}
+                                  style={{width: '100% !important', alignSelf: 'flex-center'}}/>,
+                    <ActionButton key='close-popup-button1' id='close-popup-button' name={'DENY'} onClick={() => {
+                        callService.updateCall(call.id,'DENIED')
+                        closeListEditPopup()
+                    }}
+                                  style={{width: '100% !important', alignSelf: 'flex-center'}}/>
+                ]);
+            }
+        }
+
+    }, [calls, callStarted]);
 
     const handleMenuClick = ({event, index}: { event: any, index: number }) => {
         setAnchorEl(event.currentTarget);
@@ -109,7 +138,6 @@ const HomePage: React.FC<Props> = (props) => {
                     <ChatWindow style={{width: '80%'}}/>
                 </div>
             </div>
-            <Calls/>
         </div>
     );
 }
